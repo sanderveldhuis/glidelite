@@ -1,0 +1,59 @@
+{
+  "name": "glidelite",
+  "author": "Sander Veldhuis",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Builds secure web applications including API, database, and worker support",
+  "keywords": [
+    "GlideLite",
+    "compiler",
+    "web",
+    "webapp",
+    "website",
+    "webpage",
+    "JavaScript",
+    "TypeScript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sanderveldhuis/glidelite.git"
+  },
+  "bin": {
+    "glc": "./bin/glc"
+  },
+  "engines": {
+    "node": ">=14.17"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "test": "echo 'unittests not yet implemented'",
+    "build": "npm run build:version && npm run build:compiler",
+    "build:version": "node -p \"'// Generated code, do not modify\\nexport const version = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
+    "build:compiler": "tsc -b --emitDeclarationOnly false src",
+    "clean": "node -e \"require('fs').rmSync('built', { recursive: true, force: true })\"",
+    "lint": "eslint --cache --cache-location ./built/.eslintcache --report-unused-disable-directives --max-warnings 0 .",
+    "format": "dprint fmt",
+    "dist": "npm run clean && npm run format && npm run lint && npm run build && node -e \"require('fs').rmSync('lib', { recursive: true, force: true })\" && node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/**/*.js\" lib"
+  },
+  "dependencies": {
+    "@tsconfig/node-lts": "^22.0.1",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@dprint/formatter": "^0.4.1",
+    "@dprint/typescript": "0.93.4",
+    "@eslint/js": "^9.33.0",
+    "@types/node": "latest",
+    "cpx2": "^8.0.0",
+    "dprint": "^0.49.1",
+    "eslint": "^9.33.0",
+    "globals": "^16.3.0",
+    "typescript-eslint": "^8.39.1"
+  }
+}
