@@ -22,4 +22,6 @@
  * SOFTWARE.
  */
 
-console.log('NOT IMPLEMENTED');
+import { version } from './version.js';
+
+console.log('Version', version);

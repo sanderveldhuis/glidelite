@@ -59,20 +59,20 @@ jobs:
           npm ci
           npm run lint
 
-#  knip:
-#    runs-on: ubuntu-latest
+  knip:
+    runs-on: ubuntu-latest
 
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v5
-#      - name: Setup Node
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version: 'lts/*'
-#      - name: Setup and find unused exports
-#        run: |
-#          npm ci
-#          npm run knip
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Setup and find unused dependencies
+        run: |
+          npm ci
+          npm run knip
 
   typecheck:
     runs-on: ubuntu-latest
@@ -124,7 +124,7 @@ jobs:
     needs:
       - format
       - lint
-#      - knip
+      - knip
       - typecheck
       - smoke
 
