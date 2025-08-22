@@ -59,7 +59,8 @@ jobs:
           npm ci
           npm run dist
       - name: Push changes
+        # Force adding the lib folder because it is required for releases
         run: |
-          git add .
+          git add -f lib
           git commit -m "Nightly build" || echo "No changes to commit"
           git push

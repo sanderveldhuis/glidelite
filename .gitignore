@@ -10,6 +10,7 @@ lerna-debug.log*
 # Output directories and files
 node_modules
 built
+lib
 
 # Editor directories and files
 .vscode/*
