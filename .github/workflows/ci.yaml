@@ -1,0 +1,134 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  merge_group:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# Ensure scripts are run with pipefail. See:
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#exit-codes-and-error-action-preference
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Setup before caching
+        run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/dprint
+          key: ${{ runner.os }}-dprint-${{ hashFiles('package-lock.json', '.dprint.jsonc') }}
+          restore-keys: |
+            ${{ runner.os }}-dprint-
+      - name: Check formatting
+        run: npx dprint check
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Setup and run linter
+        run: |
+          npm ci
+          npm run lint
+
+#  knip:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v5
+#      - name: Setup Node
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version: 'lts/*'
+#      - name: Setup and find unused exports
+#        run: |
+#          npm ci
+#          npm run knip
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Setup and build source
+        run: |
+          npm ci
+          npm run clean
+          npm run build
+
+  smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Setup and build release
+        run: |
+          npm ci
+          npm run clean
+          npm run build
+          npm run dist:clean
+          npm run dist:copy
+          echo "dist=$PWD" >> "$GITHUB_OUTPUT"
+        id: dist
+      - name: Smoke test
+        run: |
+          cd "$(mktemp -d)"
+          npm init --yes
+          npm install ${{ steps.dist.outputs.dist }}
+
+          echo "Testing GlideLite Compiler..."
+          npx glc --version
+
+  required:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - format
+      - lint
+#      - knip
+      - typecheck
+      - smoke
+
+    steps:
+      - name: Check required jobs
+        env:
+          NEEDS: ${{ toJson(needs) }}
+        run: |
+          ! echo $NEEDS | jq -e 'to_entries[] | { job: .key, result: .value.result } | select((.result == "success" or .result == "skipped") | not)'

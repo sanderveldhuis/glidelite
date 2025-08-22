@@ -1,6 +1,7 @@
 
 # GlideLite
 
+[![Continuous Integration](https://github.com/sanderveldhuis/glidelite/actions/workflows/ci.yaml/badge.svg)](https://github.com/sanderveldhuis/glidelite//actions/workflows/ci.yaml)
 [![Nightly Build](https://github.com/sanderveldhuis/glidelite/actions/workflows/nightly.yaml/badge.svg)](https://github.com/sanderveldhuis/glidelite//actions/workflows/nightly.yaml)
 
 Builds secure web applications including API, database, and worker support.
@@ -21,6 +22,7 @@ npm install -D sanderveldhuis/glidelite#next
 
 ## ToDo
 
+- Add Knip and also to CI actions
 - Add Github Actions
 - Add unittests
 - Check all code which minimum Node version is required and update the `engines` tag in `package.json`

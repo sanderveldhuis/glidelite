@@ -36,7 +36,9 @@
     "clean": "node -e \"require('fs').rmSync('built', { recursive: true, force: true })\"",
     "lint": "eslint --cache --cache-location ./built/.eslintcache --report-unused-disable-directives --max-warnings 0 .",
     "format": "dprint fmt",
-    "dist": "npm run clean && npm run format && npm run lint && npm run build && node -e \"require('fs').rmSync('lib', { recursive: true, force: true })\" && node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/**/*.js\" lib"
+    "dist": "npm run format && npm run lint && npm run clean && npm run build && npm run dist:clean && npm run dist:copy",
+    "dist:clean": "node -e \"require('fs').rmSync('lib', { recursive: true, force: true })\"",
+    "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/**/*.js\" lib"
   },
   "dependencies": {
     "@tsconfig/node-lts": "^22.0.1",
