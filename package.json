@@ -21,9 +21,6 @@
   "bin": {
     "glc": "./bin/glc"
   },
-  "engines": {
-    "node": ">=14.17"
-  },
   "files": [
     "bin",
     "lib",
