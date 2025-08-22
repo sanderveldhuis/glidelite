@@ -1,9 +1,0 @@
-name: CodeQL Configuration
-
-paths-ignore:
-  - lib
-
-query-filters:
-  # Falls over on our dynamic RegExp generation
-  - exclude:
-      id: js/regex-injection
