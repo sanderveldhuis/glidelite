@@ -1,6 +1,8 @@
 
 # GlideLite
 
+[![Nightly Build](https://github.com/sanderveldhuis/glidelite/actions/workflows/nightly.yaml/badge.svg)](https://github.com/sanderveldhuis/glidelite//actions/workflows/nightly.yaml)
+
 Builds secure web applications including API, database, and worker support.
 
 ## Installing
