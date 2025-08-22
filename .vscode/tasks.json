@@ -26,6 +26,12 @@
       ]
     },
     {
+      "label": "npm: knip",
+      "type": "npm",
+      "script": "knip",
+      "group": "build"
+    },
+    {
       "label": "npm: test",
       "type": "npm",
       "script": "test",

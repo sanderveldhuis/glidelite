@@ -1,0 +1,45 @@
+name: Update package-lock.json
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  # enable users to manually trigger with workflow_dispatch
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+# Ensure scripts are run with pipefail. See:
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#exit-codes-and-error-action-preference
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.repository == 'sanderveldhuis/glidelite'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Setup Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Update package-lock.json and push changes
+        run: |
+          rm package-lock.json
+          npm install
+          if git diff --exit-code --name-only package-lock.json; then
+            echo "No changes to commit"
+          else
+            npm run dist
+            git add -f package-lock.json
+            git commit -m "Update package-lock.json"
+            git push
+          fi
