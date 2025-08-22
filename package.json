@@ -31,7 +31,7 @@
   "scripts": {
     "test": "echo 'unittests not yet implemented'",
     "build": "npm run build:version && npm run build:compiler",
-    "build:version": "node -p \"'// Generated code, do not modify\\nexport const version = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
+    "build:version": "node -p \"'// Generated code, do not modify\\nexport const version = \\'' + require('./package.json').version + '\\';'\" > src/version.ts",
     "build:compiler": "tsc -b --emitDeclarationOnly false src",
     "clean": "node -e \"require('fs').rmSync('built', { recursive: true, force: true })\"",
     "lint": "eslint --cache --cache-location ./built/.eslintcache --report-unused-disable-directives --max-warnings 0 .",

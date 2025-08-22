@@ -10,6 +10,8 @@ on:
   merge_group:
     branches:
       - main
+  # enable users to manually trigger with workflow_dispatch
+  workflow_dispatch: {}
 
 permissions:
   contents: read
