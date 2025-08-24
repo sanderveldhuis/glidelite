@@ -53,7 +53,7 @@ jobs:
       - name: Merge main
         run: |
           git fetch origin
-          git merge origin/main --allow-unrelated-histories
+          git merge origin/main --allow-unrelated-histories --strategy-option theirs
       - name: Setup and build nightly
         run: |
           npm ci
