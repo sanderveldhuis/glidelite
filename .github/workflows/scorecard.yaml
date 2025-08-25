@@ -14,6 +14,8 @@ on:
   push:
     branches:
       - main
+  # enable users to manually trigger with workflow_dispatch
+  workflow_dispatch: {}
 
 # Declare default permissions as read only.
 permissions: read-all
