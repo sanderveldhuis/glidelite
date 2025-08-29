@@ -1,0 +1,235 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+  pull_request:
+    branches:
+      - main
+      - release-*
+  merge_group:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# Ensure scripts are run with pipefail. See:
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#exit-codes-and-error-action-preference
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+      - name: Setup before caching
+        run: npm ci
+      - uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: ~/.cache/dprint
+          key: ${{ runner.os }}-dprint-${{ hashFiles('package-lock.json', '.dprint.jsonc') }}
+          restore-keys: |
+            ${{ runner.os }}-dprint-
+      - name: Check formatting
+        run: npx dprint check
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+      - name: Setup and run linter
+        run: |
+          npm ci
+          npm run lint
+
+  knip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+      - name: Setup and find unused dependencies
+        run: |
+          npm ci
+          npm run knip
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+      - name: Setup and build source
+        run: |
+          npm ci
+          npm run build
+
+  coverage:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'merge_group' }}
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+      - name: Setup and run tests
+        run: |
+          npm ci
+          npm test
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: coverage
+          path: built/coverage
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # Main builds
+          - os: ubuntu-latest
+            node-version: '24'
+          # Other builds (skipped in merge queues)
+          - os: windows-latest
+            node-version: '24'
+            skip: ${{ github.event_name == 'merge_group' }}
+          - os: macos-latest
+            node-version: '24'
+            skip: ${{ github.event_name == 'merge_group' }}
+          - os: ubuntu-latest
+            node-version: '22'
+          - os: windows-latest
+            node-version: '22'
+            skip: ${{ github.event_name == 'merge_group' }}
+          # Skip macOS for this version; resources are limited.
+          # - os: macos-latest
+          #   node-version: '22'
+          #   skip: ${{ github.event_name == 'merge_group' }}
+          - os: ubuntu-latest
+            node-version: '20'
+          - os: windows-latest
+            node-version: '20'
+            skip: ${{ github.event_name == 'merge_group' }}
+          # Skip macOS for this version; resources are limited.
+          # - os: macos-latest
+          #   node-version: '20'
+          #   skip: ${{ github.event_name == 'merge_group' }}
+          - os: ubuntu-latest
+            node-version: '18'
+          - os: windows-latest
+            node-version: '18'
+            skip: ${{ github.event_name == 'merge_group' }}
+          # Skip macOS for this version; resources are limited.
+          # - os: macos-latest
+          #   node-version: '18'
+          #   skip: ${{ github.event_name == 'merge_group' }}
+          - os: ubuntu-latest
+            node-version: '16'
+          - os: windows-latest
+            node-version: '16'
+            skip: ${{ github.event_name == 'merge_group' }}
+          - os: macos-latest
+            node-version: '16'
+            skip: ${{ github.event_name == 'merge_group' }}
+          - os: ubuntu-latest
+            node-version: 'lts/*'
+            skip: ${{ github.event_name == 'merge_group' }}
+
+        exclude:
+          - config:
+              skip: true
+
+    runs-on: ${{ matrix.config.os }}
+    name: Test Node ${{ matrix.config.node-version }} on ${{ matrix.config.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node version ${{ matrix.config.node-version }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ matrix.config.node-version }}
+          check-latest: true
+      - name: Setup and run tests
+        run: |
+          npm ci
+          npm test
+
+  smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+      - name: Setup and build release
+        run: |
+          npm ci
+          npm run build
+          npm run dist:clean
+          npm run dist:copy
+          echo "dist=$PWD" >> "$GITHUB_OUTPUT"
+        id: dist
+      - name: Smoke test
+        run: |
+          cd "$(mktemp -d)"
+          npm init --yes
+          npm install ${{ steps.dist.outputs.dist }}
+
+          echo "Testing GlideLite Compiler..."
+          npx glc --version
+
+  required:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - format
+      - lint
+      - knip
+      - typecheck
+      - coverage
+      - test
+      - smoke
+
+    steps:
+      - name: Check required jobs
+        env:
+          NEEDS: ${{ toJson(needs) }}
+        run: |
+          ! echo $NEEDS | jq -e 'to_entries[] | { job: .key, result: .value.result } | select((.result == "success" or .result == "skipped") | not)'

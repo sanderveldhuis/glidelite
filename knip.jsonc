@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "includeEntryExports": true,
+  "entry": ["src/glc.ts"],
+  "project": ["src/**"],
+  "ignoreExportsUsedInFile": {
+    "enum": true,
+    "interface": true,
+    "type": true
+  },
+  "ignoreBinaries": ["glc"]
+}
