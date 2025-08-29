@@ -1,0 +1,65 @@
+{
+  "name": "glidelite",
+  "author": "Sander Veldhuis",
+  "homepage": "https://sanderveldhuis.nl/",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Builds secure web applications including API, database, and worker support",
+  "keywords": [
+    "GlideLite",
+    "compiler",
+    "web",
+    "webapp",
+    "website",
+    "webpage",
+    "JavaScript",
+    "TypeScript"
+  ],
+  "bugs": {
+    "url": "https://github.com/sanderveldhuis/glidelite/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sanderveldhuis/glidelite.git"
+  },
+  "bin": {
+    "glc": "./bin/glc"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "test": "nyc mocha",
+    "build": "npm run build:compiler && npm run build:tests",
+    "build:compiler": "tsc -b --emitDeclarationOnly false src",
+    "build:tests": "tsc -b --emitDeclarationOnly false tests",
+    "clean": "node -e \"require('fs').rmSync('built', { recursive: true, force: true })\"",
+    "lint": "eslint --report-unused-disable-directives --max-warnings 0 .",
+    "knip": "knip --tags=+internal,-knipignore --exclude=duplicates,enumMembers",
+    "format": "dprint fmt",
+    "dist": "npm run format && npm run lint && npm run knip && npm run clean && npm run build && npm run test && npm run dist:clean && npm run dist:copy",
+    "dist:clean": "node -e \"require('fs').rmSync('lib', { recursive: true, force: true })\"",
+    "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/src/**/*.js\" lib"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@types/chai": "^5.2.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "latest",
+    "chai": "^6.0.1",
+    "cpx2": "^8.0.0",
+    "dprint": "^0.50.1",
+    "eslint": "^9.34.0",
+    "globals": "^16.3.0",
+    "knip": "^5.63.0",
+    "mocha": "^11.7.1",
+    "nyc": "^17.1.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.41.0"
+  }
+}

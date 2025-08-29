@@ -1,0 +1,12 @@
+{
+  "all": true,
+  "extension": [".ts"],
+  "temp-dir": "built/.nyc_output",
+  "report-dir": "built/coverage",
+  "reporter": [
+    "html",
+    "text",
+    "text-summary"
+  ],
+  "include": ["src/**/*.ts"]
+}
