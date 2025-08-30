@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
-import { printVersion } from './printVersion';
+import { version } from './version';
 
-printVersion();
+export function printVersion(): void {
+  console.log('Version', version);
+}

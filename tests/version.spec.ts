@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import { version } from '../src/version.js';
+import { version } from '../src/version';
 
 describe('version.ts', () => {
   it('validate the version variable', () => {

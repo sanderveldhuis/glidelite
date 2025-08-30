@@ -148,23 +148,6 @@ jobs:
           #   node-version: '20'
           #   skip: ${{ github.event_name == 'merge_group' }}
           - os: ubuntu-latest
-            node-version: '18'
-          - os: windows-latest
-            node-version: '18'
-            skip: ${{ github.event_name == 'merge_group' }}
-          # Skip macOS for this version; resources are limited.
-          # - os: macos-latest
-          #   node-version: '18'
-          #   skip: ${{ github.event_name == 'merge_group' }}
-          - os: ubuntu-latest
-            node-version: '16'
-          - os: windows-latest
-            node-version: '16'
-            skip: ${{ github.event_name == 'merge_group' }}
-          - os: macos-latest
-            node-version: '16'
-            skip: ${{ github.event_name == 'merge_group' }}
-          - os: ubuntu-latest
             node-version: 'lts/*'
             skip: ${{ github.event_name == 'merge_group' }}
 

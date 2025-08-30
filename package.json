@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/chai": "^5.2.2",
     "@types/mocha": "^10.0.10",
     "@types/node": "latest",
@@ -58,7 +59,8 @@
     "knip": "^5.63.0",
     "mocha": "^11.7.1",
     "nyc": "^17.1.0",
-    "tsx": "^4.20.5",
+    "ts-node": "^10.9.2",
+    "ts-sinon": "^2.0.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0"
   }
