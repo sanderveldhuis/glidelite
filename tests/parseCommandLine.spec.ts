@@ -24,7 +24,7 @@ describe('parseCommandLine.ts', () => {
   });
 
   it('validate when an unknown option is given', () => {
-    const consoleStub1 = sinon.stub(console, 'log');
+    const consoleStub1 = sinon.stub(console, 'error');
     const processStub1 = sinon.stub(process, 'exit');
     const command1 = parseCommandLine(['-']);
     consoleStub1.restore();
@@ -35,7 +35,7 @@ describe('parseCommandLine.ts', () => {
     assert(consoleStub1.calledWith('error GL1001:', "Unknown compiler option '-'."));
     assert(processStub1.calledWith(1001));
 
-    const consoleStub2 = sinon.stub(console, 'log');
+    const consoleStub2 = sinon.stub(console, 'error');
     const processStub2 = sinon.stub(process, 'exit');
     const command2 = parseCommandLine(['--']);
     consoleStub2.restore();
@@ -46,7 +46,7 @@ describe('parseCommandLine.ts', () => {
     assert(consoleStub2.calledWith('error GL1001:', "Unknown compiler option '--'."));
     assert(processStub2.calledWith(1001));
 
-    const consoleStub3 = sinon.stub(console, 'log');
+    const consoleStub3 = sinon.stub(console, 'error');
     const processStub3 = sinon.stub(process, 'exit');
     const command3 = parseCommandLine(['-helps']);
     consoleStub3.restore();
@@ -57,7 +57,7 @@ describe('parseCommandLine.ts', () => {
     assert(consoleStub3.calledWith('error GL1001:', "Unknown compiler option '-helps'."));
     assert(processStub3.calledWith(1001));
 
-    const consoleStub4 = sinon.stub(console, 'log');
+    const consoleStub4 = sinon.stub(console, 'error');
     const processStub4 = sinon.stub(process, 'exit');
     const command4 = parseCommandLine(['--helps']);
     consoleStub4.restore();
@@ -68,7 +68,7 @@ describe('parseCommandLine.ts', () => {
     assert(consoleStub4.calledWith('error GL1001:', "Unknown compiler option '--helps'."));
     assert(processStub4.calledWith(1001));
 
-    const consoleStub5 = sinon.stub(console, 'log');
+    const consoleStub5 = sinon.stub(console, 'error');
     const processStub5 = sinon.stub(process, 'exit');
     const command5 = parseCommandLine(['-hel']);
     consoleStub5.restore();
@@ -79,7 +79,7 @@ describe('parseCommandLine.ts', () => {
     assert(consoleStub5.calledWith('error GL1001:', "Unknown compiler option '-hel'."));
     assert(processStub5.calledWith(1001));
 
-    const consoleStub6 = sinon.stub(console, 'log');
+    const consoleStub6 = sinon.stub(console, 'error');
     const processStub6 = sinon.stub(process, 'exit');
     const command6 = parseCommandLine(['--hel']);
     consoleStub6.restore();
@@ -166,7 +166,7 @@ describe('parseCommandLine.ts', () => {
   });
 
   it('validate when a string option without value is given', () => {
-    const consoleStub1 = sinon.stub(console, 'log');
+    const consoleStub1 = sinon.stub(console, 'error');
     const processStub1 = sinon.stub(process, 'exit');
     const command1 = parseCommandLine(['--module']);
     consoleStub1.restore();
@@ -177,7 +177,7 @@ describe('parseCommandLine.ts', () => {
     assert(consoleStub1.calledWith('error GL1002:', "Compiler option 'module' expects an argument."));
     assert(processStub1.calledWith(1002));
 
-    const consoleStub2 = sinon.stub(console, 'log');
+    const consoleStub2 = sinon.stub(console, 'error');
     const processStub2 = sinon.stub(process, 'exit');
     const command2 = parseCommandLine(['-module']);
     consoleStub2.restore();
@@ -188,7 +188,7 @@ describe('parseCommandLine.ts', () => {
     assert(consoleStub2.calledWith('error GL1002:', "Compiler option 'module' expects an argument."));
     assert(processStub2.calledWith(1002));
 
-    const consoleStub3 = sinon.stub(console, 'log');
+    const consoleStub3 = sinon.stub(console, 'error');
     const processStub3 = sinon.stub(process, 'exit');
     const command3 = parseCommandLine(['--m']);
     consoleStub3.restore();
@@ -199,7 +199,7 @@ describe('parseCommandLine.ts', () => {
     assert(consoleStub3.calledWith('error GL1002:', "Compiler option 'module' expects an argument."));
     assert(processStub3.calledWith(1002));
 
-    const consoleStub4 = sinon.stub(console, 'log');
+    const consoleStub4 = sinon.stub(console, 'error');
     const processStub4 = sinon.stub(process, 'exit');
     const command4 = parseCommandLine(['-m']);
     consoleStub4.restore();

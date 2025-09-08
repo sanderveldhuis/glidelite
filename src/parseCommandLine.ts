@@ -68,9 +68,9 @@ function getOptionDeclarationFromName(optionName: string): CommandLineOption | u
 }
 
 function parseOptionValue(commandLineArgs: readonly string[], i: number, option: CommandLineOption, options: CommandOptions): number {
-  // Only booleans do not require an value
+  // Only booleans do not require a value
   if (!commandLineArgs[i] && 'boolean' !== option.type) {
-    console.log(`error GL${String(ExitStatus.MissingCommandLineArgument)}:`, `Compiler option '${option.name}' expects an argument.`);
+    console.error(`error GL${String(ExitStatus.MissingCommandLineArgument)}:`, `Compiler option '${option.name}' expects an argument.`);
     process.exit(ExitStatus.MissingCommandLineArgument);
   }
   else {
@@ -110,7 +110,7 @@ export function parseCommandLine(commandLineArgs: readonly string[]): Command {
         i = parseOptionValue(commandLineArgs, i, option, options);
       }
       else {
-        console.log(`error GL${String(ExitStatus.UnknownCommandLineOption)}:`, `Unknown compiler option '${arg}'.`);
+        console.error(`error GL${String(ExitStatus.UnknownCommandLineOption)}:`, `Unknown compiler option '${arg}'.`);
         process.exit(ExitStatus.UnknownCommandLineOption);
       }
     }
