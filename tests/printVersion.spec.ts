@@ -6,11 +6,10 @@ import { version } from '../src/version';
 
 describe('printVersion.ts', () => {
   it('validate printing the version', () => {
-    const spy = sinon.spy(console, 'log');
-
+    const stub = sinon.stub(console, 'log');
     printVersion();
-    assert(spy.calledWith('Version', version));
+    stub.restore();
 
-    spy.restore();
+    assert(stub.calledWith('Version', version));
   });
 });

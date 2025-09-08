@@ -22,11 +22,15 @@
  * SOFTWARE.
  */
 
-import { parseCommandLine } from './parseCommandLine';
+export type CommandOptions = Record<string, string | boolean>;
 
-function executeCommandLine(commandLineArgs: readonly string[]): void {
-  const command = parseCommandLine(commandLineArgs);
-  console.log(command);
+export interface Command {
+  options: CommandOptions;
+  paths: string[];
 }
 
-executeCommandLine(process.argv.slice(2));
+export enum ExitStatus {
+  Success = 0,
+  UnknownCommandLineOption = 1001,
+  MissingCommandLineArgument = 1002
+}
