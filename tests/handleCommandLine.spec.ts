@@ -1,5 +1,4 @@
 import 'mocha';
-import { assert } from 'chai';
 import sinon from 'ts-sinon';
 import { handleCommandLine } from '../src/handleCommandLine';
 import * as initProject from '../src/initProject';
@@ -22,8 +21,8 @@ describe('handleCommandLine.ts', () => {
     versionStub.restore();
     processStub.restore();
 
-    assert(versionStub.calledWith());
-    assert(processStub.calledWith(0));
+    sinon.assert.calledWith(versionStub);
+    sinon.assert.calledWith(processStub, 0);
   });
 
   it('validate when the help option is given', () => {
@@ -37,8 +36,8 @@ describe('handleCommandLine.ts', () => {
     helpStub.restore();
     processStub.restore();
 
-    assert(helpStub.calledWith());
-    assert(processStub.calledWith(0));
+    sinon.assert.calledWith(helpStub);
+    sinon.assert.calledWith(processStub, 0);
   });
 
   it('validate when the init option is given', () => {
@@ -52,8 +51,8 @@ describe('handleCommandLine.ts', () => {
     initStub1.restore();
     processStub1.restore();
 
-    assert(initStub1.calledWith(process.cwd()));
-    assert(processStub1.calledWith(0));
+    sinon.assert.calledWith(initStub1, process.cwd());
+    sinon.assert.calledWith(processStub1, 0);
 
     paths[0] = '.';
     const initStub2 = sinon.stub(initProject, 'initProject');
@@ -62,8 +61,8 @@ describe('handleCommandLine.ts', () => {
     initStub2.restore();
     processStub2.restore();
 
-    assert(initStub2.calledWith('.'));
-    assert(processStub2.calledWith(0));
+    sinon.assert.calledWith(initStub2, '.');
+    sinon.assert.calledWith(processStub2, 0);
 
     paths[0] = 'hello/.././world';
     const initStub3 = sinon.stub(initProject, 'initProject');
@@ -72,8 +71,8 @@ describe('handleCommandLine.ts', () => {
     initStub3.restore();
     processStub3.restore();
 
-    assert(initStub3.calledWith('world'));
-    assert(processStub3.calledWith(0));
+    sinon.assert.calledWith(initStub3, 'world');
+    sinon.assert.calledWith(processStub3, 0);
 
     paths[0] = '/tmp/hello/../world/./universe';
     const initStub4 = sinon.stub(initProject, 'initProject');
@@ -83,12 +82,12 @@ describe('handleCommandLine.ts', () => {
     processStub4.restore();
 
     if ('win32' === process.platform) {
-      assert(initStub4.calledWith('\\tmp\\world\\universe'));
+      sinon.assert.calledWith(initStub4, '\\tmp\\world\\universe');
     }
     else {
-      assert(initStub4.calledWith('/tmp/world/universe'));
+      sinon.assert.calledWith(initStub4, '/tmp/world/universe');
     }
-    assert(processStub4.calledWith(0));
+    sinon.assert.calledWith(processStub4, 0);
 
     paths[1] = 'hello/../world';
     const initStub5 = sinon.stub(initProject, 'initProject');
@@ -98,12 +97,12 @@ describe('handleCommandLine.ts', () => {
     processStub5.restore();
 
     if ('win32' === process.platform) {
-      assert(initStub5.calledWith('\\tmp\\world\\universe'));
+      sinon.assert.calledWith(initStub5, '\\tmp\\world\\universe');
     }
     else {
-      assert(initStub5.calledWith('/tmp/world/universe'));
+      sinon.assert.calledWith(initStub5, '/tmp/world/universe');
     }
-    assert(processStub5.calledWith(0));
+    sinon.assert.calledWith(processStub5, 0);
   });
 
   it('validate when no options are given', () => {
@@ -115,6 +114,6 @@ describe('handleCommandLine.ts', () => {
     handleCommandLine(command);
     processStub.restore();
 
-    assert(processStub.calledWith(0));
+    sinon.assert.calledWith(processStub, 0);
   });
 });

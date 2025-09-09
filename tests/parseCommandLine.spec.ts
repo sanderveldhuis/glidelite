@@ -1,8 +1,5 @@
 import 'mocha';
-import {
-  assert,
-  expect
-} from 'chai';
+import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { parseCommandLine } from '../src/parseCommandLine';
 
@@ -32,8 +29,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    assert(consoleStub1.calledWith('error GL1001:', "Unknown compiler option '-'."));
-    assert(processStub1.calledWith(1001));
+    sinon.assert.calledWith(consoleStub1, 'error GL1001:', "Unknown compiler option '-'.");
+    sinon.assert.calledWith(processStub1, 1001);
 
     const consoleStub2 = sinon.stub(console, 'error');
     const processStub2 = sinon.stub(process, 'exit');
@@ -43,8 +40,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    assert(consoleStub2.calledWith('error GL1001:', "Unknown compiler option '--'."));
-    assert(processStub2.calledWith(1001));
+    sinon.assert.calledWith(consoleStub2, 'error GL1001:', "Unknown compiler option '--'.");
+    sinon.assert.calledWith(processStub2, 1001);
 
     const consoleStub3 = sinon.stub(console, 'error');
     const processStub3 = sinon.stub(process, 'exit');
@@ -54,8 +51,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    assert(consoleStub3.calledWith('error GL1001:', "Unknown compiler option '-helps'."));
-    assert(processStub3.calledWith(1001));
+    sinon.assert.calledWith(consoleStub3, 'error GL1001:', "Unknown compiler option '-helps'.");
+    sinon.assert.calledWith(processStub3, 1001);
 
     const consoleStub4 = sinon.stub(console, 'error');
     const processStub4 = sinon.stub(process, 'exit');
@@ -65,8 +62,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    assert(consoleStub4.calledWith('error GL1001:', "Unknown compiler option '--helps'."));
-    assert(processStub4.calledWith(1001));
+    sinon.assert.calledWith(consoleStub4, 'error GL1001:', "Unknown compiler option '--helps'.");
+    sinon.assert.calledWith(processStub4, 1001);
 
     const consoleStub5 = sinon.stub(console, 'error');
     const processStub5 = sinon.stub(process, 'exit');
@@ -76,8 +73,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command5.options).length).to.equal(0);
     expect(command5.paths.length).to.equal(0);
-    assert(consoleStub5.calledWith('error GL1001:', "Unknown compiler option '-hel'."));
-    assert(processStub5.calledWith(1001));
+    sinon.assert.calledWith(consoleStub5, 'error GL1001:', "Unknown compiler option '-hel'.");
+    sinon.assert.calledWith(processStub5, 1001);
 
     const consoleStub6 = sinon.stub(console, 'error');
     const processStub6 = sinon.stub(process, 'exit');
@@ -87,8 +84,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command6.options).length).to.equal(0);
     expect(command6.paths.length).to.equal(0);
-    assert(consoleStub6.calledWith('error GL1001:', "Unknown compiler option '--hel'."));
-    assert(processStub6.calledWith(1001));
+    sinon.assert.calledWith(consoleStub6, 'error GL1001:', "Unknown compiler option '--hel'.");
+    sinon.assert.calledWith(processStub6, 1001);
   });
 
   it('validate when a boolean option is given', () => {
@@ -174,8 +171,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    assert(consoleStub1.calledWith('error GL1002:', "Compiler option 'module' expects an argument."));
-    assert(processStub1.calledWith(1002));
+    sinon.assert.calledWith(consoleStub1, 'error GL1002:', "Compiler option 'module' expects an argument.");
+    sinon.assert.calledWith(processStub1, 1002);
 
     const consoleStub2 = sinon.stub(console, 'error');
     const processStub2 = sinon.stub(process, 'exit');
@@ -185,8 +182,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    assert(consoleStub2.calledWith('error GL1002:', "Compiler option 'module' expects an argument."));
-    assert(processStub2.calledWith(1002));
+    sinon.assert.calledWith(consoleStub2, 'error GL1002:', "Compiler option 'module' expects an argument.");
+    sinon.assert.calledWith(processStub2, 1002);
 
     const consoleStub3 = sinon.stub(console, 'error');
     const processStub3 = sinon.stub(process, 'exit');
@@ -196,8 +193,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    assert(consoleStub3.calledWith('error GL1002:', "Compiler option 'module' expects an argument."));
-    assert(processStub3.calledWith(1002));
+    sinon.assert.calledWith(consoleStub3, 'error GL1002:', "Compiler option 'module' expects an argument.");
+    sinon.assert.calledWith(processStub3, 1002);
 
     const consoleStub4 = sinon.stub(console, 'error');
     const processStub4 = sinon.stub(process, 'exit');
@@ -207,8 +204,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    assert(consoleStub4.calledWith('error GL1002:', "Compiler option 'module' expects an argument."));
-    assert(processStub4.calledWith(1002));
+    sinon.assert.calledWith(consoleStub4, 'error GL1002:', "Compiler option 'module' expects an argument.");
+    sinon.assert.calledWith(processStub4, 1002);
   });
 
   it('validate when a string option with invalid value is given', () => {
@@ -220,8 +217,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    assert(consoleStub1.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'."));
-    assert(processStub1.calledWith(1003));
+    sinon.assert.calledWith(consoleStub1, 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWith(processStub1, 1003);
 
     const consoleStub2 = sinon.stub(console, 'error');
     const processStub2 = sinon.stub(process, 'exit');
@@ -231,8 +228,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    assert(consoleStub2.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'."));
-    assert(processStub2.calledWith(1003));
+    sinon.assert.calledWith(consoleStub2, 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWith(processStub2, 1003);
 
     const consoleStub3 = sinon.stub(console, 'error');
     const processStub3 = sinon.stub(process, 'exit');
@@ -242,8 +239,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    assert(consoleStub3.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'."));
-    assert(processStub3.calledWith(1003));
+    sinon.assert.calledWith(consoleStub3, 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWith(processStub3, 1003);
 
     const consoleStub4 = sinon.stub(console, 'error');
     const processStub4 = sinon.stub(process, 'exit');
@@ -253,8 +250,8 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    assert(consoleStub4.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'."));
-    assert(processStub4.calledWith(1003));
+    sinon.assert.calledWith(consoleStub4, 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWith(processStub4, 1003);
   });
 
   it('validate when a string option with valid value is given', () => {
