@@ -9,6 +9,6 @@ describe('printVersion.ts', () => {
     printVersion();
     stub.restore();
 
-    sinon.assert.calledWith(stub, 'Version', version);
+    sinon.assert.calledOnceWithExactly(stub, 'Version', version);
   });
 });
