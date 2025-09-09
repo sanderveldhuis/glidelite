@@ -33,7 +33,7 @@ export function printHelp(): void {
   console.log('     --init, -i  Initializes a GlideLite project and creates all required files.\n');
   console.log('    --clean, -c  Deletes the output of a project or module before compiling.\n');
   console.log('   --module, -m  Select a module to clean and/or compile.');
-  console.log('        one of:  workers, api, backend, frontend\n');
+  console.log('        one of:  workers, api, backend, js, css, site, frontend\n');
   console.log('   --outDir, -o  Specify an output directory.\n');
 
   console.log('COMMON COMMANDS\n');
