@@ -22,16 +22,23 @@
  * SOFTWARE.
  */
 
-export type CommandOptions = Record<string, string | boolean>;
+import { printHelp } from './printHelp';
+import { printVersion } from './printVersion';
+import {
+  Command,
+  ExitStatus
+} from './types';
 
-export interface Command {
-  options: CommandOptions;
-  paths: string[];
-}
-
-export enum ExitStatus {
-  Success = 0,
-  UnknownCommandLineOption = 1001,
-  MissingCommandLineArgument = 1002,
-  InvalidCommandLineArgument = 1003
+export function handleCommandLine(command: Command): void {
+  if (command.options.version) {
+    printVersion();
+    process.exit(ExitStatus.Success);
+  }
+  else if (command.options.help) {
+    printHelp();
+    process.exit(ExitStatus.Success);
+  }
+  else {
+    process.exit(ExitStatus.Success);
+  }
 }

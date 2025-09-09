@@ -31,6 +31,7 @@ import {
 interface CommandLineOption {
   name: string;
   type: 'string' | 'boolean';
+  values?: string[];
 }
 
 type ShortOptionsNameMap = Map<string, string>;
@@ -41,18 +42,18 @@ const shortOptionNameMap: ShortOptionsNameMap = new Map<string, string>([
   ['h', 'help'],
   ['v', 'version'],
   ['i', 'init'],
-  ['b', 'build'],
   ['c', 'clean'],
-  ['m', 'module']
+  ['m', 'module'],
+  ['o', 'outdir']
 ]);
 
 const optionNameMap: OptionsNameMap = new Map<string, CommandLineOption>([
   ['help', { name: 'help', type: 'boolean' }],
   ['version', { name: 'version', type: 'boolean' }],
   ['init', { name: 'init', type: 'boolean' }],
-  ['build', { name: 'build', type: 'boolean' }],
   ['clean', { name: 'clean', type: 'boolean' }],
-  ['module', { name: 'module', type: 'string' }]
+  ['module', { name: 'module', type: 'string', values: ['workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'] }],
+  ['outdir', { name: 'outdir', type: 'string' }]
 ]);
 
 function getOptionDeclarationFromName(optionName: string): CommandLineOption | undefined {
@@ -74,9 +75,10 @@ function parseOptionValue(commandLineArgs: readonly string[], i: number, option:
     process.exit(ExitStatus.MissingCommandLineArgument);
   }
   else {
+    const value = commandLineArgs[i];
+
     switch (option.type) {
       case 'boolean': {
-        const value = commandLineArgs[i];
         if (value === 'false' || value === 'true') {
           options[option.name] = value === 'true';
           i++;
@@ -86,10 +88,17 @@ function parseOptionValue(commandLineArgs: readonly string[], i: number, option:
         }
         break;
       }
-      default:
-        options[option.name] = commandLineArgs[i];
+      default: {
+        if (option.values && !option.values.includes(value)) {
+          console.error(`error GL${String(ExitStatus.InvalidCommandLineArgument)}:`, `Argument for '${option.name}' option must be: '${option.values.join("', '")}'.`);
+          process.exit(ExitStatus.InvalidCommandLineArgument);
+        }
+        else {
+          options[option.name] = value;
+        }
         i++;
         break;
+      }
     }
   }
   return i;

@@ -22,11 +22,12 @@
  * SOFTWARE.
  */
 
+import { handleCommandLine } from './handleCommandLine';
 import { parseCommandLine } from './parseCommandLine';
 
 function executeCommandLine(commandLineArgs: readonly string[]): void {
   const command = parseCommandLine(commandLineArgs);
-  console.log(command);
+  handleCommandLine(command);
 }
 
 executeCommandLine(process.argv.slice(2));
