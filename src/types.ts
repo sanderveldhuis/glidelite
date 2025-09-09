@@ -31,7 +31,7 @@ export interface Command {
 
 export enum ExitStatus {
   Success = 0,
-  UnknownCommandLineOption = 1001,
-  MissingCommandLineArgument = 1002,
-  InvalidCommandLineArgument = 1003
+  CommandLineOptionUnknown = 1001,
+  CommandLineArgumentMissing = 1002,
+  CommandLineArgumentInvalid = 1003
 }
