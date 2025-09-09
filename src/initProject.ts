@@ -22,39 +22,6 @@
  * SOFTWARE.
  */
 
-import { normalize } from 'node:path';
-import { initProject } from './initProject';
-import { printHelp } from './printHelp';
-import { printVersion } from './printVersion';
-import {
-  Command,
-  ExitStatus
-} from './types';
-
-export function handleCommandLine(command: Command): void {
-  if (command.options.version) {
-    printVersion();
-    process.exit(ExitStatus.Success);
-  }
-  else if (command.options.help) {
-    printHelp();
-    process.exit(ExitStatus.Success);
-  }
-  else {
-    let workingDirectory: string;
-    if (command.paths.length > 0) {
-      workingDirectory = normalize(command.paths[0]);
-    }
-    else {
-      workingDirectory = normalize(process.cwd());
-    }
-
-    if (command.options.init) {
-      initProject(workingDirectory);
-      process.exit(ExitStatus.Success);
-    }
-    else {
-      process.exit(ExitStatus.Success);
-    }
-  }
+export function initProject(workingDirectory: string): void {
+  console.log(workingDirectory);
 }
