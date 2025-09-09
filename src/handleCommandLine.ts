@@ -22,12 +22,23 @@
  * SOFTWARE.
  */
 
-import { handleCommandLine } from './handleCommandLine';
-import { parseCommandLine } from './parseCommandLine';
+import { printHelp } from './printHelp';
+import { printVersion } from './printVersion';
+import {
+  Command,
+  ExitStatus
+} from './types';
 
-function executeCommandLine(commandLineArgs: readonly string[]): void {
-  const command = parseCommandLine(commandLineArgs);
-  handleCommandLine(command);
+export function handleCommandLine(command: Command): void {
+  if (command.options.version) {
+    printVersion();
+    process.exit(ExitStatus.Success);
+  }
+  else if (command.options.help) {
+    printHelp();
+    process.exit(ExitStatus.Success);
+  }
+  else {
+    process.exit(ExitStatus.Success);
+  }
 }
-
-executeCommandLine(process.argv.slice(2));
