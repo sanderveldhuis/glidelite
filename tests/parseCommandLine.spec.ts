@@ -220,7 +220,7 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    assert(consoleStub1.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'."));
+    assert(consoleStub1.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'."));
     assert(processStub1.calledWith(1003));
 
     const consoleStub2 = sinon.stub(console, 'error');
@@ -231,7 +231,7 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    assert(consoleStub2.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'."));
+    assert(consoleStub2.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'."));
     assert(processStub2.calledWith(1003));
 
     const consoleStub3 = sinon.stub(console, 'error');
@@ -242,7 +242,7 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    assert(consoleStub3.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'."));
+    assert(consoleStub3.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'."));
     assert(processStub3.calledWith(1003));
 
     const consoleStub4 = sinon.stub(console, 'error');
@@ -253,7 +253,7 @@ describe('parseCommandLine.ts', () => {
 
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    assert(consoleStub4.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'."));
+    assert(consoleStub4.calledWith('error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'."));
     assert(processStub4.calledWith(1003));
   });
 
