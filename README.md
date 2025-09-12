@@ -30,4 +30,5 @@ There are many ways to [contribute](https://github.com/sanderveldhuis/glidelite/
 
 ## Documentation
 
-This section will be filled once GlideLite will be implemented.
+* [Getting started](https://github.com/sanderveldhuis/glidelite/blob/main/doc/getting-started.md)
+* [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
