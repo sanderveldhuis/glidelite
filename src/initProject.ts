@@ -27,7 +27,7 @@ import {
   mkdirSync,
   writeFileSync
 } from 'node:fs';
-import { sep } from 'node:path';
+import { join } from 'node:path';
 import { ExitStatus } from './types';
 
 function mkdir(path: string): boolean {
@@ -53,9 +53,9 @@ function mkfile(path: string, content: string): boolean {
 }
 
 export function initProject(workingDirectory: string): void {
-  const workersDir = [workingDirectory, 'backend', 'workers'].join(sep);
-  const workersGlConfig = [workingDirectory, 'glconfig.json'].join(sep);
-  const workersTsConfig = [workersDir, 'tsconfig.json'].join(sep);
+  const workersDir = join(workingDirectory, 'backend', 'workers');
+  const workersGlConfig = join(workingDirectory, 'glconfig.json');
+  const workersTsConfig = join(workersDir, 'tsconfig.json');
 
   if (existsSync(workersGlConfig)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
