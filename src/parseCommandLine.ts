@@ -71,8 +71,8 @@ function getOptionDeclarationFromName(optionName: string): CommandLineOption | u
 function parseOptionValue(commandLineArgs: readonly string[], i: number, option: CommandLineOption, options: CommandOptions): number {
   // Only booleans do not require a value
   if (!commandLineArgs[i] && 'boolean' !== option.type) {
-    console.error(`error GL${String(ExitStatus.MissingCommandLineArgument)}:`, `Compiler option '${option.name}' expects an argument.`);
-    process.exit(ExitStatus.MissingCommandLineArgument);
+    console.error(`error GL${String(ExitStatus.CommandLineArgumentMissing)}:`, `Compiler option '${option.name}' expects an argument.`);
+    process.exit(ExitStatus.CommandLineArgumentMissing);
   }
   else {
     const value = commandLineArgs[i];
@@ -90,8 +90,8 @@ function parseOptionValue(commandLineArgs: readonly string[], i: number, option:
       }
       default: {
         if (option.values && !option.values.includes(value)) {
-          console.error(`error GL${String(ExitStatus.InvalidCommandLineArgument)}:`, `Argument for '${option.name}' option must be: '${option.values.join("', '")}'.`);
-          process.exit(ExitStatus.InvalidCommandLineArgument);
+          console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Argument for '${option.name}' option must be: '${option.values.join("', '")}'.`);
+          process.exit(ExitStatus.CommandLineArgumentInvalid);
         }
         else {
           options[option.name] = value;
@@ -119,8 +119,8 @@ export function parseCommandLine(commandLineArgs: readonly string[]): Command {
         i = parseOptionValue(commandLineArgs, i, option, options);
       }
       else {
-        console.error(`error GL${String(ExitStatus.UnknownCommandLineOption)}:`, `Unknown compiler option '${arg}'.`);
-        process.exit(ExitStatus.UnknownCommandLineOption);
+        console.error(`error GL${String(ExitStatus.CommandLineOptionUnknown)}:`, `Unknown compiler option '${arg}'.`);
+        process.exit(ExitStatus.CommandLineOptionUnknown);
       }
     }
     else {

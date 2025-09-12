@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import { initProject } from './initProject';
 import { printHelp } from './printHelp';
 import { printVersion } from './printVersion';
 import {
@@ -39,6 +40,14 @@ export function handleCommandLine(command: Command): void {
     process.exit(ExitStatus.Success);
   }
   else {
-    process.exit(ExitStatus.Success);
+    const workingDirectory = process.cwd();
+
+    if (command.options.init) {
+      initProject(workingDirectory);
+      process.exit(ExitStatus.Success);
+    }
+    else {
+      process.exit(ExitStatus.Success);
+    }
   }
 }

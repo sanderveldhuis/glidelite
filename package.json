@@ -27,6 +27,7 @@
   },
   "files": [
     "bin",
+    "doc",
     "lib",
     "LICENSE",
     "README.md",
@@ -45,12 +46,16 @@
     "dist:clean": "node -e \"require('fs').rmSync('lib', { recursive: true, force: true })\"",
     "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/src/**/*.js\" lib"
   },
+  "dependencies": {
+    "@tsconfig/node-lts": "^22.0.2",
+    "@types/node": "latest",
+    "typescript": "^5.9.2"
+  },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/chai": "^5.2.2",
     "@types/mocha": "^10.0.10",
-    "@types/node": "latest",
     "chai": "^6.0.1",
     "cpx2": "^8.0.0",
     "dprint": "^0.50.1",
@@ -61,7 +66,6 @@
     "nyc": "^17.1.0",
     "ts-node": "^10.9.2",
     "ts-sinon": "^2.0.2",
-    "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0"
   }
 }
