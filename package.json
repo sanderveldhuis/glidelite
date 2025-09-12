@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@tsconfig/node-lts": "^22.0.2",
+    "@types/node": "latest",
     "typescript": "^5.9.2"
   },
   "devDependencies": {
@@ -54,7 +55,6 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/chai": "^5.2.2",
     "@types/mocha": "^10.0.10",
-    "@types/node": "latest",
     "chai": "^6.0.1",
     "cpx2": "^8.0.0",
     "dprint": "^0.50.1",
