@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-import { normalize } from 'node:path';
 import { initProject } from './initProject';
 import { printHelp } from './printHelp';
 import { printVersion } from './printVersion';
@@ -41,13 +40,7 @@ export function handleCommandLine(command: Command): void {
     process.exit(ExitStatus.Success);
   }
   else {
-    let workingDirectory: string;
-    if (command.paths.length > 0) {
-      workingDirectory = normalize(command.paths[0]);
-    }
-    else {
-      workingDirectory = normalize(process.cwd());
-    }
+    const workingDirectory = process.cwd();
 
     if (command.options.init) {
       initProject(workingDirectory);

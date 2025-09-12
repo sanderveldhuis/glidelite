@@ -45,64 +45,14 @@ describe('handleCommandLine.ts', () => {
     const paths: string[] = [];
     const command: Command = { options, paths };
 
-    const initStub1 = sinon.stub(initProject, 'initProject');
-    const processStub1 = sinon.stub(process, 'exit');
+    const initStub = sinon.stub(initProject, 'initProject');
+    const processStub = sinon.stub(process, 'exit');
     handleCommandLine(command);
-    initStub1.restore();
-    processStub1.restore();
+    initStub.restore();
+    processStub.restore();
 
-    sinon.assert.calledOnceWithExactly(initStub1, process.cwd());
-    sinon.assert.calledOnceWithExactly(processStub1, 0);
-
-    paths[0] = '.';
-    const initStub2 = sinon.stub(initProject, 'initProject');
-    const processStub2 = sinon.stub(process, 'exit');
-    handleCommandLine(command);
-    initStub2.restore();
-    processStub2.restore();
-
-    sinon.assert.calledOnceWithExactly(initStub2, '.');
-    sinon.assert.calledOnceWithExactly(processStub2, 0);
-
-    paths[0] = 'hello/.././world';
-    const initStub3 = sinon.stub(initProject, 'initProject');
-    const processStub3 = sinon.stub(process, 'exit');
-    handleCommandLine(command);
-    initStub3.restore();
-    processStub3.restore();
-
-    sinon.assert.calledOnceWithExactly(initStub3, 'world');
-    sinon.assert.calledOnceWithExactly(processStub3, 0);
-
-    paths[0] = '/tmp/hello/../world/./universe';
-    const initStub4 = sinon.stub(initProject, 'initProject');
-    const processStub4 = sinon.stub(process, 'exit');
-    handleCommandLine(command);
-    initStub4.restore();
-    processStub4.restore();
-
-    if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(initStub4, '\\tmp\\world\\universe');
-    }
-    else {
-      sinon.assert.calledOnceWithExactly(initStub4, '/tmp/world/universe');
-    }
-    sinon.assert.calledOnceWithExactly(processStub4, 0);
-
-    paths[1] = 'hello/../world';
-    const initStub5 = sinon.stub(initProject, 'initProject');
-    const processStub5 = sinon.stub(process, 'exit');
-    handleCommandLine(command);
-    initStub5.restore();
-    processStub5.restore();
-
-    if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(initStub5, '\\tmp\\world\\universe');
-    }
-    else {
-      sinon.assert.calledOnceWithExactly(initStub5, '/tmp/world/universe');
-    }
-    sinon.assert.calledOnceWithExactly(processStub5, 0);
+    sinon.assert.calledOnceWithExactly(initStub, process.cwd());
+    sinon.assert.calledOnceWithExactly(processStub, 0);
   });
 
   it('validate when no options are given', () => {
