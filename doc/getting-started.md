@@ -1,7 +1,7 @@
 
 # Getting Started
 
-To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `Node.js`, and `npm`.
+To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, and `npm`.
 
 ## Installing GlideLite
 
