@@ -8,5 +8,6 @@
     "interface": true,
     "type": true
   },
+  "ignoreDependencies": ["@tsconfig/node-lts"],
   "ignoreBinaries": ["glc"]
 }
