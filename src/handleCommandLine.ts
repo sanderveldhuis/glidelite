@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+import { compileProject } from './compileProject';
+import { compileWorkers } from './compileWorkers';
 import { initProject } from './initProject';
 import { printHelp } from './printHelp';
 import { printVersion } from './printVersion';
@@ -46,7 +48,22 @@ export function handleCommandLine(command: Command): void {
       initProject(workingDirectory);
       process.exit(ExitStatus.Success);
     }
+    else if (command.options.module) {
+      switch (command.options.module) {
+        case 'workers': {
+          compileWorkers(workingDirectory);
+          process.exit(ExitStatus.Success);
+          break;
+        }
+        default: {
+          console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
+          process.exit(ExitStatus.CommandLineArgumentInvalid);
+          break;
+        }
+      }
+    }
     else {
+      compileProject(workingDirectory);
       process.exit(ExitStatus.Success);
     }
   }
