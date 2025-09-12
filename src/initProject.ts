@@ -22,6 +22,60 @@
  * SOFTWARE.
  */
 
+import {
+  existsSync,
+  mkdirSync,
+  writeFileSync
+} from 'node:fs';
+import { sep } from 'node:path';
+import { ExitStatus } from './types';
+
+function mkdir(path: string): boolean {
+  try {
+    mkdirSync(path, { recursive: true });
+    return true;
+  }
+  catch (error) {
+    console.error(`error GL${String(ExitStatus.DirectoryCreationFailed)}:`, `Failed creating directory at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    return false;
+  }
+}
+
+function mkfile(path: string, content: string): boolean {
+  try {
+    writeFileSync(path, content);
+    return true;
+  }
+  catch (error) {
+    console.error(`error GL${String(ExitStatus.FileCreationFailed)}:`, `Failed creating file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    return false;
+  }
+}
+
 export function initProject(workingDirectory: string): void {
-  console.log(workingDirectory);
+  const workersDir = [workingDirectory, 'backend', 'workers'].join(sep);
+  const workersGlConfig = [workingDirectory, 'glconfig.json'].join(sep);
+  const workersTsConfig = [workersDir, 'tsconfig.json'].join(sep);
+
+  if (existsSync(workersGlConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
+  else if (existsSync(workersTsConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${workersTsConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
+
+  if (!mkdir(workersDir)) {
+    return process.exit(ExitStatus.DirectoryCreationFailed);
+  }
+
+  if (
+    !mkfile(workersGlConfig, '{}\n') ||
+    !mkfile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n')
+  ) {
+    return process.exit(ExitStatus.FileCreationFailed);
+  }
+
+  console.log(`Created a new GlideLite project at: '${workingDirectory}'.`);
 }

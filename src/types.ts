@@ -33,5 +33,8 @@ export enum ExitStatus {
   Success = 0,
   CommandLineOptionUnknown = 1001,
   CommandLineArgumentMissing = 1002,
-  CommandLineArgumentInvalid = 1003
+  CommandLineArgumentInvalid = 1003,
+  DirectoryCreationFailed = 2001,
+  FileAlreadyExists = 2002,
+  FileCreationFailed = 2003
 }
