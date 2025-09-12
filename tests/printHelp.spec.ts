@@ -4,14 +4,22 @@ import { printHelp } from '../src/printHelp';
 import { version } from '../src/version';
 
 describe('printHelp.ts', () => {
+  let consoleLog: sinon.SinonStub;
+
+  beforeEach(() => {
+    consoleLog = sinon.stub(console, 'log');
+  });
+
+  afterEach(() => {
+    consoleLog.restore();
+  });
+
   it('validate printing the help', () => {
-    const stub = sinon.stub(console, 'log');
     printHelp();
-    stub.restore();
 
     // We are only validating the important output
-    sinon.assert.calledWith(stub, 'glc: The GlideLite Compiler - Version', version, '\n');
-    sinon.assert.calledWith(stub, '     --help, -h  Print this message.\n');
-    sinon.assert.calledWith(stub, "  --version, -v  Print the compiler's version.\n");
+    sinon.assert.calledWith(consoleLog, 'glc: The GlideLite Compiler - Version', version, '\n');
+    sinon.assert.calledWith(consoleLog, '     --help, -h  Print this message.\n');
+    sinon.assert.calledWith(consoleLog, "  --version, -v  Print the compiler's version.\n");
   });
 });

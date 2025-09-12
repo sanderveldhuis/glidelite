@@ -4,6 +4,19 @@ import sinon from 'ts-sinon';
 import { parseCommandLine } from '../src/parseCommandLine';
 
 describe('parseCommandLine.ts', () => {
+  let consoleError: sinon.SinonStub;
+  let processExit: sinon.SinonStub;
+
+  beforeEach(() => {
+    consoleError = sinon.stub(console, 'error');
+    processExit = sinon.stub(process, 'exit');
+  });
+
+  afterEach(() => {
+    consoleError.restore();
+    processExit.restore();
+  });
+
   it('validate when no parameters are given', () => {
     const command = parseCommandLine([]);
 
@@ -21,71 +34,47 @@ describe('parseCommandLine.ts', () => {
   });
 
   it('validate when an unknown option is given', () => {
-    const consoleStub1 = sinon.stub(console, 'error');
-    const processStub1 = sinon.stub(process, 'exit');
     const command1 = parseCommandLine(['-']);
-    consoleStub1.restore();
-    processStub1.restore();
 
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub1, 'error GL1001:', "Unknown compiler option '-'.");
-    sinon.assert.calledOnceWithExactly(processStub1, 1001);
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1001:', "Unknown compiler option '-'.");
+    sinon.assert.calledWithExactly(processExit.getCall(0), 1001);
 
-    const consoleStub2 = sinon.stub(console, 'error');
-    const processStub2 = sinon.stub(process, 'exit');
     const command2 = parseCommandLine(['--']);
-    consoleStub2.restore();
-    processStub2.restore();
 
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub2, 'error GL1001:', "Unknown compiler option '--'.");
-    sinon.assert.calledOnceWithExactly(processStub2, 1001);
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1001:', "Unknown compiler option '--'.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 1001);
 
-    const consoleStub3 = sinon.stub(console, 'error');
-    const processStub3 = sinon.stub(process, 'exit');
     const command3 = parseCommandLine(['-helps']);
-    consoleStub3.restore();
-    processStub3.restore();
 
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub3, 'error GL1001:', "Unknown compiler option '-helps'.");
-    sinon.assert.calledOnceWithExactly(processStub3, 1001);
+    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1001:', "Unknown compiler option '-helps'.");
+    sinon.assert.calledWithExactly(processExit.getCall(2), 1001);
 
-    const consoleStub4 = sinon.stub(console, 'error');
-    const processStub4 = sinon.stub(process, 'exit');
     const command4 = parseCommandLine(['--helps']);
-    consoleStub4.restore();
-    processStub4.restore();
 
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub4, 'error GL1001:', "Unknown compiler option '--helps'.");
-    sinon.assert.calledOnceWithExactly(processStub4, 1001);
+    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1001:', "Unknown compiler option '--helps'.");
+    sinon.assert.calledWithExactly(processExit.getCall(3), 1001);
 
-    const consoleStub5 = sinon.stub(console, 'error');
-    const processStub5 = sinon.stub(process, 'exit');
     const command5 = parseCommandLine(['-hel']);
-    consoleStub5.restore();
-    processStub5.restore();
 
     expect(Object.keys(command5.options).length).to.equal(0);
     expect(command5.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub5, 'error GL1001:', "Unknown compiler option '-hel'.");
-    sinon.assert.calledOnceWithExactly(processStub5, 1001);
+    sinon.assert.calledWithExactly(consoleError.getCall(4), 'error GL1001:', "Unknown compiler option '-hel'.");
+    sinon.assert.calledWithExactly(processExit.getCall(4), 1001);
 
-    const consoleStub6 = sinon.stub(console, 'error');
-    const processStub6 = sinon.stub(process, 'exit');
     const command6 = parseCommandLine(['--hel']);
-    consoleStub6.restore();
-    processStub6.restore();
 
     expect(Object.keys(command6.options).length).to.equal(0);
     expect(command6.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub6, 'error GL1001:', "Unknown compiler option '--hel'.");
-    sinon.assert.calledOnceWithExactly(processStub6, 1001);
+    sinon.assert.calledWithExactly(consoleError.getCall(5), 'error GL1001:', "Unknown compiler option '--hel'.");
+    sinon.assert.calledWithExactly(processExit.getCall(5), 1001);
   });
 
   it('validate when a boolean option is given', () => {
@@ -163,95 +152,63 @@ describe('parseCommandLine.ts', () => {
   });
 
   it('validate when a string option without value is given', () => {
-    const consoleStub1 = sinon.stub(console, 'error');
-    const processStub1 = sinon.stub(process, 'exit');
     const command1 = parseCommandLine(['--module']);
-    consoleStub1.restore();
-    processStub1.restore();
 
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub1, 'error GL1002:', "Compiler option 'module' expects an argument.");
-    sinon.assert.calledOnceWithExactly(processStub1, 1002);
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1002:', "Compiler option 'module' expects an argument.");
+    sinon.assert.calledWithExactly(processExit.getCall(0), 1002);
 
-    const consoleStub2 = sinon.stub(console, 'error');
-    const processStub2 = sinon.stub(process, 'exit');
     const command2 = parseCommandLine(['-module']);
-    consoleStub2.restore();
-    processStub2.restore();
 
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub2, 'error GL1002:', "Compiler option 'module' expects an argument.");
-    sinon.assert.calledOnceWithExactly(processStub2, 1002);
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1002:', "Compiler option 'module' expects an argument.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 1002);
 
-    const consoleStub3 = sinon.stub(console, 'error');
-    const processStub3 = sinon.stub(process, 'exit');
     const command3 = parseCommandLine(['--m']);
-    consoleStub3.restore();
-    processStub3.restore();
 
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub3, 'error GL1002:', "Compiler option 'module' expects an argument.");
-    sinon.assert.calledOnceWithExactly(processStub3, 1002);
+    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1002:', "Compiler option 'module' expects an argument.");
+    sinon.assert.calledWithExactly(processExit.getCall(2), 1002);
 
-    const consoleStub4 = sinon.stub(console, 'error');
-    const processStub4 = sinon.stub(process, 'exit');
     const command4 = parseCommandLine(['-m']);
-    consoleStub4.restore();
-    processStub4.restore();
 
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub4, 'error GL1002:', "Compiler option 'module' expects an argument.");
-    sinon.assert.calledOnceWithExactly(processStub4, 1002);
+    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1002:', "Compiler option 'module' expects an argument.");
+    sinon.assert.calledWithExactly(processExit.getCall(3), 1002);
   });
 
   it('validate when a string option with invalid value is given', () => {
-    const consoleStub1 = sinon.stub(console, 'error');
-    const processStub1 = sinon.stub(process, 'exit');
     const command1 = parseCommandLine(['--module', 'backen']);
-    consoleStub1.restore();
-    processStub1.restore();
 
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub1, 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
-    sinon.assert.calledOnceWithExactly(processStub1, 1003);
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWithExactly(processExit.getCall(0), 1003);
 
-    const consoleStub2 = sinon.stub(console, 'error');
-    const processStub2 = sinon.stub(process, 'exit');
     const command2 = parseCommandLine(['-module', 'backendd']);
-    consoleStub2.restore();
-    processStub2.restore();
 
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub2, 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
-    sinon.assert.calledOnceWithExactly(processStub2, 1003);
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 1003);
 
-    const consoleStub3 = sinon.stub(console, 'error');
-    const processStub3 = sinon.stub(process, 'exit');
     const command3 = parseCommandLine(['--m', 'worker']);
-    consoleStub3.restore();
-    processStub3.restore();
 
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub3, 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
-    sinon.assert.calledOnceWithExactly(processStub3, 1003);
+    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWithExactly(processExit.getCall(2), 1003);
 
-    const consoleStub4 = sinon.stub(console, 'error');
-    const processStub4 = sinon.stub(process, 'exit');
     const command4 = parseCommandLine(['-m', 'frontendd']);
-    consoleStub4.restore();
-    processStub4.restore();
 
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    sinon.assert.calledOnceWithExactly(consoleStub4, 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
-    sinon.assert.calledOnceWithExactly(processStub4, 1003);
+    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWithExactly(processExit.getCall(3), 1003);
   });
 
   it('validate when a string option with valid value is given', () => {

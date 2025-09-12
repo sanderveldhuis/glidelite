@@ -4,11 +4,19 @@ import { printVersion } from '../src/printVersion';
 import { version } from '../src/version';
 
 describe('printVersion.ts', () => {
-  it('validate printing the version', () => {
-    const stub = sinon.stub(console, 'log');
-    printVersion();
-    stub.restore();
+  let consoleLog: sinon.SinonStub;
 
-    sinon.assert.calledOnceWithExactly(stub, 'Version', version);
+  beforeEach(() => {
+    consoleLog = sinon.stub(console, 'log');
+  });
+
+  afterEach(() => {
+    consoleLog.restore();
+  });
+
+  it('validate printing the version', () => {
+    printVersion();
+
+    sinon.assert.calledOnceWithExactly(consoleLog, 'Version', version);
   });
 });
