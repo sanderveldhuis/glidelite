@@ -38,3 +38,9 @@ export enum ExitStatus {
   FileAlreadyExists = 2002,
   FileCreationFailed = 2003
 }
+
+export interface Compiler {
+  clean: (outputDirectory: string) => void;
+  validate: (workingDirectory: string) => void;
+  compile: (workingDirectory: string, outputDirectory: string) => void;
+}

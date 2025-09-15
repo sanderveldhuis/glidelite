@@ -22,15 +22,24 @@
  * SOFTWARE.
  */
 
-import { compileProject } from './compileProject';
-import { compileWorkers } from './compileWorkers';
+import { resolve } from 'node:path';
+import * as compileProject from './compileProject';
+import * as compileWorkers from './compileWorkers';
 import { initProject } from './initProject';
 import { printHelp } from './printHelp';
 import { printVersion } from './printVersion';
 import {
   Command,
+  Compiler,
   ExitStatus
 } from './types';
+
+type ModuleNameMap = Map<string, Compiler>;
+
+const moduleNameMap: ModuleNameMap = new Map<string, Compiler>([
+  ['workers', compileWorkers],
+  ['', compileProject]
+]);
 
 export function handleCommandLine(command: Command): void {
   if (command.options.version) {
@@ -48,23 +57,21 @@ export function handleCommandLine(command: Command): void {
       initProject(workingDirectory);
       process.exit(ExitStatus.Success);
     }
-    else if (command.options.module) {
-      switch (command.options.module) {
-        case 'workers': {
-          compileWorkers(workingDirectory);
-          process.exit(ExitStatus.Success);
-          break;
-        }
-        default: {
-          console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
-          process.exit(ExitStatus.CommandLineArgumentInvalid);
-          break;
-        }
-      }
-    }
     else {
-      compileProject(workingDirectory);
-      process.exit(ExitStatus.Success);
+      const outputDirectory = resolve(String(command.options.outdir || 'output'));
+      const moduleName = String(command.options.module || '');
+      const module = moduleNameMap.get(moduleName);
+
+      if (module) {
+        if (command.options.clean) module.clean(outputDirectory);
+        module.validate(workingDirectory);
+        module.compile(workingDirectory, outputDirectory);
+        process.exit(ExitStatus.Success);
+      }
+      else {
+        console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
+        process.exit(ExitStatus.CommandLineArgumentInvalid);
+      }
     }
   }
 }

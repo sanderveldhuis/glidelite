@@ -22,6 +22,15 @@
  * SOFTWARE.
  */
 
-export function compileWorkers(workingDirectory: string): void {
+export function clean(outputDirectory: string): void {
+  console.log(outputDirectory);
+}
+
+export function validate(workingDirectory: string): void {
   console.log(workingDirectory);
+}
+
+export function compile(workingDirectory: string, outputDirectory: string): void {
+  console.log(workingDirectory);
+  console.log(outputDirectory);
 }
