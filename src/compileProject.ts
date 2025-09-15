@@ -22,15 +22,16 @@
  * SOFTWARE.
  */
 
+import * as compileWorkers from './compileWorkers';
+
 export function clean(outputDirectory: string): void {
-  console.log(outputDirectory);
+  compileWorkers.clean(outputDirectory);
 }
 
 export function validate(workingDirectory: string): void {
-  console.log(workingDirectory);
+  compileWorkers.validate(workingDirectory);
 }
 
 export function compile(workingDirectory: string, outputDirectory: string): void {
-  console.log(workingDirectory);
-  console.log(outputDirectory);
+  compileWorkers.compile(workingDirectory, outputDirectory);
 }
