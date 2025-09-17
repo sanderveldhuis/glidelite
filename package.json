@@ -22,6 +22,7 @@
     "type": "git",
     "url": "https://github.com/sanderveldhuis/glidelite.git"
   },
+  "typings": "./lib/glidelite.d.ts",
   "bin": {
     "glc": "./bin/glc"
   },
@@ -44,7 +45,7 @@
     "format": "dprint fmt",
     "dist": "npm run format && npm run lint && npm run knip && npm run clean && npm run build && npm run test && npm run dist:clean && npm run dist:copy",
     "dist:clean": "node -e \"require('fs').rmSync('lib', { recursive: true, force: true })\"",
-    "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/src/**/*.js\" lib"
+    "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/src/**/*.js\" lib && cpx \"src/glidelite.d.ts\" lib"
   },
   "dependencies": {
     "@tsconfig/node-lts": "^22.0.2",
