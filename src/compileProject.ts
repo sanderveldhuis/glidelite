@@ -23,15 +23,16 @@
  */
 
 import * as compileWorkers from './compileWorkers';
+import { Json } from './types';
 
-export function clean(outputDirectory: string): void {
-  compileWorkers.clean(outputDirectory);
+export function clean(pkg: Json, config: Json, outputDirectory: string): void {
+  compileWorkers.clean(pkg, config, outputDirectory);
 }
 
-export function validate(workingDirectory: string): void {
-  compileWorkers.validate(workingDirectory);
+export function validate(pkg: Json, config: Json, workingDirectory: string): void {
+  compileWorkers.validate(pkg, config, workingDirectory);
 }
 
-export function compile(workingDirectory: string, outputDirectory: string): void {
-  compileWorkers.compile(workingDirectory, outputDirectory);
+export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
+  compileWorkers.compile(pkg, config, workingDirectory, outputDirectory);
 }

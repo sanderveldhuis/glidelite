@@ -22,15 +22,16 @@
  * SOFTWARE.
  */
 
-export function clean(outputDirectory: string): void {
+import { Json } from './types';
+
+export function clean(pkg: Json, config: Json, outputDirectory: string): void {
   console.log(outputDirectory);
 }
 
-export function validate(workingDirectory: string): void {
+export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   console.log(workingDirectory);
 }
 
-export function compile(workingDirectory: string, outputDirectory: string): void {
-  console.log(workingDirectory);
+export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   console.log(outputDirectory);
 }

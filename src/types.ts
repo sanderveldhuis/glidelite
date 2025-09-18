@@ -36,11 +36,16 @@ export enum ExitStatus {
   CommandLineArgumentInvalid = 1003,
   DirectoryCreationFailed = 2001,
   FileAlreadyExists = 2002,
-  FileCreationFailed = 2003
+  FileCreationFailed = 2003,
+  FileReadFailed = 2004,
+  ProjectInvalid = 3001,
+  ProjectCompileFailed = 3002
 }
 
+export type Json = Record<string, string | number | object | boolean | null | string[] | number[] | object[] | boolean[]>;
+
 export interface Compiler {
-  clean: (outputDirectory: string) => void;
-  validate: (workingDirectory: string) => void;
-  compile: (workingDirectory: string, outputDirectory: string) => void;
+  clean: (pkg: Json, config: Json, outputDirectory: string) => void;
+  validate: (pkg: Json, config: Json, workingDirectory: string) => void;
+  compile: (pkg: Json, config: Json, workingDirectory: string, outputDirectory: string) => void;
 }

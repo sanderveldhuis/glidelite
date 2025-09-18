@@ -22,12 +22,16 @@
  * SOFTWARE.
  */
 
-import { resolve } from 'node:path';
+import {
+  join,
+  resolve
+} from 'node:path';
 import * as compileProject from './compileProject';
 import * as compileWorkers from './compileWorkers';
 import { initProject } from './initProject';
 import { printHelp } from './printHelp';
 import { printVersion } from './printVersion';
+import { readJsonFile } from './sysUtils';
 import {
   Command,
   Compiler,
@@ -63,9 +67,12 @@ export function handleCommandLine(command: Command): void {
       const module = moduleNameMap.get(moduleName);
 
       if (module) {
-        if (command.options.clean) module.clean(outputDirectory);
-        module.validate(workingDirectory);
-        module.compile(workingDirectory, outputDirectory);
+        const pkg = readJsonFile(join(workingDirectory, 'package.json'));
+        const config = readJsonFile(join(workingDirectory, 'glconfig.json'));
+
+        if (command.options.clean) module.clean(pkg, config, outputDirectory);
+        module.validate(pkg, config, workingDirectory);
+        module.compile(pkg, config, workingDirectory, outputDirectory);
         process.exit(ExitStatus.Success);
       }
       else {
