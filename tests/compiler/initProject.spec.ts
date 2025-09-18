@@ -1,7 +1,7 @@
 import 'mocha';
 import * as fs from 'node:fs';
 import sinon from 'ts-sinon';
-import { initProject } from '../src/compiler/initProject';
+import { initProject } from '../../src/compiler/initProject';
 
 describe('initProject.ts', () => {
   let consoleError: sinon.SinonStub;

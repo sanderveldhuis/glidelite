@@ -1,7 +1,7 @@
 import 'mocha';
 import sinon from 'ts-sinon';
-import { printHelp } from '../src/compiler/printHelp';
-import { version } from '../src/compiler/version';
+import { printHelp } from '../../src/compiler/printHelp';
+import { version } from '../../src/compiler/version';
 
 describe('printHelp.ts', () => {
   let consoleLog: sinon.SinonStub;

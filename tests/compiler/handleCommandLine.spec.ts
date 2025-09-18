@@ -1,15 +1,15 @@
 import 'mocha';
 import sinon from 'ts-sinon';
-import * as compileProjectSrc from '../src/compiler/compileProject';
-import * as compileWorkersSrc from '../src/compiler/compileWorkers';
-import { handleCommandLine } from '../src/compiler/handleCommandLine';
-import * as initProjectSrc from '../src/compiler/initProject';
-import * as printHelpSrc from '../src/compiler/printHelp';
-import * as printVersionSrc from '../src/compiler/printVersion';
+import * as compileProjectSrc from '../../src/compiler/compileProject';
+import * as compileWorkersSrc from '../../src/compiler/compileWorkers';
+import { handleCommandLine } from '../../src/compiler/handleCommandLine';
+import * as initProjectSrc from '../../src/compiler/initProject';
+import * as printHelpSrc from '../../src/compiler/printHelp';
+import * as printVersionSrc from '../../src/compiler/printVersion';
 import {
   Command,
   CommandOptions
-} from '../src/compiler/types';
+} from '../../src/compiler/types';
 
 describe('handleCommandLine.ts', () => {
   let consoleError: sinon.SinonStub;
