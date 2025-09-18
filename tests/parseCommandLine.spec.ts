@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { parseCommandLine } from '../src/parseCommandLine';
+import { parseCommandLine } from '../src/compiler/parseCommandLine';
 
 describe('parseCommandLine.ts', () => {
   let consoleError: sinon.SinonStub;

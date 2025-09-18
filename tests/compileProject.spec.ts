@@ -4,8 +4,8 @@ import {
   clean,
   compile,
   validate
-} from '../src/compileProject';
-import * as compileWorkersSrc from '../src/compileWorkers';
+} from '../src/compiler/compileProject';
+import * as compileWorkersSrc from '../src/compiler/compileWorkers';
 
 describe('compileProject.ts', () => {
   let cleanWorkers: sinon.SinonStub;
