@@ -62,11 +62,11 @@ export function handleCommandLine(command: Command): void {
       process.exit(ExitStatus.Success);
     }
     else {
-      const outputDirectory = resolve(String(command.options.outdir || 'output'));
       const moduleName = String(command.options.module || '');
       const module = moduleNameMap.get(moduleName);
 
       if (module) {
+        const outputDirectory = resolve(String(command.options.outdir || 'output'));
         const pkg = readJsonFile(join(workingDirectory, 'package.json'));
         const config = readJsonFile(join(workingDirectory, 'glconfig.json'));
 

@@ -24,21 +24,21 @@ describe('compileProject.ts', () => {
     validateWorkers.restore();
   });
 
-  it('validate validating the project', () => {
-    validate('input');
+  it('validate checking the project', () => {
+    validate({ name: 'cfg' }, { name: 'cfg' }, 'input');
 
-    sinon.assert.calledOnceWithExactly(validateWorkers, 'input');
+    sinon.assert.calledOnceWithExactly(validateWorkers, { name: 'cfg' }, { name: 'cfg' }, 'input');
   });
 
   it('validate cleaning the project', () => {
-    clean('output');
+    clean({ name: 'cfg' }, { name: 'cfg' }, 'output');
 
-    sinon.assert.calledOnceWithExactly(cleanWorkers, 'output');
+    sinon.assert.calledOnceWithExactly(cleanWorkers, { name: 'cfg' }, { name: 'cfg' }, 'output');
   });
 
   it('validate compiling the project', () => {
-    compile('input', 'output');
+    compile({ name: 'cfg' }, { name: 'cfg' }, 'input', 'output');
 
-    sinon.assert.calledOnceWithExactly(compileWorkers, 'input', 'output');
+    sinon.assert.calledOnceWithExactly(compileWorkers, { name: 'cfg' }, { name: 'cfg' }, 'input', 'output');
   });
 });
