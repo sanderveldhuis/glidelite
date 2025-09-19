@@ -21,9 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { readFileSync } from 'node:fs';
 
 /**
  * The GlideLite configuration loaded from the glconfig.json file
  */
-export declare const glconfig: any;
+export const glconfig: any = JSON.parse(readFileSync('glconfig.json').toString()); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
