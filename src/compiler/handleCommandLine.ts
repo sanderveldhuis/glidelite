@@ -69,6 +69,8 @@ export function handleCommandLine(command: Command): void {
         const outputDirectory = resolve(String(command.options.outdir || 'output'));
         const pkg = readJsonFile(join(workingDirectory, 'package.json'));
         const config = readJsonFile(join(workingDirectory, 'glconfig.json'));
+        config.name = config.name ?? pkg.name;
+        config.version = config.version ?? pkg.version;
 
         if (command.options.clean) module.clean(pkg, config, outputDirectory);
         module.validate(pkg, config, workingDirectory);
