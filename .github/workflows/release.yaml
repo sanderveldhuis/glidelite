@@ -42,14 +42,14 @@ jobs:
         run: |
           git checkout main
           sed -i -e 's/"version": ".*"/"version": "${{ inputs.package_version }}"/g' package.json
-          sed -i -e "s/export const version = '.*'/export const version = '${{ inputs.package_version }}'/g" src/version.ts
-          sed -i -e "s/expect(version).to.equal('.*')/expect(version).to.equal('${{ inputs.package_version }}')/g" tests/version.spec.ts
+          sed -i -e "s/export const version = '.*'/export const version = '${{ inputs.package_version }}'/g" src/compiler/version.ts
+          sed -i -e "s/expect(version).to.equal('.*')/expect(version).to.equal('${{ inputs.package_version }}')/g" tests/compiler/version.spec.ts
           npm ci
           npm install # update package-lock.json to ensure the version bump is included
           npm run test
           git diff
           git add package.json package-lock.json
-          git add src/version.ts tests/version.spec.ts
+          git add src/compiler/version.ts tests/compiler/version.spec.ts
           git commit -m "Bump version to v${{ inputs.package_version }}"
           git push -f origin main
       - name: Create release branch
