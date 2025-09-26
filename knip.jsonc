@@ -1,7 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "includeEntryExports": true,
-  "entry": ["src/glc.ts"],
+  "entry": [
+    "src/compiler/glc.ts",
+    "src/glidelite/glidelite.ts"
+  ],
   "project": ["src/**"],
   "ignoreExportsUsedInFile": {
     "enum": true,

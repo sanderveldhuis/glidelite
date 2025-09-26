@@ -22,60 +22,67 @@
  * SOFTWARE.
  */
 
+import { execSync } from 'node:child_process';
 import {
-  existsSync,
   mkdirSync,
+  readFileSync,
+  rmSync,
   writeFileSync
 } from 'node:fs';
-import { join } from 'node:path';
-import { ExitStatus } from './types';
+import {
+  ExitStatus,
+  Json
+} from './types';
 
-function mkdir(path: string): boolean {
+export function remove(path: string): void {
+  rmSync(path, { recursive: true, force: true });
+}
+
+export function makeDir(path: string): void {
   try {
     mkdirSync(path, { recursive: true });
-    return true;
   }
   catch (error) {
     console.error(`error GL${String(ExitStatus.DirectoryCreationFailed)}:`, `Failed creating directory at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
-    return false;
+    process.exit(ExitStatus.DirectoryCreationFailed);
   }
 }
 
-function mkfile(path: string, content: string): boolean {
+export function makeFile(path: string, content: string): void {
   try {
     writeFileSync(path, content);
-    return true;
   }
   catch (error) {
     console.error(`error GL${String(ExitStatus.FileCreationFailed)}:`, `Failed creating file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
-    return false;
+    process.exit(ExitStatus.FileCreationFailed);
   }
 }
 
-export function initProject(workingDirectory: string): void {
-  const workersDir = join(workingDirectory, 'backend', 'workers');
-  const workersGlConfig = join(workingDirectory, 'glconfig.json');
-  const workersTsConfig = join(workersDir, 'tsconfig.json');
-
-  if (existsSync(workersGlConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
-    return process.exit(ExitStatus.FileAlreadyExists);
+export function readFile(path: string): string {
+  try {
+    return readFileSync(path).toString();
   }
-  else if (existsSync(workersTsConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${workersTsConfig}'.`);
-    return process.exit(ExitStatus.FileAlreadyExists);
+  catch (error) {
+    console.error(`error GL${String(ExitStatus.FileReadFailed)}:`, `Failed reading file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    process.exit(ExitStatus.FileReadFailed);
   }
+}
 
-  if (!mkdir(workersDir)) {
-    return process.exit(ExitStatus.DirectoryCreationFailed);
+export function readJsonFile(path: string): Json {
+  try {
+    return JSON.parse(readFileSync(path).toString()) as Json;
   }
-
-  if (
-    !mkfile(workersGlConfig, '{}\n') ||
-    !mkfile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n')
-  ) {
-    return process.exit(ExitStatus.FileCreationFailed);
+  catch (error) {
+    console.error(`error GL${String(ExitStatus.FileReadFailed)}:`, `Failed reading file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    process.exit(ExitStatus.FileReadFailed);
   }
+}
 
-  console.log(`Created a new GlideLite project at: '${workingDirectory}'.`);
+export function execute(cmd: string, cwd: string): void {
+  try {
+    execSync(cmd, { cwd, stdio: 'inherit' });
+  }
+  catch (error) { // eslint-disable-line @typescript-eslint/no-unused-vars
+    process.exit(ExitStatus.ProjectCompileFailed);
+  }
 }

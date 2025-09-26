@@ -22,32 +22,31 @@
  * SOFTWARE.
  */
 
-import { initProject } from './initProject';
-import { printHelp } from './printHelp';
-import { printVersion } from './printVersion';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import {
-  Command,
-  ExitStatus
-} from './types';
+  makeDir,
+  makeFile
+} from './sysUtils';
+import { ExitStatus } from './types';
 
-export function handleCommandLine(command: Command): void {
-  if (command.options.version) {
-    printVersion();
-    process.exit(ExitStatus.Success);
-  }
-  else if (command.options.help) {
-    printHelp();
-    process.exit(ExitStatus.Success);
-  }
-  else {
-    const workingDirectory = process.cwd();
+export function initProject(workingDirectory: string): void {
+  const workersDir = join(workingDirectory, 'backend', 'workers');
+  const workersGlConfig = join(workingDirectory, 'glconfig.json');
+  const workersTsConfig = join(workersDir, 'tsconfig.json');
 
-    if (command.options.init) {
-      initProject(workingDirectory);
-      process.exit(ExitStatus.Success);
-    }
-    else {
-      process.exit(ExitStatus.Success);
-    }
+  if (existsSync(workersGlConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
   }
+  else if (existsSync(workersTsConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${workersTsConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
+
+  makeDir(workersDir);
+  makeFile(workersGlConfig, '{}\n');
+  makeFile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+
+  console.log(`Created a new GlideLite project at: '${workingDirectory}'.`);
 }

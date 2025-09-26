@@ -22,19 +22,17 @@
  * SOFTWARE.
  */
 
-export type CommandOptions = Record<string, string | boolean>;
+import * as compileWorkers from './compileWorkers';
+import { Json } from './types';
 
-export interface Command {
-  options: CommandOptions;
-  paths: string[];
+export function clean(pkg: Json, config: Json, outputDirectory: string): void {
+  compileWorkers.clean(pkg, config, outputDirectory);
 }
 
-export enum ExitStatus {
-  Success = 0,
-  CommandLineOptionUnknown = 1001,
-  CommandLineArgumentMissing = 1002,
-  CommandLineArgumentInvalid = 1003,
-  DirectoryCreationFailed = 2001,
-  FileAlreadyExists = 2002,
-  FileCreationFailed = 2003
+export function validate(pkg: Json, config: Json, workingDirectory: string): void {
+  compileWorkers.validate(pkg, config, workingDirectory);
+}
+
+export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
+  compileWorkers.compile(pkg, config, workingDirectory, outputDirectory);
 }
