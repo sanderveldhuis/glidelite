@@ -72,7 +72,9 @@ export function handleCommandLine(command: Command): void {
         config.name = config.name ?? pkg.name;
         config.version = config.version ?? pkg.version;
 
-        if (command.options.clean) module.clean(pkg, config, outputDirectory);
+        if (command.options.clean) {
+          module.clean(pkg, config, outputDirectory);
+        }
         module.validate(pkg, config, workingDirectory);
         module.compile(pkg, config, workingDirectory, outputDirectory);
         process.exit(ExitStatus.Success);
