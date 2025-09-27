@@ -1,4 +1,3 @@
-"use strict";
 /**
  * MIT License
  *
@@ -22,11 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-const handleCommandLine_1 = require("./handleCommandLine");
-const parseCommandLine_1 = require("./parseCommandLine");
-function executeCommandLine(commandLineArgs) {
-    const command = (0, parseCommandLine_1.parseCommandLine)(commandLineArgs);
-    (0, handleCommandLine_1.handleCommandLine)(command);
-}
-executeCommandLine(process.argv.slice(2));
+/**
+ * The GlideLite configuration loaded from the glconfig.json file
+ */
+export declare const glconfig: any;
