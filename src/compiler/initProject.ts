@@ -39,7 +39,7 @@ export function initProject(workingDirectory: string): void {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
-  else if (exists(workersTsConfig)) {
+  if (exists(workersTsConfig)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${workersTsConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }

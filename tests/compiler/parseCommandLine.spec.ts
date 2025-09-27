@@ -36,43 +36,37 @@ describe('parseCommandLine.ts', () => {
   it('validate when an unknown option is given', () => {
     const command1 = parseCommandLine(['-']);
 
-    expect(Object.keys(command1.options).length).to.equal(0);
-    expect(command1.paths.length).to.equal(0);
+    expect(command1).to.equal(undefined);
     sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1001:', "Unknown compiler option '-'.");
     sinon.assert.calledWithExactly(processExit.getCall(0), 1001);
 
     const command2 = parseCommandLine(['--']);
 
-    expect(Object.keys(command2.options).length).to.equal(0);
-    expect(command2.paths.length).to.equal(0);
+    expect(command2).to.equal(undefined);
     sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1001:', "Unknown compiler option '--'.");
     sinon.assert.calledWithExactly(processExit.getCall(1), 1001);
 
     const command3 = parseCommandLine(['-helps']);
 
-    expect(Object.keys(command3.options).length).to.equal(0);
-    expect(command3.paths.length).to.equal(0);
+    expect(command3).to.equal(undefined);
     sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1001:', "Unknown compiler option '-helps'.");
     sinon.assert.calledWithExactly(processExit.getCall(2), 1001);
 
     const command4 = parseCommandLine(['--helps']);
 
-    expect(Object.keys(command4.options).length).to.equal(0);
-    expect(command4.paths.length).to.equal(0);
+    expect(command4).to.equal(undefined);
     sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1001:', "Unknown compiler option '--helps'.");
     sinon.assert.calledWithExactly(processExit.getCall(3), 1001);
 
     const command5 = parseCommandLine(['-hel']);
 
-    expect(Object.keys(command5.options).length).to.equal(0);
-    expect(command5.paths.length).to.equal(0);
+    expect(command5).to.equal(undefined);
     sinon.assert.calledWithExactly(consoleError.getCall(4), 'error GL1001:', "Unknown compiler option '-hel'.");
     sinon.assert.calledWithExactly(processExit.getCall(4), 1001);
 
     const command6 = parseCommandLine(['--hel']);
 
-    expect(Object.keys(command6.options).length).to.equal(0);
-    expect(command6.paths.length).to.equal(0);
+    expect(command6).to.equal(undefined);
     sinon.assert.calledWithExactly(consoleError.getCall(5), 'error GL1001:', "Unknown compiler option '--hel'.");
     sinon.assert.calledWithExactly(processExit.getCall(5), 1001);
   });

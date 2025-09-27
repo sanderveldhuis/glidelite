@@ -72,35 +72,35 @@ function parseOptionValue(commandLineArgs: readonly string[], i: number, option:
   // Only booleans do not require a value
   if (!commandLineArgs[i] && 'boolean' !== option.type) {
     console.error(`error GL${String(ExitStatus.CommandLineArgumentMissing)}:`, `Compiler option '${option.name}' expects an argument.`);
-    process.exit(ExitStatus.CommandLineArgumentMissing);
+    return process.exit(ExitStatus.CommandLineArgumentMissing);
   }
-  else {
-    const value = commandLineArgs[i];
 
-    switch (option.type) {
-      case 'boolean': {
-        if (value === 'false' || value === 'true') {
-          options[option.name] = value === 'true';
-          i++;
-        }
-        else {
-          options[option.name] = true;
-        }
-        break;
-      }
-      default: {
-        if (option.values && !option.values.includes(value)) {
-          console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Argument for '${option.name}' option must be: '${option.values.join("', '")}'.`);
-          process.exit(ExitStatus.CommandLineArgumentInvalid);
-        }
-        else {
-          options[option.name] = value;
-        }
+  const value = commandLineArgs[i];
+
+  switch (option.type) {
+    case 'boolean': {
+      if (value === 'false' || value === 'true') {
+        options[option.name] = value === 'true';
         i++;
-        break;
       }
+      else {
+        options[option.name] = true;
+      }
+      break;
+    }
+    default: {
+      if (option.values && !option.values.includes(value)) {
+        console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Argument for '${option.name}' option must be: '${option.values.join("', '")}'.`);
+        return process.exit(ExitStatus.CommandLineArgumentInvalid);
+      }
+      else {
+        options[option.name] = value;
+      }
+      i++;
+      break;
     }
   }
+
   return i;
 }
 
@@ -120,7 +120,7 @@ export function parseCommandLine(commandLineArgs: readonly string[]): Command {
       }
       else {
         console.error(`error GL${String(ExitStatus.CommandLineOptionUnknown)}:`, `Unknown compiler option '${arg}'.`);
-        process.exit(ExitStatus.CommandLineOptionUnknown);
+        return process.exit(ExitStatus.CommandLineOptionUnknown);
       }
     }
     else {

@@ -48,46 +48,44 @@ const moduleNameMap: ModuleNameMap = new Map<string, Compiler>([
 export function handleCommandLine(command: Command): void {
   if (command.options.version) {
     printVersion();
-    process.exit(ExitStatus.Success);
+    return process.exit(ExitStatus.Success);
   }
-  else if (command.options.help) {
+  if (command.options.help) {
     printHelp();
-    process.exit(ExitStatus.Success);
+    return process.exit(ExitStatus.Success);
+  }
+
+  const workingDirectory = process.cwd();
+
+  if (command.options.init) {
+    initProject(workingDirectory);
+    return process.exit(ExitStatus.Success);
+  }
+
+  const moduleName = String(command.options.module || '');
+  const module = moduleNameMap.get(moduleName);
+
+  if (module) {
+    const outdir = String(command.options.outdir || 'output');
+    const pkgJson = join(workingDirectory, 'package.json');
+    const glConfig = join(workingDirectory, 'glconfig.json');
+
+    const outputDirectory = resolve(outdir);
+    const pkg = readJsonFile(pkgJson);
+    const config = readJsonFile(glConfig);
+
+    config.name = config.name ?? pkg.name;
+    config.version = config.version ?? pkg.version;
+
+    if (command.options.clean) {
+      module.clean(pkg, config, outputDirectory);
+    }
+    module.validate(pkg, config, workingDirectory);
+    module.compile(pkg, config, workingDirectory, outputDirectory);
+    return process.exit(ExitStatus.Success);
   }
   else {
-    const workingDirectory = process.cwd();
-
-    if (command.options.init) {
-      initProject(workingDirectory);
-      process.exit(ExitStatus.Success);
-    }
-    else {
-      const moduleName = String(command.options.module || '');
-      const module = moduleNameMap.get(moduleName);
-
-      if (module) {
-        const outdir = String(command.options.outdir || 'output');
-        const pkgJson = join(workingDirectory, 'package.json');
-        const glConfig = join(workingDirectory, 'glconfig.json');
-
-        const outputDirectory = resolve(outdir);
-        const pkg = readJsonFile(pkgJson);
-        const config = readJsonFile(glConfig);
-
-        config.name = config.name ?? pkg.name;
-        config.version = config.version ?? pkg.version;
-
-        if (command.options.clean) {
-          module.clean(pkg, config, outputDirectory);
-        }
-        module.validate(pkg, config, workingDirectory);
-        module.compile(pkg, config, workingDirectory, outputDirectory);
-        process.exit(ExitStatus.Success);
-      }
-      else {
-        console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
-        process.exit(ExitStatus.CommandLineArgumentInvalid);
-      }
-    }
+    console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
+    return process.exit(ExitStatus.CommandLineArgumentInvalid);
   }
 }
