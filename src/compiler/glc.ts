@@ -25,6 +25,10 @@
 import { handleCommandLine } from './handleCommandLine';
 import { parseCommandLine } from './parseCommandLine';
 
+/**
+ * Executes the GlideLite Compiler with the specified command line arguments.
+ * @param commandLineArgs the command line arguments
+ */
 function executeCommandLine(commandLineArgs: readonly string[]): void {
   const command = parseCommandLine(commandLineArgs);
   handleCommandLine(command);

@@ -30,11 +30,16 @@ import {
 } from './sysUtils';
 import { ExitStatus } from './types';
 
+/**
+ * Initializes a new GlideLite project at the specified working directory.
+ * @param workingDirectory the working directory to create the new project at
+ */
 export function initProject(workingDirectory: string): void {
   const workersDir = join(workingDirectory, 'backend', 'workers');
   const workersGlConfig = join(workingDirectory, 'glconfig.json');
   const workersTsConfig = join(workersDir, 'tsconfig.json');
 
+  // Check if all required files are not yet available to prevent overwriting existing user data
   if (exists(workersGlConfig)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
@@ -44,6 +49,7 @@ export function initProject(workingDirectory: string): void {
     return process.exit(ExitStatus.FileAlreadyExists);
   }
 
+  // Create the file system structure if not exists, and create all required files
   makeDir(workersDir);
   makeFile(workersGlConfig, '{}\n');
   makeFile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
