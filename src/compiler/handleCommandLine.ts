@@ -66,9 +66,14 @@ export function handleCommandLine(command: Command): void {
       const module = moduleNameMap.get(moduleName);
 
       if (module) {
-        const outputDirectory = resolve(String(command.options.outdir || 'output'));
-        const pkg = readJsonFile(join(workingDirectory, 'package.json'));
-        const config = readJsonFile(join(workingDirectory, 'glconfig.json'));
+        const outdir = String(command.options.outdir || 'output');
+        const pkgJson = join(workingDirectory, 'package.json');
+        const glConfig = join(workingDirectory, 'glconfig.json');
+
+        const outputDirectory = resolve(outdir);
+        const pkg = readJsonFile(pkgJson);
+        const config = readJsonFile(glConfig);
+
         config.name = config.name ?? pkg.name;
         config.version = config.version ?? pkg.version;
 
