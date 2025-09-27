@@ -9,7 +9,7 @@ See [getting started](https://github.com/sanderveldhuis/glidelite/blob/main/doc/
 
  **Default:** inherit from `package.json`
 
-Specifies the name of the project and ends up being part of multiple directory names. Therefore, the name can't contain any non-URL-safe characters. Make sure that the name is unique to ensure it does not interfer with other directories on your deployment system (e.g. Linux).
+Specifies the name of the project and ends up being part of multiple directory names. Therefore, the name can't contain any non-URL-safe characters. Make sure that the name is unique to ensure it does not interfer with other directories on your deployment system (currently only Linux support).
 
 ## Version - `version`
 
