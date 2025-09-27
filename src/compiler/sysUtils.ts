@@ -24,7 +24,10 @@
 
 import { execSync } from 'node:child_process';
 import {
+  Dirent,
+  existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync
@@ -34,7 +37,12 @@ import {
   Json
 } from './types';
 
+export function exists(path: string): boolean {
+  return existsSync(path);
+}
+
 export function remove(path: string): void {
+  // No need to catch the error because the rmSync function will swallow the error
   rmSync(path, { recursive: true, force: true });
 }
 
@@ -58,6 +66,16 @@ export function makeFile(path: string, content: string): void {
   }
 }
 
+export function readDir(path: string): Dirent[] {
+  try {
+    return readdirSync(path, { withFileTypes: true, recursive: true });
+  }
+  catch (error) {
+    console.error(`error GL${String(ExitStatus.DirectoryReadFailed)}:`, `Failed reading directory at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    process.exit(ExitStatus.DirectoryReadFailed);
+  }
+}
+
 export function readFile(path: string): string {
   try {
     return readFileSync(path).toString();
@@ -70,10 +88,11 @@ export function readFile(path: string): string {
 
 export function readJsonFile(path: string): Json {
   try {
-    return JSON.parse(readFileSync(path).toString()) as Json;
+    const content = readFileSync(path).toString();
+    return JSON.parse(content) as Json;
   }
   catch (error) {
-    console.error(`error GL${String(ExitStatus.FileReadFailed)}:`, `Failed reading file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    console.error(`error GL${String(ExitStatus.FileReadFailed)}:`, `Failed reading JSON at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
     process.exit(ExitStatus.FileReadFailed);
   }
 }
@@ -83,6 +102,7 @@ export function execute(cmd: string, cwd: string): void {
     execSync(cmd, { cwd, stdio: 'inherit' });
   }
   catch (error) { // eslint-disable-line @typescript-eslint/no-unused-vars
+    // No need to log the error to the console because the output of the command will already be logged to the console
     process.exit(ExitStatus.ProjectCompileFailed);
   }
 }

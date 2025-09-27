@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  exists,
   makeDir,
   makeFile
 } from './sysUtils';
@@ -35,11 +35,11 @@ export function initProject(workingDirectory: string): void {
   const workersGlConfig = join(workingDirectory, 'glconfig.json');
   const workersTsConfig = join(workersDir, 'tsconfig.json');
 
-  if (existsSync(workersGlConfig)) {
+  if (exists(workersGlConfig)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
-  else if (existsSync(workersTsConfig)) {
+  else if (exists(workersTsConfig)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${workersTsConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }

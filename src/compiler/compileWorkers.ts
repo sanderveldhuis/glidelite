@@ -22,15 +22,13 @@
  * SOFTWARE.
  */
 
-import {
-  existsSync,
-  readdirSync
-} from 'node:fs';
 import { join } from 'node:path';
 import {
   execute,
+  exists,
   makeDir,
   makeFile,
+  readDir,
   readFile,
   remove
 } from './sysUtils';
@@ -67,7 +65,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   const workersTsConfig = join(workingDirectory, 'backend', 'workers', 'tsconfig.json');
 
-  if (!existsSync(workersTsConfig)) {
+  if (!exists(workersTsConfig)) {
     console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${workersTsConfig}'.`);
     return process.exit(ExitStatus.ProjectInvalid);
   }
@@ -76,7 +74,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   const workersDir = join(workingDirectory, 'backend', 'workers');
 
-  const allFiles = readdirSync(workersDir, { withFileTypes: true, recursive: true });
+  const allFiles = readDir(workersDir);
   const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
   if (tsFiles.length <= 0) {
     // Nothing to compile

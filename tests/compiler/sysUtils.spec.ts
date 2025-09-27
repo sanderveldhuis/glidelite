@@ -5,8 +5,10 @@ import * as fs from 'node:fs';
 import sinon from 'ts-sinon';
 import {
   execute,
+  exists,
   makeDir,
   makeFile,
+  readDir,
   readFile,
   readJsonFile,
   remove
@@ -15,8 +17,10 @@ import {
 describe('sysUtils.ts', () => {
   let consoleError: sinon.SinonStub;
   let processExit: sinon.SinonStub;
+  let existsSync: sinon.SinonStub;
   let mkdirSync: sinon.SinonStub;
   let rmSync: sinon.SinonStub;
+  let readdirSync: sinon.SinonStub;
   let readFileSync: sinon.SinonStub;
   let writeFileSync: sinon.SinonStub;
   let execSync: sinon.SinonStub;
@@ -24,8 +28,10 @@ describe('sysUtils.ts', () => {
   beforeEach(() => {
     consoleError = sinon.stub(console, 'error');
     processExit = sinon.stub(process, 'exit');
+    existsSync = sinon.stub(fs, 'existsSync');
     mkdirSync = sinon.stub(fs, 'mkdirSync');
     rmSync = sinon.stub(fs, 'rmSync');
+    readdirSync = sinon.stub(fs, 'readdirSync');
     readFileSync = sinon.stub(fs, 'readFileSync');
     writeFileSync = sinon.stub(fs, 'writeFileSync');
     execSync = sinon.stub(child_process, 'execSync');
@@ -34,11 +40,22 @@ describe('sysUtils.ts', () => {
   afterEach(() => {
     consoleError.restore();
     processExit.restore();
+    existsSync.restore();
     mkdirSync.restore();
     rmSync.restore();
+    readdirSync.restore();
     readFileSync.restore();
     writeFileSync.restore();
     execSync.restore();
+  });
+
+  it('validate checking if a file or directory exists', () => {
+    existsSync.returns(true);
+
+    const result = exists('test');
+
+    expect(result).to.equal(true);
+    sinon.assert.calledOnceWithExactly(existsSync, 'test');
   });
 
   it('validate removing a file or directory', () => {
@@ -76,15 +93,37 @@ describe('sysUtils.ts', () => {
     makeFile('test', 'content');
 
     sinon.assert.calledWithExactly(writeFileSync.getCall(1), 'test', 'content');
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2003:', "Failed creating file at: 'test', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2003);
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2011:', "Failed creating file at: 'test', unknown.");
+    sinon.assert.calledWithExactly(processExit.getCall(0), 2011);
 
     writeFileSync.throws(new Number());
     makeFile('test', 'content');
 
     sinon.assert.calledWithExactly(writeFileSync.getCall(2), 'test', 'content');
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2003:', "Failed creating file at: 'test'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2003);
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2011:', "Failed creating file at: 'test'.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 2011);
+  });
+
+  it('validate reading a directory', () => {
+    readdirSync.returns([]);
+    const result = readDir('test');
+
+    expect(result.length).to.equal(0);
+    sinon.assert.calledWithExactly(readdirSync.getCall(0), 'test', { withFileTypes: true, recursive: true });
+
+    readdirSync.throws(new Error('unknown'));
+    readDir('test');
+
+    sinon.assert.calledWithExactly(readdirSync.getCall(1), 'test', { withFileTypes: true, recursive: true });
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2002:', "Failed reading directory at: 'test', unknown.");
+    sinon.assert.calledWithExactly(processExit.getCall(0), 2002);
+
+    readdirSync.throws(new Number());
+    readDir('test');
+
+    sinon.assert.calledWithExactly(readdirSync.getCall(2), 'test', { withFileTypes: true, recursive: true });
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2002:', "Failed reading directory at: 'test'.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 2002);
   });
 
   it('validate reading a file', () => {
@@ -104,15 +143,15 @@ describe('sysUtils.ts', () => {
     readFile('test');
 
     sinon.assert.calledWithExactly(readFileSync.getCall(1), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2004:', "Failed reading file at: 'test', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2004);
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2012:', "Failed reading file at: 'test', unknown.");
+    sinon.assert.calledWithExactly(processExit.getCall(0), 2012);
 
     readFileSync.throws(new Number());
     readFile('test');
 
     sinon.assert.calledWithExactly(readFileSync.getCall(2), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2004:', "Failed reading file at: 'test'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2004);
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2012:', "Failed reading file at: 'test'.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 2012);
   });
 
   it('validate reading a JSON file', () => {
@@ -134,22 +173,22 @@ describe('sysUtils.ts', () => {
     readJsonFile('test');
 
     sinon.assert.calledWithExactly(readFileSync.getCall(1), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2004:', "Failed reading file at: 'test', Unexpected token 'i', \"invalid-json\" is not valid JSON.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2004);
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2012:', "Failed reading JSON at: 'test', Unexpected token 'i', \"invalid-json\" is not valid JSON.");
+    sinon.assert.calledWithExactly(processExit.getCall(0), 2012);
 
     readFileSync.throws(new Error('unknown'));
     readJsonFile('test');
 
     sinon.assert.calledWithExactly(readFileSync.getCall(2), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2004:', "Failed reading file at: 'test', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2004);
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2012:', "Failed reading JSON at: 'test', unknown.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 2012);
 
     readFileSync.throws(new Number());
     readJsonFile('test');
 
     sinon.assert.calledWithExactly(readFileSync.getCall(3), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL2004:', "Failed reading file at: 'test'.");
-    sinon.assert.calledWithExactly(processExit.getCall(2), 2004);
+    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL2012:', "Failed reading JSON at: 'test'.");
+    sinon.assert.calledWithExactly(processExit.getCall(2), 2012);
   });
 
   it('validate executing a command', () => {
