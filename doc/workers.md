@@ -3,7 +3,7 @@
 
 Workers are small applications with a specific purpose running in the background. Such workers can be used to automate administration, cleanup, maintenance, or any other job. There are two types of workers:
 
-* **Service** - runs continuously and is started at each boot of the deployment system (currently only Linux support). When exited or crashed the system will automatically restart the service.
+* **Service** - runs continuously and is started at each boot of the deployment system. When exited or crashed the system will automatically restart the service.
 * **Task** - runs periodically at fixed time, date, or interval.
 
 ## Build your first worker
@@ -14,7 +14,7 @@ In your editor, type the following TypeScript code in `backend/workers/writer.ts
 import { writeFileSync } from 'node:fs';
 
 function writeFile(filename: string, data: string): void {
-    fs.writeFileSync(filename, data);
+    writeFileSync(filename, data);
 }
 
 writeFile(`/tmp/${Date.now()}`, 'Hello, World!');
@@ -83,7 +83,7 @@ Open your editor and update `backend/workers/writer.ts` with the following TypeS
 import { writeFileSync } from 'node:fs';
 
 function writeFile(filename: string, data: string): void {
-    fs.writeFileSync(filename, data);
+    writeFileSync(filename, data);
 }
 
 writeFile(`/tmp/${Date.now()}`, 'Hello, World!');
@@ -112,7 +112,7 @@ import { glconfig } from 'glidelite';
 import { writeFileSync } from 'node:fs';
 
 function writeFile(filename: string, data: string): void {
-    fs.writeFileSync(filename, data);
+    writeFileSync(filename, data);
 }
 
 writeFile(`/tmp/${Date.now()}`, `Hello, ${glconfig.user}!`);
