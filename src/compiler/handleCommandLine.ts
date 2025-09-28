@@ -38,13 +38,20 @@ import {
   ExitStatus
 } from './types';
 
-type ModuleNameMap = Map<string, Compiler>;
+type ModuleNameCompilerMap = Map<string, Compiler>;
 
-const moduleNameMap: ModuleNameMap = new Map<string, Compiler>([
+/**
+ * Mapping of module names to their dedicated compiler.
+ */
+const moduleNameMap: ModuleNameCompilerMap = new Map<string, Compiler>([
   ['workers', compileWorkers],
   ['', compileProject]
 ]);
 
+/**
+ * Handles the specified command by executing the related action.
+ * @param command the command to execute
+ */
 export function handleCommandLine(command: Command): void {
   if (command.options.version) {
     printVersion();
@@ -70,10 +77,12 @@ export function handleCommandLine(command: Command): void {
     const pkgJson = join(workingDirectory, 'package.json');
     const glConfig = join(workingDirectory, 'glconfig.json');
 
+    // Resolve output directory path and read JSON configuration files
     const outputDirectory = resolve(outdir);
     const pkg = readJsonFile(pkgJson);
     const config = readJsonFile(glConfig);
 
+    // If no name and/or version is defined in the GlideLite configuration then use the ones from the package.json
     config.name = config.name ?? pkg.name;
     config.version = config.version ?? pkg.version;
 
