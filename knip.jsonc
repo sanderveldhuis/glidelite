@@ -11,6 +11,10 @@
     "interface": true,
     "type": true
   },
-  "ignoreDependencies": ["@tsconfig/node-lts"],
+  "ignoreDependencies": [
+    "@tsconfig/node-lts",
+    "@types/mocha",
+    "mocha"
+  ],
   "ignoreBinaries": ["glc"]
 }
