@@ -1,4 +1,121 @@
 
 # Workers
 
-Workers are services with a specific purpose running in the background. A worker can run continuously or periodically at fixed time, date, or interval. Such workers can be used to automate administration, cleanup, maintenance, or any other task.
+Workers are small applications with a specific purpose running in the background. Such workers can be used to automate administration, cleanup, maintenance, or any other job. There are two types of workers:
+
+* **Service** - runs continuously and is started at each boot of the deployment system (currently only Linux support). When exited or crashed the system will automatically restart the service.
+* **Task** - runs periodically at fixed time, date, or interval.
+
+## Build your first worker
+
+In your editor, type the following TypeScript code in `backend/workers/writer.ts`:
+
+```typescript
+import { writeFileSync } from 'node:fs';
+
+function writeFile(filename: string, data: string): void {
+    fs.writeFileSync(filename, data);
+}
+
+writeFile(`/tmp/${Date.now()}`, 'Hello, World!');
+```
+
+## Compiling your code
+
+At the command line, run the GlideLite Compiler:
+
+```bash
+npx glc -m workers
+```
+
+The results will be in the `output` directory, which will only contain the compiled JavaScript file. For now, the JavaScript file should be executed manually meaning it is not yet a real worker, let's change this.
+
+## Define as service or task
+
+To ensure your TypeScript file will be run as an actual worker, either service or task, you should give the GlideLite Compiler some instructions. This can be done by adding the instruction to the top of the TypeScript file.
+
+To define the TypeScript file as a service:
+
+```javascript
+'glc service';
+```
+
+To define the TypeScript file as a task:
+
+```javascript
+'glc task * * * * *';     // Asterisk (*) means: any value and range
+//        | | | | |
+//        | | | | `------ Day of the week (0 - 7, where 0 or 7 is Sunday, or the first three letters the particular day: mon,tue,wed...)
+//        | | | `-------- Month (1 - 12, or the first three letters the particular month: jan,feb,mar...)
+//        | | `---------- Day of the month (1 - 31)
+//        | `------------ Hour (0 - 23)
+//        `-------------- Minute (0 - 59)
+
+// Examples
+'glc task 30 5 * * *';    // Runs each day at 5:30 AM
+'glc task 15 14 1 * *';   // Runs the first of each month at 2:15 PM
+'glc task 5 4 * * sun';   // Runs each sunday at 4:05 AM
+
+// Ranges
+'glc task 30-45 5 * * *'; // Runs each day at every minute from 5:30 AM till 5:45 AM
+'glc task 0 22 * * 1-5';  // Runs all weekdays at 10:00 PM
+
+// Steps
+'glc task 0 0-5/2 * * *'; // Runs each day from 0:00 AM till 5:00 AM with steps of 2 hours (i.e. 0:00 AM, 2:00 AM, and 4:00 AM)
+
+// Specials
+'glc task @annually';     // Run once a year, i.e.  "0 0 1 1 *"
+'glc task @yearly';       // Run once a year, i.e.  "0 0 1 1 *"
+'glc task @monthly';      // Run once a month, i.e. "0 0 1 * *"
+'glc task @weekly';       // Run once a week, i.e.  "0 0 * * 0"
+'glc task @daily';        // Run once a day, i.e.   "0 0 * * *"
+'glc task @hourly';       // Run once an hour, i.e. "0 * * * *"
+'glc task @reboot';       // Run once after reboot
+```
+
+Note that that non-existent times, such as the "missing hours" during the daylight savings time conversion, will never match, causing workers scheduled during the "missing times" not to be executed.  Similarly, times that occur more than once (again, during the daylight savings time conversion) will cause matching workers to be executed twice.
+
+Open your editor and update `backend/workers/writer.ts` with the following TypeScript code:
+
+```typescript
+'glc task 30 5 * * *';
+
+import { writeFileSync } from 'node:fs';
+
+function writeFile(filename: string, data: string): void {
+    fs.writeFileSync(filename, data);
+}
+
+writeFile(`/tmp/${Date.now()}`, 'Hello, World!');
+```
+
+After recompiling, you'll notice an additional `cron.d` file is generated. This will make sure, after deployment, that your task is executed each night at 5:30 AM as you defined in the compiler instruction.
+
+## Use configuration values
+
+The `glconfig.json` configuration file can be used to define global configuration values used throughout the project.
+
+In your editor, type the following JSON in `glconfig.json`:
+
+```json
+{
+  "user": "John Doe"
+}
+```
+
+Now make use of this configuration value, update `backend/workers/writer.ts` with the following TypeScript code:
+
+```typescript
+'glc task 30 5 * * *';
+
+import { glconfig } from 'glidelite';
+import { writeFileSync } from 'node:fs';
+
+function writeFile(filename: string, data: string): void {
+    fs.writeFileSync(filename, data);
+}
+
+writeFile(`/tmp/${Date.now()}`, `Hello, ${glconfig.user}!`);
+```
+
+By importing the `glidelite` module, it is possible to directly use the values from the `glconfig.json` via the provided `glconfig` object. The GlideLite Compiler will ensure it is linked correctly.
