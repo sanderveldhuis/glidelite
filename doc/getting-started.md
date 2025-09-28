@@ -28,10 +28,10 @@ npx glc -i
 This will create the filesystem structure with required files for a GlideLite project:
 
 ```bash
-├─ backend              # contains all backend components
+├─ backend              # contains all backend modules
 │  └─ workers           # contains code for workers
 │     └─ tsconfig.json  # TypeScript configuration for workers code
-├─ frontend             # contains all frontend components
+├─ frontend             # contains all frontend modules
 └─ glconfig.json        # GlideLite configuration for the project
 ```
 
@@ -53,4 +53,5 @@ npx glc -m workers
 
 To dive deeper into GlideLite it is time to start coding your project:
 
+* [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)

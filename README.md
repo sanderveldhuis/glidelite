@@ -5,7 +5,7 @@
 [![Nightly Build](https://github.com/sanderveldhuis/glidelite/actions/workflows/nightly.yaml/badge.svg)](https://github.com/sanderveldhuis/glidelite//actions/workflows/nightly.yaml)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/sanderveldhuis/glidelite/badge)](https://securityscorecards.dev/viewer/?uri=github.com/sanderveldhuis/glidelite)
 
-Builds secure web applications including API, database, and worker support.
+Builds secure web applications including API, database, and worker support for Linux systems.
 
 ## Installing
 
@@ -31,4 +31,5 @@ There are many ways to [contribute](https://github.com/sanderveldhuis/glidelite/
 ## Documentation
 
 * [Getting started](https://github.com/sanderveldhuis/glidelite/blob/main/doc/getting-started.md)
+* [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)

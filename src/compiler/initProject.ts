@@ -22,28 +22,34 @@
  * SOFTWARE.
  */
 
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  exists,
   makeDir,
   makeFile
 } from './sysUtils';
 import { ExitStatus } from './types';
 
+/**
+ * Initializes a new GlideLite project at the specified working directory.
+ * @param workingDirectory the working directory to create the new project at
+ */
 export function initProject(workingDirectory: string): void {
   const workersDir = join(workingDirectory, 'backend', 'workers');
   const workersGlConfig = join(workingDirectory, 'glconfig.json');
   const workersTsConfig = join(workersDir, 'tsconfig.json');
 
-  if (existsSync(workersGlConfig)) {
+  // Check if all required files are not yet available to prevent overwriting existing user data
+  if (exists(workersGlConfig)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
-  else if (existsSync(workersTsConfig)) {
+  if (exists(workersTsConfig)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${workersTsConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
 
+  // Create the file system structure if not exists, and create all required files
   makeDir(workersDir);
   makeFile(workersGlConfig, '{}\n');
   makeFile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');

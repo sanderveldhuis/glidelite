@@ -24,6 +24,9 @@
 
 import { version } from './version';
 
+/**
+ * Prints the instructions of how to use the GlideLite Compiler to the console.
+ */
 export function printHelp(): void {
   console.log('glc: The GlideLite Compiler - Version', version, '\n');
 

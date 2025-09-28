@@ -24,6 +24,9 @@
 
 import { version } from './version';
 
+/**
+ * Prints the version of the GlideLite Compiler to the console.
+ */
 export function printVersion(): void {
   console.log('Version', version);
 }

@@ -25,14 +25,35 @@
 import * as compileWorkers from './compileWorkers';
 import { Json } from './types';
 
+/**
+ * Cleans the project output data from the specified output directory.
+ * @param pkg the package configuration loaded from the package.json file
+ * @param config the GlideLite configuration loaded from the glconfig.json file
+ * @param outputDirectory the output directory to be cleaned
+ */
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
+  // Never remove the complete output directory but only remove the actual generated output data to prevent erasing
+  // user data if the user specified an invalid output directory (e.g. the user home folder)
   compileWorkers.clean(pkg, config, outputDirectory);
 }
 
+/**
+ * Validates the project input data in the specified working directory to ensure everything is present for running the compilation.
+ * @param pkg the package configuration loaded from the package.json file
+ * @param config the GlideLite configuration loaded from the glconfig.json file
+ * @param workingDirectory the working directory to be validated
+ */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   compileWorkers.validate(pkg, config, workingDirectory);
 }
 
+/**
+ * Compiles the project input data in the specified working directory.
+ * @param pkg the package configuration loaded from the package.json file
+ * @param config the GlideLite configuration loaded from the glconfig.json file
+ * @param workingDirectory the working directory to be compiled
+ * @param outputDirectory the output directory where to put the compilation results in
+ */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   compileWorkers.compile(pkg, config, workingDirectory, outputDirectory);
 }
