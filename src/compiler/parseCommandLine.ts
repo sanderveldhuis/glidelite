@@ -34,10 +34,13 @@ interface CommandLineOption {
   values?: string[];
 }
 
-type ShortOptionsNameMap = Map<string, string>;
-
 type OptionsNameMap = Map<string, CommandLineOption>;
 
+type ShortOptionsNameMap = Map<string, string>;
+
+/**
+ * Mapping of short options to option names.
+ */
 const shortOptionNameMap: ShortOptionsNameMap = new Map<string, string>([
   ['h', 'help'],
   ['v', 'version'],
@@ -47,6 +50,9 @@ const shortOptionNameMap: ShortOptionsNameMap = new Map<string, string>([
   ['o', 'outdir']
 ]);
 
+/**
+ * Mapping of option names to command line options.
+ */
 const optionNameMap: OptionsNameMap = new Map<string, CommandLineOption>([
   ['help', { name: 'help', type: 'boolean' }],
   ['version', { name: 'version', type: 'boolean' }],
@@ -56,6 +62,11 @@ const optionNameMap: OptionsNameMap = new Map<string, CommandLineOption>([
   ['outdir', { name: 'outdir', type: 'string' }]
 ]);
 
+/**
+ * Converts either an short option or option name to command line option.
+ * @param optionName the option name to convert to command line option
+ * @returns the command line option for the option name, or `undefined` if not found
+ */
 function getOptionDeclarationFromName(optionName: string): CommandLineOption | undefined {
   optionName = optionName.toLowerCase();
 
@@ -68,6 +79,14 @@ function getOptionDeclarationFromName(optionName: string): CommandLineOption | u
   return optionNameMap.get(optionName);
 }
 
+/**
+ * Searches for a value in the command line arguments which is related to the specified command line option.
+ * @param commandLineArgs the command line arguments
+ * @param i the index of the command line arguments
+ * @param option the command line option for which an value is searched
+ * @param options the command options containing the results
+ * @returns the new index of the command line arguments
+ */
 function parseOptionValue(commandLineArgs: readonly string[], i: number, option: CommandLineOption, options: CommandOptions): number {
   // Only booleans do not require a value
   if (!commandLineArgs[i] && 'boolean' !== option.type) {
@@ -77,6 +96,7 @@ function parseOptionValue(commandLineArgs: readonly string[], i: number, option:
 
   const value = commandLineArgs[i];
 
+  // Convert and validate whether the given option value is valid
   switch (option.type) {
     case 'boolean': {
       if (value === 'false' || value === 'true') {
@@ -104,6 +124,11 @@ function parseOptionValue(commandLineArgs: readonly string[], i: number, option:
   return i;
 }
 
+/**
+ * Converts the specified command line arguments to a command for the GlideLite Compiler.
+ * @param commandLineArgs the command line arguments
+ * @returns the GlideLite Compiler command
+ */
 export function parseCommandLine(commandLineArgs: readonly string[]): Command {
   const options = {} as CommandOptions;
   const paths: string[] = [];
@@ -112,9 +137,14 @@ export function parseCommandLine(commandLineArgs: readonly string[]): Command {
   while (i < commandLineArgs.length) {
     const arg = commandLineArgs[i];
     i++;
+
+    // If the command line argument starts with a dash (-) it indicates an option is given, otherwise it is assumed to be a path
     if (arg.startsWith('-')) {
+      // Remove leading dashes and convert either the short option of option name to command line option
       const optionName = arg.slice(arg.charAt(1) === '-' ? 2 : 1);
       const option = getOptionDeclarationFromName(optionName);
+
+      // If the command line argument is a valid option then check whether option value are given
       if (option) {
         i = parseOptionValue(commandLineArgs, i, option, options);
       }

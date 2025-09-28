@@ -40,7 +40,7 @@ import {
 /**
  * Checks if the specified file or directory exists.
  * @param path the full path of the file or directory
- * @returns true when the file or directory exists, or false otherwise
+ * @returns `true` when the file or directory exists, or `false` otherwise
  */
 export function exists(path: string): boolean {
   return existsSync(path);
