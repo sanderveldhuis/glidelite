@@ -39,10 +39,9 @@ describe('printHelp.ts', () => {
 
   it('validate printing the help', () => {
     printHelp();
-
     // We are only validating the important output
-    sinon.assert.calledWith(consoleLog, 'glc: The GlideLite Compiler - Version', version, '\n');
-    sinon.assert.calledWith(consoleLog, '     --help, -h  Print this message.\n');
-    sinon.assert.calledWith(consoleLog, "  --version, -v  Print the compiler's version.\n");
+    sinon.assert.calledWithExactly(consoleLog, 'glc: The GlideLite Compiler - Version', version, '\n');
+    sinon.assert.calledWithExactly(consoleLog, '     --help, -h  Print this message.\n');
+    sinon.assert.calledWithExactly(consoleLog, "  --version, -v  Print the compiler's version.\n");
   });
 });

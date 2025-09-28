@@ -83,9 +83,7 @@ describe('handleCommandLine.ts', () => {
     const options: CommandOptions = { version: true };
     const paths: string[] = [];
     const command: Command = { options, paths };
-
     handleCommandLine(command);
-
     sinon.assert.calledOnceWithExactly(printVersion);
     sinon.assert.calledOnceWithExactly(processExit, 0);
   });
@@ -94,9 +92,7 @@ describe('handleCommandLine.ts', () => {
     const options: CommandOptions = { help: true };
     const paths: string[] = [];
     const command: Command = { options, paths };
-
     handleCommandLine(command);
-
     sinon.assert.calledOnceWithExactly(printHelp);
     sinon.assert.calledOnceWithExactly(processExit, 0);
   });
@@ -105,9 +101,7 @@ describe('handleCommandLine.ts', () => {
     const options: CommandOptions = { init: true };
     const paths: string[] = [];
     const command: Command = { options, paths };
-
     handleCommandLine(command);
-
     sinon.assert.calledOnceWithExactly(initProject, process.cwd());
     sinon.assert.calledOnceWithExactly(processExit, 0);
   });
@@ -116,9 +110,7 @@ describe('handleCommandLine.ts', () => {
     const options: CommandOptions = { module: 'other' };
     const paths: string[] = [];
     const command: Command = { options, paths };
-
     handleCommandLine(command);
-
     sinon.assert.calledOnceWithExactly(consoleError, 'error GL1003:', "Compiler for module 'other' not implemented.");
     sinon.assert.calledOnceWithExactly(processExit, 1003);
   });
@@ -130,7 +122,6 @@ describe('handleCommandLine.ts', () => {
 
     readJsonFile.onCall(0).returns({ name: 'pkg', version: '1.0.0' }).onCall(1).returns({ name: 'cfg' });
     handleCommandLine(command);
-
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(0), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(1), process.cwd() + '\\glconfig.json');
@@ -147,7 +138,6 @@ describe('handleCommandLine.ts', () => {
     options.clean = false;
     readJsonFile.onCall(2).returns({ name: 'pkg', version: '1.0.0' }).onCall(3).returns({ name: 'cfg' });
     handleCommandLine(command);
-
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(2), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(3), process.cwd() + '\\glconfig.json');
@@ -164,7 +154,6 @@ describe('handleCommandLine.ts', () => {
     options.clean = true;
     readJsonFile.onCall(4).returns({ name: 'pkg', version: '1.0.0' }).onCall(5).returns({ name: 'cfg' });
     handleCommandLine(command);
-
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(4), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(5), process.cwd() + '\\glconfig.json');
@@ -184,7 +173,6 @@ describe('handleCommandLine.ts', () => {
     options.outdir = 'hello/../world';
     readJsonFile.onCall(6).returns({ name: 'pkg', version: '1.0.0' }).onCall(7).returns({ name: 'cfg' });
     handleCommandLine(command);
-
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(6), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(7), process.cwd() + '\\glconfig.json');
@@ -206,7 +194,6 @@ describe('handleCommandLine.ts', () => {
 
     readJsonFile.onCall(0).returns({ name: 'pkg', version: '1.0.0' }).onCall(1).returns({ name: 'cfg' });
     handleCommandLine(command);
-
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(0), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(1), process.cwd() + '\\glconfig.json');
@@ -223,7 +210,6 @@ describe('handleCommandLine.ts', () => {
     options.clean = false;
     readJsonFile.onCall(2).returns({ name: 'pkg', version: '1.0.0' }).onCall(3).returns({ name: 'cfg' });
     handleCommandLine(command);
-
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(2), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(3), process.cwd() + '\\glconfig.json');
@@ -240,7 +226,6 @@ describe('handleCommandLine.ts', () => {
     options.clean = true;
     readJsonFile.onCall(4).returns({ name: 'pkg', version: '1.0.0' }).onCall(5).returns({ name: 'cfg' });
     handleCommandLine(command);
-
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(4), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(5), process.cwd() + '\\glconfig.json');
@@ -260,7 +245,6 @@ describe('handleCommandLine.ts', () => {
     options.outdir = 'hello/../world';
     readJsonFile.onCall(6).returns({ name: 'pkg', version: '1.0.0' }).onCall(7).returns({ version: '1.0.1' });
     handleCommandLine(command);
-
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(6), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(7), process.cwd() + '\\glconfig.json');

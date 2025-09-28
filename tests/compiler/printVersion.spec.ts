@@ -39,7 +39,6 @@ describe('printVersion.ts', () => {
 
   it('validate printing the version', () => {
     printVersion();
-
     sinon.assert.calledOnceWithExactly(consoleLog, 'Version', version);
   });
 });

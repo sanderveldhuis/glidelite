@@ -49,19 +49,16 @@ describe('compileProject.ts', () => {
 
   it('validate checking the project', () => {
     validate({ name: 'cfg' }, { name: 'cfg' }, 'input');
-
     sinon.assert.calledOnceWithExactly(validateWorkers, { name: 'cfg' }, { name: 'cfg' }, 'input');
   });
 
   it('validate cleaning the project', () => {
     clean({ name: 'cfg' }, { name: 'cfg' }, 'output');
-
     sinon.assert.calledOnceWithExactly(cleanWorkers, { name: 'cfg' }, { name: 'cfg' }, 'output');
   });
 
   it('validate compiling the project', () => {
     compile({ name: 'cfg' }, { name: 'cfg' }, 'input', 'output');
-
     sinon.assert.calledOnceWithExactly(compileWorkers, { name: 'cfg' }, { name: 'cfg' }, 'input', 'output');
   });
 });
