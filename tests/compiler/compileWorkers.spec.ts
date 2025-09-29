@@ -129,7 +129,7 @@ describe('compileWorkers.ts', () => {
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'path2\\test2.ts');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'output\\opt\\cfg\\workers\\package.json', '{"name":"cfg","version":"1.0.0"}');
@@ -137,7 +137,7 @@ describe('compileWorkers.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input/backend/workers --outDir output/opt/cfg/workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'path2/test2.ts');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'output/opt/cfg/workers/package.json', '{"name":"cfg","version":"1.0.0"}');
@@ -150,7 +150,7 @@ describe('compileWorkers.ts', () => {
     compile({ name: 'pkg', dependencies: { a: 'b', b: 'c' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'path1\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'path2\\test2.ts');
       sinon.assert.calledWithExactly(makeFile.getCall(2), 'output\\opt\\cfg\\workers\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
@@ -158,7 +158,7 @@ describe('compileWorkers.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input/backend/workers --outDir output/opt/cfg/workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'path1/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'path2/test2.ts');
       sinon.assert.calledWithExactly(makeFile.getCall(2), 'output/opt/cfg/workers/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
@@ -172,13 +172,13 @@ describe('compileWorkers.ts', () => {
     compile({ name: 'pkg', dependencies: { a: 'b', b: 'c' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'path1\\test1.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1\\test1.ts'.");
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input/backend/workers --outDir output/opt/cfg/workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'path1/test1.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1/test1.ts'.");
     }
@@ -196,7 +196,7 @@ describe('compileWorkers.ts', () => {
     compile({ name: 'pkg', dependencies: { a: 'b', b: 'c' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(5), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(3), 'tsc -p input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(3), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(5), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(6), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
       sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\workers\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
@@ -206,7 +206,7 @@ describe('compileWorkers.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(5), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(3), 'tsc -p input/backend/workers --outDir output/opt/cfg/workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(3), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(5), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(6), 'input/backend/workers/sub2/sub3/test2.ts');
       sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/workers/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
