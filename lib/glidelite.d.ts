@@ -22,6 +22,6 @@
  * SOFTWARE.
  */
 /**
- * The GlideLite configuration loaded from the glconfig.json file
+ * The GlideLite configuration loaded from the glconfig.json file.
  */
 export declare const glconfig: any;
