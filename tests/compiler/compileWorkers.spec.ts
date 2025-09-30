@@ -29,6 +29,7 @@ import {
   validate
 } from '../../src/compiler/compileWorkers';
 import * as sysUtils from '../../src/compiler/sysUtils';
+import { version } from '../../src/compiler/version';
 
 describe('compileWorkers.ts', () => {
   let consoleError: sinon.SinonStub;
@@ -132,7 +133,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'path2\\test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(0), 'output\\opt\\cfg\\workers\\package.json', '{"name":"cfg","version":"1.0.0"}');
+      sinon.assert.calledWithExactly(makeFile.getCall(0), 'output\\opt\\cfg\\workers\\package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'output\\opt\\cfg\\workers\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
     }
     else {
@@ -140,7 +141,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'path2/test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(0), 'output/opt/cfg/workers/package.json', '{"name":"cfg","version":"1.0.0"}');
+      sinon.assert.calledWithExactly(makeFile.getCall(0), 'output/opt/cfg/workers/package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'output/opt/cfg/workers/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
     }
 
@@ -153,7 +154,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'path1\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'path2\\test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(2), 'output\\opt\\cfg\\workers\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(2), 'output\\opt\\cfg\\workers\\package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c","glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
       sinon.assert.calledWithExactly(makeFile.getCall(3), 'output\\opt\\cfg\\workers\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
     }
     else {
@@ -161,7 +162,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'path1/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'path2/test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(2), 'output/opt/cfg/workers/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(2), 'output/opt/cfg/workers/package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c","glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
       sinon.assert.calledWithExactly(makeFile.getCall(3), 'output/opt/cfg/workers/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
     }
 
@@ -193,13 +194,13 @@ describe('compileWorkers.ts', () => {
       readDir.onCall(5).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
     }
     readFile.onCall(5).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(6).returns('"use strict";\n"glc service"\nconsole.log("done")');
-    compile({ name: 'pkg', dependencies: { a: 'b', b: 'c' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
+    compile({ name: 'pkg', dependencies: { a: 'b', b: 'c', glidelite: 'latest' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(5), 'input\\backend\\workers');
       sinon.assert.calledWithExactly(execute.getCall(3), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(5), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(6), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\workers\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\workers\\package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c","glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
       sinon.assert.calledWithExactly(makeFile.getCall(5), 'output\\opt\\cfg\\workers\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'output\\etc\\cron.d');
       sinon.assert.calledWithExactly(makeFile.getCall(6), 'output\\etc\\cron.d\\cfg_workers', '@yearly root cd /opt/cfg/workers && node sub1/sub2/test1.js &\n@reboot root cd /opt/cfg/workers && node sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node sub2/sub3/test2.js" || (cd /opt/cfg/workers && node sub2/sub3/test2.js &)\n');
@@ -209,7 +210,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(execute.getCall(3), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(5), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(6), 'input/backend/workers/sub2/sub3/test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/workers/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/workers/package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c","glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
       sinon.assert.calledWithExactly(makeFile.getCall(5), 'output/opt/cfg/workers/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'output/etc/cron.d');
       sinon.assert.calledWithExactly(makeFile.getCall(6), 'output/etc/cron.d/cfg_workers', '@yearly root cd /opt/cfg/workers && node sub1/sub2/test1.js &\n@reboot root cd /opt/cfg/workers && node sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node sub2/sub3/test2.js" || (cd /opt/cfg/workers && node sub2/sub3/test2.js &)\n');

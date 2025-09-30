@@ -36,6 +36,7 @@ import {
   ExitStatus,
   Json
 } from './types';
+import { version } from './version';
 
 const regexMinute = '([1-5]?[0-9])'; // Minute 0-59
 const regexMinuteList = '(' + regexMinute + '(-' + regexMinute + '(\\/' + regexMinute + ')?)?)'; // Minute list and range (e.g. 0-4 or 8-12/2)
@@ -139,7 +140,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   // Write all other output files
   const packageFile = join(outputDir, 'package.json');
   const glconfigFile = join(outputDir, 'glconfig.json');
-  makeFile(packageFile, JSON.stringify({ name: config.name, version: config.version, dependencies: pkg.dependencies }));
+  makeFile(packageFile, JSON.stringify({ name: config.name, version: config.version, dependencies: Object.assign(pkg.dependencies ?? {}, { glidelite: `github:sanderveldhuis/glidelite#v${version}` }) }));
   makeFile(glconfigFile, JSON.stringify(config));
   if (crontab !== '') {
     const cronDir = join(outputDirectory, 'etc', 'cron.d');
