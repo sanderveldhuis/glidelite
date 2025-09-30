@@ -30,7 +30,15 @@ At the command line, run the GlideLite Compiler:
 npx glc -m workers
 ```
 
-The compiled JavaScript output can be found at `output/opt/example/workers/writer.js`. For now, the JavaScript file should be executed manually meaning it is not yet a real worker, let's change this.
+## Testing your code
+
+The compiled JavaScript output can be found at `output/opt/example/workers/writer.js`. You can run this JavaScript file manually to validate its behaviour. Use the command line to run the worker causing a file to be written in your project root directory:
+
+```bash
+node ./output/opt/example/workers/writer.js
+```
+
+For now, the JavaScript file should be executed manually meaning it is not yet a real worker, let's change this.
 
 ## Define as service or task
 
@@ -167,8 +175,4 @@ function writeFile(data: string): void {
 writeFile(`Hello, ${glconfig.user} with ID: ${randomInt(1000)()}!`);
 ```
 
-Recompile and run the worker in command line causing a file to be written in your project root directory:
-
-```bash
-node ./output/opt/example/workers/writer.js
-```
+Recompile and run the worker in command line to validate its behaviour again.
