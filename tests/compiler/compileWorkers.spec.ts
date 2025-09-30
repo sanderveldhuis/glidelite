@@ -202,7 +202,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\workers\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
       sinon.assert.calledWithExactly(makeFile.getCall(5), 'output\\opt\\cfg\\workers\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'output\\etc\\cron.d');
-      sinon.assert.calledWithExactly(makeFile.getCall(6), 'output\\etc\\cron.d\\cfg_workers', '@yearly root cd /opt/cfg/workers && node sub1/sub2/test1.js &\n@reboot root cd /opt/cfg/workers && node sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node sub2/sub3/test2.js" || cd /opt/cfg/workers && node sub2/sub3/test2.js &\n');
+      sinon.assert.calledWithExactly(makeFile.getCall(6), 'output\\etc\\cron.d\\cfg_workers', '@yearly root cd /opt/cfg/workers && node sub1/sub2/test1.js &\n@reboot root cd /opt/cfg/workers && node sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node sub2/sub3/test2.js" || (cd /opt/cfg/workers && node sub2/sub3/test2.js &)\n');
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(5), 'input/backend/workers');
@@ -212,7 +212,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/workers/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c"}}');
       sinon.assert.calledWithExactly(makeFile.getCall(5), 'output/opt/cfg/workers/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'output/etc/cron.d');
-      sinon.assert.calledWithExactly(makeFile.getCall(6), 'output/etc/cron.d/cfg_workers', '@yearly root cd /opt/cfg/workers && node sub1/sub2/test1.js &\n@reboot root cd /opt/cfg/workers && node sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node sub2/sub3/test2.js" || cd /opt/cfg/workers && node sub2/sub3/test2.js &\n');
+      sinon.assert.calledWithExactly(makeFile.getCall(6), 'output/etc/cron.d/cfg_workers', '@yearly root cd /opt/cfg/workers && node sub1/sub2/test1.js &\n@reboot root cd /opt/cfg/workers && node sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node sub2/sub3/test2.js" || (cd /opt/cfg/workers && node sub2/sub3/test2.js &)\n');
     }
   });
 

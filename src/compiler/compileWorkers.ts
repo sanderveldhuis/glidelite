@@ -129,7 +129,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
     const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
     if (instruction[1] === 'service') {
       crontab += `@reboot root cd /opt/${config.name as string}/workers && node ${jsFilePath} &\n`;
-      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node ${jsFilePath}" || cd /opt/${config.name as string}/workers && node ${jsFilePath} &\n`;
+      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node ${jsFilePath}" || (cd /opt/${config.name as string}/workers && node ${jsFilePath} &)\n`;
     }
     else {
       crontab += `${instruction[2]} root cd /opt/${config.name as string}/workers && node ${jsFilePath} &\n`;
