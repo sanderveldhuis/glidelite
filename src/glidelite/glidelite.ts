@@ -22,9 +22,32 @@
  * SOFTWARE.
  */
 
-import { readFileSync } from 'node:fs';
+import {
+  readdirSync,
+  readFileSync
+} from 'node:fs';
+import {
+  dirname,
+  join
+} from 'node:path';
+
+/**
+ * Search for the glconfig.json file in an upwards lookup.
+ */
+let glconfigJson = '';
+for (let dir = __dirname;; dir = dirname(dir)) {
+  // Search for the glconfig.json in the directory
+  if (readdirSync(dir).includes('glconfig.json')) {
+    glconfigJson = join(dir, 'glconfig.json');
+    break;
+  }
+  // Stop if the root directory is reached
+  if (dir === dirname(dir)) {
+    throw new Error('No glconfig.json file available');
+  }
+}
 
 /**
  * The GlideLite configuration loaded from the glconfig.json file.
  */
-export const glconfig: any = JSON.parse(readFileSync('glconfig.json').toString()); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+export const glconfig: any = JSON.parse(readFileSync(glconfigJson).toString()) as object; /* eslint-disable-line @typescript-eslint/no-explicit-any */
