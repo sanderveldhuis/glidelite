@@ -36,7 +36,6 @@ import {
   ExitStatus,
   Json
 } from './types';
-import { version } from './version';
 
 const regexMinute = '([1-5]?[0-9])'; // Minute 0-59
 const regexMinuteList = '(' + regexMinute + '(-' + regexMinute + '(\\/' + regexMinute + ')?)?)'; // Minute list and range (e.g. 0-4 or 8-12/2)
@@ -129,19 +128,15 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
     // Construct Crontab content for either a task or a service
     const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
     if (instruction[1] === 'service') {
-      crontab += `@reboot root cd /opt/${config.name as string}/workers && node ${jsFilePath} &\n`;
-      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node ${jsFilePath}" || (cd /opt/${config.name as string}/workers && node ${jsFilePath} &)\n`;
+      crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} &\n`;
+      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} &\n`;
     }
     else {
-      crontab += `${instruction[2]} root cd /opt/${config.name as string}/workers && node ${jsFilePath} &\n`;
+      crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} &\n`;
     }
   }
 
-  // Write all other output files
-  const packageFile = join(outputDir, 'package.json');
-  const glconfigFile = join(outputDir, 'glconfig.json');
-  makeFile(packageFile, JSON.stringify({ name: config.name, version: config.version, dependencies: Object.assign(pkg.dependencies ?? {}, { glidelite: `github:sanderveldhuis/glidelite#v${version}` }) }));
-  makeFile(glconfigFile, JSON.stringify(config));
+  // Write Crontab file
   if (crontab !== '') {
     const cronDir = join(outputDirectory, 'etc', 'cron.d');
     const cronFile = join(cronDir, `${config.name as string}_workers`);

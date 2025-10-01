@@ -29,7 +29,6 @@ import {
   validate
 } from '../../src/compiler/compileWorkers';
 import * as sysUtils from '../../src/compiler/sysUtils';
-import { version } from '../../src/compiler/version';
 
 describe('compileWorkers.ts', () => {
   let consoleError: sinon.SinonStub;
@@ -124,7 +123,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(readDir.getCall(1), 'input/backend/workers');
     }
 
-    // Files with .ts extension available in workers directory, but no instructions found, and no dependencies
+    // Files with .ts extension available in workers directory, but no instructions found
     readDir.onCall(2).returns([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     readFile.onCall(0).returns('').onCall(1).returns('');
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
@@ -133,87 +132,58 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'path2\\test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(0), 'output\\opt\\cfg\\workers\\package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
-      sinon.assert.calledWithExactly(makeFile.getCall(1), 'output\\opt\\cfg\\workers\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/workers');
       sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'path2/test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(0), 'output/opt/cfg/workers/package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
-      sinon.assert.calledWithExactly(makeFile.getCall(1), 'output/opt/cfg/workers/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
     }
 
-    // Files with .ts extension available in workers directory, but no instructions found, with dependencies
+    // Files with .ts extension available in workers directory, invalid instructions found
+    // Validating all regexes are not part of this test, it will be done in another test
     readDir.onCall(3).returns([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
-    readFile.onCall(2).returns('').onCall(3).returns('');
-    compile({ name: 'pkg', dependencies: { a: 'b', b: 'c' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
+    readFile.onCall(2).returns('"use strict";\n"glc task @test"\nconsole.log("done")');
+    compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input\\backend\\workers');
       sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'path1\\test1.ts');
-      sinon.assert.calledWithExactly(readFile.getCall(3), 'path2\\test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(2), 'output\\opt\\cfg\\workers\\package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c","glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
-      sinon.assert.calledWithExactly(makeFile.getCall(3), 'output\\opt\\cfg\\workers\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1\\test1.ts'.");
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/workers');
       sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'path1/test1.ts');
-      sinon.assert.calledWithExactly(readFile.getCall(3), 'path2/test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(2), 'output/opt/cfg/workers/package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c","glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
-      sinon.assert.calledWithExactly(makeFile.getCall(3), 'output/opt/cfg/workers/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-    }
-
-    // Files with .ts extension available in workers directory, invalid instructions found, with dependencies
-    // Validating all regexes are not part of this test, it will be done in another test
-    readDir.onCall(4).returns([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
-    readFile.onCall(4).returns('"use strict";\n"glc task @test"\nconsole.log("done")');
-    compile({ name: 'pkg', dependencies: { a: 'b', b: 'c' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(readDir.getCall(4), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
-      sinon.assert.calledWithExactly(readFile.getCall(4), 'path1\\test1.ts');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1\\test1.ts'.");
-    }
-    else {
-      sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
-      sinon.assert.calledWithExactly(readFile.getCall(4), 'path1/test1.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1/test1.ts'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 3002);
 
-    // Files with .ts extension available in workers directory, valid instructions found, with dependencies
+    // Files with .ts extension available in workers directory, valid instructions found
     // Validating all regexes are not part of this test, it will be done in another test
     if ('win32' === process.platform) {
-      readDir.onCall(5).returns([{ name: 'test1.ts', parentPath: 'input\\backend\\workers\\sub1\\sub2' }, { name: 'test2.ts', parentPath: 'input\\backend\\workers\\sub2\\sub3' }]);
+      readDir.onCall(4).returns([{ name: 'test1.ts', parentPath: 'input\\backend\\workers\\sub1\\sub2' }, { name: 'test2.ts', parentPath: 'input\\backend\\workers\\sub2\\sub3' }]);
     }
     else {
-      readDir.onCall(5).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
+      readDir.onCall(4).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
     }
-    readFile.onCall(5).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(6).returns('"use strict";\n"glc service"\nconsole.log("done")');
-    compile({ name: 'pkg', dependencies: { a: 'b', b: 'c', glidelite: 'latest' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
+    readFile.onCall(3).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(4).returns('"use strict";\n"glc service"\nconsole.log("done")');
+    compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(readDir.getCall(5), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(3), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
-      sinon.assert.calledWithExactly(readFile.getCall(5), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
-      sinon.assert.calledWithExactly(readFile.getCall(6), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\workers\\package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c","glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
-      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output\\opt\\cfg\\workers\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-      sinon.assert.calledWithExactly(makeDir.getCall(0), 'output\\etc\\cron.d');
-      sinon.assert.calledWithExactly(makeFile.getCall(6), 'output\\etc\\cron.d\\cfg_workers', '@yearly root cd /opt/cfg/workers && node sub1/sub2/test1.js &\n@reboot root cd /opt/cfg/workers && node sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node sub2/sub3/test2.js" || (cd /opt/cfg/workers && node sub2/sub3/test2.js &)\n');
+      sinon.assert.calledWithExactly(readDir.getCall(4), 'input\\backend\\workers');
+      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
+      sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
+      sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
+      sinon.assert.calledOnceWithExactly(makeDir, 'output\\etc\\cron.d');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js &\n');
     }
     else {
-      sinon.assert.calledWithExactly(readDir.getCall(5), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(3), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
-      sinon.assert.calledWithExactly(readFile.getCall(5), 'input/backend/workers/sub1/sub2/test1.ts');
-      sinon.assert.calledWithExactly(readFile.getCall(6), 'input/backend/workers/sub2/sub3/test2.ts');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/workers/package.json', `{"name":"cfg","version":"1.0.0","dependencies":{"a":"b","b":"c","glidelite":"github:sanderveldhuis/glidelite#v${version}"}}`);
-      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output/opt/cfg/workers/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-      sinon.assert.calledWithExactly(makeDir.getCall(0), 'output/etc/cron.d');
-      sinon.assert.calledWithExactly(makeFile.getCall(6), 'output/etc/cron.d/cfg_workers', '@yearly root cd /opt/cfg/workers && node sub1/sub2/test1.js &\n@reboot root cd /opt/cfg/workers && node sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node sub2/sub3/test2.js" || (cd /opt/cfg/workers && node sub2/sub3/test2.js &)\n');
+      sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
+      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
+      sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
+      sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
+      sinon.assert.calledOnceWithExactly(makeDir, 'output/etc/cron.d');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js &\n');
     }
   });
 
