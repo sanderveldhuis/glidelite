@@ -32,10 +32,10 @@ npx glc -m workers
 
 ## Testing your code
 
-The compiled JavaScript output can be found at `output/opt/example/workers/writer.js`. You can run this JavaScript file manually to validate its behaviour. Use the command line to run the worker causing a file to be written in your project root directory:
+The compiled JavaScript output can be found at `output/opt/[project]/workers/writer.js`. You can run this JavaScript file manually to validate its behaviour. Use the command line to run the worker causing a file to be written in your project root directory:
 
 ```bash
-node ./output/opt/example/workers/writer.js
+node output/opt/[project]/workers/writer.js
 ```
 
 For now, the JavaScript file should be executed manually meaning it is not yet a real worker, let's change this.
@@ -102,7 +102,7 @@ function writeFile(data: string): void {
 writeFile('Hello, World!');
 ```
 
-After recompiling, you'll notice an additional `cron.d` file is generated. This will make sure, after deployment, that your task is executed each night at 5:30 AM as you defined in the compiler instruction.
+After recompiling, you'll notice an additional file is generated at `output/etc/cron.d/[project]_workers`. This will make sure, after deployment, that your task is executed each night at 5:30 AM as you defined in the compiler instruction.
 
 ## Use configuration values
 
@@ -142,22 +142,20 @@ To use packages as dependency in your TypeScript code, you must list them as `de
 > [!WARNING]
 > Make sure to add the dependencies required in runtime to the `dependencies` attribute and dependencies required only for local development and testing in the `devDependencies` attribute.
 
-In your editor, add the following dependency to your `package.json`:
+In your editor, add the following dependencies to your `package.json`:
 
 ```json
 {
-  ...
   "dependencies": {
     "d3-random": "latest"
   },
   "devDependencies": {
     "@types/d3-random": "latest"
-  },
-  ...
+  }
 }
 ```
 
-Install the newly added dependency by running `npm install` and use it in the `backend/workers/writer.ts` TypeScript code:
+Install the newly added dependencies by running `npm install` and use it in the `backend/workers/writer.ts` TypeScript code:
 
 ```typescript
 'glc task 30 5 * * *';
@@ -175,4 +173,4 @@ function writeFile(data: string): void {
 writeFile(`Hello, ${glconfig.user} with ID: ${randomInt(1000)()}!`);
 ```
 
-Recompile and run the worker in command line to validate its behaviour again.
+Recompile and manually run the worker to test it again. You should see a newly written file containing the configured value with a random ID.

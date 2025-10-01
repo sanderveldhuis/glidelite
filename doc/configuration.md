@@ -21,7 +21,7 @@ Specifies the version of your code. The name and version together form an identi
 
 **Default:** `[]`
 
-Specifies an array of additional Linux APT packages which are required to run the project on your deployment system. These packages are only installed on deployment.
+Specifies an array of additional Linux APT packages which are required to run the project on your deployment system. These packages are only installed on deployment and not available for local testing.
 
 ```json
 {
