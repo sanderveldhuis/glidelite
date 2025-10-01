@@ -79,22 +79,32 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   makeFile(packageFile, JSON.stringify({ name: config.name, version: config.version, dependencies: Object.assign({}, pkg.dependencies, { glidelite: `github:sanderveldhuis/glidelite#v${version}` }) }));
   makeFile(glconfigFile, JSON.stringify(config));
 
+  // Construct a list of required Linux APT packages and filter out duplicates
+  const packages = ['nodejs'].concat((config.packages ?? []) as string[]);
+  const filteredPackages = packages.filter((item, pos) => {
+    return packages.indexOf(item) == pos;
+  });
+
   // Create install script
   makeFile(
     join(outputDirectory, 'install'),
     '#!/bin/bash\n\n' +
+      '# Check permissions\n' +
       'if [ $EUID -ne 0 ]; then\n' +
       '  echo "This install script should be run as root"\n' +
       '  exit 1\n' +
       'fi\n\n' +
-      '# Check if all required packages are installed\n' +
-      'dpkg -s nodejs > /dev/null\n' +
+      '# Install required packages\n' +
+      `dpkg -s ${filteredPackages.join(' ')} > /dev/null 2>&1\n` +
       'if [ $? -ne 0 ]; then\n' +
-      '  echo "Not all required packages are installed"\n' +
-      '  exit 1\n' +
+      `  apt-get install ${filteredPackages.join(' ')}\n` +
+      '  if [ $? -ne 0 ]; then\n' +
+      '    echo "Not all required packages are installed"\n' +
+      '    exit 1\n' +
+      '  fi\n' +
       'fi\n\n' +
       '# Cleanup old project\n' +
-      `rm -rf /etc/cron.d/${config.name as string}_*\n` +
+      `rm -rf /etc/cron.d/${config.name as string}_workers\n` +
       `rm -rf /opt/${config.name as string}\n` +
       `pkill -f "node /opt/${config.name as string}/workers"\n\n` +
       '# Copy new project\n' +
@@ -103,6 +113,10 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '# Install dependencies\n' +
       `pushd /opt/${config.name as string}\n` +
       'npm install\n' +
-      'popd\n'
+      'popd\n\n' +
+      '# Finish message\n' +
+      'SECONDS=$(($(date +%s -d "$(date +%H:%M) + next minute") - $(date +%s) + 10))\n' +
+      'echo "Installation finished!"\n' +
+      'echo "Your project should be up and running after ${SECONDS} seconds from now"\n'
   );
 }
