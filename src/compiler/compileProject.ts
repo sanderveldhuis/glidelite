@@ -80,7 +80,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   makeFile(glconfigFile, JSON.stringify(config));
 
   // Construct a list of required Linux APT packages and filter out duplicates
-  const packages = ['nodejs'].concat((config.packages ?? []) as string[]);
+  const packages = ['cron', 'nodejs'].concat((config.packages ?? []) as string[]);
   const filteredPackages = packages.filter((item, pos) => {
     return packages.indexOf(item) == pos;
   });
@@ -97,6 +97,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '# Install required packages\n' +
       `dpkg -s ${filteredPackages.join(' ')} > /dev/null 2>&1\n` +
       'if [ $? -ne 0 ]; then\n' +
+      '  apt-get update\n' +
       `  apt-get install ${filteredPackages.join(' ')}\n` +
       '  if [ $? -ne 0 ]; then\n' +
       '    echo "Not all required packages are installed"\n' +
