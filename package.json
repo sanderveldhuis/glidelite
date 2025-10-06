@@ -51,7 +51,7 @@
   "dependencies": {
     "@tsconfig/node-lts": "^22.0.2",
     "@types/node": "latest",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
@@ -61,13 +61,13 @@
     "chai": "^6.2.0",
     "cpx2": "^8.0.0",
     "dprint": "^0.50.2",
-    "eslint": "^9.36.0",
+    "eslint": "^9.37.0",
     "globals": "^16.3.0",
     "knip": "^5.64.1",
-    "mocha": "^11.7.1",
+    "mocha": "^11.7.4",
     "nyc": "^17.1.0",
     "ts-node": "^10.9.2",
     "ts-sinon": "^2.0.2",
-    "typescript-eslint": "^8.44.1"
+    "typescript-eslint": "^8.45.0"
   }
 }
