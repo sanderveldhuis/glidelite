@@ -68,10 +68,12 @@ describe('compileProject.ts', () => {
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(remove.getCall(0), 'output\\install');
       sinon.assert.calledWithExactly(remove.getCall(1), 'output\\opt\\cfg');
+      sinon.assert.calledWithExactly(remove.getCall(2), 'output\\etc\\logrotate.d');
     }
     else {
       sinon.assert.calledWithExactly(remove.getCall(0), 'output/install');
       sinon.assert.calledWithExactly(remove.getCall(1), 'output/opt/cfg');
+      sinon.assert.calledWithExactly(remove.getCall(2), 'output/etc/logrotate.d');
     }
   });
 
@@ -80,32 +82,40 @@ describe('compileProject.ts', () => {
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     sinon.assert.calledOnceWithExactly(compileWorkers, { name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(makeDir, 'output\\opt\\cfg');
+      sinon.assert.calledWithExactly(makeDir.getCall(0), 'output\\opt\\cfg');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-      sinon.assert.calledWith(makeFile.getCall(2), 'output\\install'); // Not validating the content of the make file
+      sinon.assert.calledWithExactly(makeDir.getCall(1), 'output\\etc\\logrotate.d');
+      sinon.assert.calledWith(makeFile.getCall(2), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the make file
+      sinon.assert.calledWith(makeFile.getCall(3), 'output\\install'); // Not validating the content of the make file
     }
     else {
-      sinon.assert.calledOnceWithExactly(makeDir, 'output/opt/cfg');
+      sinon.assert.calledWithExactly(makeDir.getCall(0), 'output/opt/cfg');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-      sinon.assert.calledWith(makeFile.getCall(2), 'output/install'); // Not validating the content of the make file
+      sinon.assert.calledWithExactly(makeDir.getCall(1), 'output/etc/logrotate.d');
+      sinon.assert.calledWith(makeFile.getCall(2), 'output/etc/logrotate.d/cfg'); // Not validating the content of the make file
+      sinon.assert.calledWith(makeFile.getCall(3), 'output/install'); // Not validating the content of the make file
     }
 
     // Dependencies available
     compile({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     sinon.assert.calledWithExactly(compileWorkers.getCall(1), { name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(makeDir.getCall(1), 'output\\opt\\cfg');
-      sinon.assert.calledWithExactly(makeFile.getCall(3), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-      sinon.assert.calledWith(makeFile.getCall(5), 'output\\install'); // Not validating the content of the make file
+      sinon.assert.calledWithExactly(makeDir.getCall(2), 'output\\opt\\cfg');
+      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
+      sinon.assert.calledWithExactly(makeDir.getCall(3), 'output\\etc\\logrotate.d');
+      sinon.assert.calledWith(makeFile.getCall(6), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the make file
+      sinon.assert.calledWith(makeFile.getCall(7), 'output\\install'); // Not validating the content of the make file
     }
     else {
-      sinon.assert.calledWithExactly(makeDir.getCall(1), 'output/opt/cfg');
-      sinon.assert.calledWithExactly(makeFile.getCall(3), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-      sinon.assert.calledWith(makeFile.getCall(5), 'output/install'); // Not validating the content of the make file
+      sinon.assert.calledWithExactly(makeDir.getCall(2), 'output/opt/cfg');
+      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
+      sinon.assert.calledWithExactly(makeDir.getCall(3), 'output/etc/logrotate.d');
+      sinon.assert.calledWith(makeFile.getCall(6), 'output/etc/logrotate.d/cfg'); // Not validating the content of the make file
+      sinon.assert.calledWith(makeFile.getCall(7), 'output/install'); // Not validating the content of the make file
     }
   });
 });
