@@ -135,6 +135,37 @@ writeFile(`Hello, ${glconfig.user}!`);
 
 By importing the `glidelite` module, it is possible to directly use the values from the `glconfig.json` via the provided `glconfig` object. The GlideLite Compiler will ensure it is linked correctly.
 
+## Use a logger
+
+GlideLite provides a generic logger ensuring uniform output is written to log files on the deployment system. These log files are automatically rotated and cleaned up to prevent overflooding the memory. To use a logger you should give it a dedicated name for the application you are working on:
+
+```typescript
+log.[name].debug('message');
+log.[name].info('message');
+log.[name].warn('message');
+log.[name].error('message');
+```
+
+Let's name your worker `writer` and update `backend/workers/writer.ts` with the following TypeScript code:
+
+```typescript
+'glc task 30 5 * * *';
+
+import { glconfig, log } from 'glidelite';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+function writeFile(data: string): void {
+  const filePath = join(process.cwd(), Date.now().toString());
+  writeFileSync(filePath, data);
+  log.writer.info('Written file: ', filePath);
+}
+
+writeFile(`Hello, ${glconfig.user}!`);
+```
+
+The imported `glidelite` module contains the logger via the provided `log` object. The GlideLite Compiler will ensure a new logger is initiated for your worker.
+
 ## Use dependency packages
 
 To use packages as dependency in your TypeScript code, you must list them as `dependencies` or `devDependencies` in your project's `package.json` file.
@@ -161,13 +192,14 @@ Install the newly added dependencies by running `npm install` and use it in the 
 'glc task 30 5 * * *';
 
 import { randomInt } from 'd3-random';
-import { glconfig } from 'glidelite';
+import { glconfig, log } from 'glidelite';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 function writeFile(data: string): void {
   const filePath = join(process.cwd(), Date.now().toString());
   writeFileSync(filePath, data);
+  log.writer.info('Written file: ', filePath);
 }
 
 writeFile(`Hello, ${glconfig.user} with ID: ${randomInt(1000)()}!`);
