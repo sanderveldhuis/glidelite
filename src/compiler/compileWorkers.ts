@@ -128,11 +128,11 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
     // Construct Crontab content for either a task or a service
     const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
     if (instruction[1] === 'service') {
-      crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} &\n`;
-      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} &\n`;
+      crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
     }
     else {
-      crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} &\n`;
+      crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
     }
   }
 

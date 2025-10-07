@@ -48,6 +48,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
   // Clean the project
   remove(join(outputDirectory, 'install'));
   remove(join(outputDirectory, 'opt', config.name as string));
+  remove(join(outputDirectory, 'etc', 'logrotate.d'));
 }
 
 /**
@@ -71,7 +72,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   // Compile each module
   compileWorkers.compile(pkg, config, workingDirectory, outputDirectory);
 
-  // Create configuration files
+  // Create project configuration files
   const optDir = join(outputDirectory, 'opt', config.name as string);
   const packageFile = join(optDir, 'package.json');
   const glconfigFile = join(optDir, 'glconfig.json');
@@ -79,8 +80,26 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   makeFile(packageFile, JSON.stringify({ name: config.name, version: config.version, dependencies: Object.assign({}, pkg.dependencies, { glidelite: `github:sanderveldhuis/glidelite#v${version}` }) }));
   makeFile(glconfigFile, JSON.stringify(config));
 
+  // Create logrotate configuration file
+  const logrotateDir = join(outputDirectory, 'etc', 'logrotate.d');
+  const logrotateCnf = join(logrotateDir, config.name as string);
+  makeDir(logrotateDir);
+  makeFile(
+    logrotateCnf,
+    `/var/log/${config.name as string}/*.log {\n` +
+      '    weekly\n' +
+      '    rotate 12\n' +
+      '    maxsize 500M\n' +
+      '    compress\n' +
+      '    delaycompress\n' +
+      '    missingok\n' +
+      '    notifempty\n' +
+      '    copytruncate\n' +
+      '}\n'
+  );
+
   // Construct a list of required Linux APT packages and filter out duplicates
-  const packages = ['cron', 'nodejs'].concat((config.packages ?? []) as string[]);
+  const packages = ['cron', 'logrotate', 'nodejs'].concat((config.packages ?? []) as string[]);
   const filteredPackages = packages.filter((item, pos) => {
     return packages.indexOf(item) == pos;
   });
@@ -109,6 +128,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       `rm -rf /opt/${config.name as string}\n` +
       `pkill -f "node /opt/${config.name as string}/workers"\n\n` +
       '# Copy new project\n' +
+      `mkdir -p /var/log/${config.name as string}\n` +
       'cp -r opt /\n' +
       'cp -r etc /\n\n' +
       '# Install dependencies\n' +

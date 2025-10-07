@@ -29,15 +29,15 @@ import {
 import * as path from 'node:path';
 import sinon from 'ts-sinon';
 
-describe('glidelite.ts', () => {
+describe('glconfig.ts', () => {
   it('validate not finding the GlideLite config', async () => {
     const dirname = sinon.stub(path, 'dirname') as sinon.SinonStub;
     dirname.returns(__dirname).returns(__dirname);
 
     try {
-      await import(path.resolve('src/glidelite/glidelite'));
+      await import(path.resolve('src/glidelite/glconfig'));
       dirname.restore();
-      assert.fail('import succeded unexpectedly');
+      assert.fail('import succeeded unexpectedly');
     }
     catch (error) {
       dirname.restore();
@@ -46,9 +46,9 @@ describe('glidelite.ts', () => {
   });
 
   it('validate finding the GlideLite config', async () => {
-    const { glconfig } = await import(path.resolve('src/glidelite/glidelite')); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
+    const { glconfig } = await import(path.resolve('src/glidelite/glconfig')); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
     expect(glconfig).to.deep.equal({
-      comment1: "this file is used by the unittest 'tests/glidelite/glidelite.spec.ts'",
+      comment1: "this file is used by the unittest 'tests/glidelite/glconfig.spec.ts'",
       comment2: 'do not remove this file'
     });
   });
