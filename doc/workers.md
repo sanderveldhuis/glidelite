@@ -137,7 +137,7 @@ By importing the `glidelite` module, it is possible to directly use the values f
 
 ## Use a logger
 
-GlideLite provides a generic logger ensuring uniform output is written to log files on the deployment system. These log files are automatically rotated and cleaned up to prevent overflooding the memory. To use a logger you should give it a dedicated name for the application you are working on:
+GlideLite provides a generic logger ensuring uniform output is written to the `/var/log/[project]` directory on the deployment system. These log files are automatically rotated and cleaned up to prevent overflooding the memory. To use a logger you should give it a dedicated name for the application you are working on:
 
 ```typescript
 log.[name].debug('message');
