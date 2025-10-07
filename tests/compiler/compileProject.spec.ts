@@ -78,7 +78,7 @@ describe('compileProject.ts', () => {
   });
 
   it('validate compiling the project', () => {
-    // No dependencies available
+    // No dependencies available, no packages available
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     sinon.assert.calledOnceWithExactly(compileWorkers, { name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
@@ -86,36 +86,36 @@ describe('compileProject.ts', () => {
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
       sinon.assert.calledWithExactly(makeDir.getCall(1), 'output\\etc\\logrotate.d');
-      sinon.assert.calledWith(makeFile.getCall(2), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the make file
-      sinon.assert.calledWith(makeFile.getCall(3), 'output\\install'); // Not validating the content of the make file
+      sinon.assert.calledWith(makeFile.getCall(2), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the logrotate file
+      sinon.assert.calledWithMatch(makeFile.getCall(3), 'output\\install', 'dpkg -s cron logrotate nodejs > /dev/null 2>&1\n'); // Not validating the full content of the install file
     }
     else {
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'output/opt/cfg');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
       sinon.assert.calledWithExactly(makeDir.getCall(1), 'output/etc/logrotate.d');
-      sinon.assert.calledWith(makeFile.getCall(2), 'output/etc/logrotate.d/cfg'); // Not validating the content of the make file
-      sinon.assert.calledWith(makeFile.getCall(3), 'output/install'); // Not validating the content of the make file
+      sinon.assert.calledWith(makeFile.getCall(2), 'output/etc/logrotate.d/cfg'); // Not validating the content of the logrotate file
+      sinon.assert.calledWithMatch(makeFile.getCall(3), 'output/install', 'dpkg -s cron logrotate nodejs > /dev/null 2>&1\n'); // Not validating the full content of the install file
     }
 
-    // Dependencies available
-    compile({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
-    sinon.assert.calledWithExactly(compileWorkers.getCall(1), { name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
+    // Dependencies available, packages available
+    compile({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', packages: ['logrotate', 'example'] }, 'input', 'output');
+    sinon.assert.calledWithExactly(compileWorkers.getCall(1), { name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', packages: ['logrotate', 'example'] }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(makeDir.getCall(2), 'output\\opt\\cfg');
       sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
+      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0","packages":["logrotate","example"]}');
       sinon.assert.calledWithExactly(makeDir.getCall(3), 'output\\etc\\logrotate.d');
-      sinon.assert.calledWith(makeFile.getCall(6), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the make file
-      sinon.assert.calledWith(makeFile.getCall(7), 'output\\install'); // Not validating the content of the make file
+      sinon.assert.calledWith(makeFile.getCall(6), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the logrotate file
+      sinon.assert.calledWithMatch(makeFile.getCall(7), 'output\\install', 'dpkg -s cron logrotate nodejs example > /dev/null 2>&1\n'); // Not validating the full content of the install file
     }
     else {
       sinon.assert.calledWithExactly(makeDir.getCall(2), 'output/opt/cfg');
       sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
+      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0","packages":["logrotate","example"]}');
       sinon.assert.calledWithExactly(makeDir.getCall(3), 'output/etc/logrotate.d');
-      sinon.assert.calledWith(makeFile.getCall(6), 'output/etc/logrotate.d/cfg'); // Not validating the content of the make file
-      sinon.assert.calledWith(makeFile.getCall(7), 'output/install'); // Not validating the content of the make file
+      sinon.assert.calledWith(makeFile.getCall(6), 'output/etc/logrotate.d/cfg'); // Not validating the content of the logrotate file
+      sinon.assert.calledWithMatch(makeFile.getCall(7), 'output/install', 'dpkg -s cron logrotate nodejs example > /dev/null 2>&1\n'); // Not validating the full content of the install file
     }
   });
 });
