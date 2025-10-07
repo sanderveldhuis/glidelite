@@ -158,7 +158,7 @@ import { join } from 'node:path';
 function writeFile(data: string): void {
   const filePath = join(process.cwd(), Date.now().toString());
   writeFileSync(filePath, data);
-  log.writer.info('Written file: ', filePath);
+  log.writer.info('Written file:', filePath);
 }
 
 writeFile(`Hello, ${glconfig.user}!`);
@@ -199,7 +199,7 @@ import { join } from 'node:path';
 function writeFile(data: string): void {
   const filePath = join(process.cwd(), Date.now().toString());
   writeFileSync(filePath, data);
-  log.writer.info('Written file: ', filePath);
+  log.writer.info('Written file:', filePath);
 }
 
 writeFile(`Hello, ${glconfig.user} with ID: ${randomInt(1000)()}!`);
