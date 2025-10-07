@@ -175,7 +175,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output\\etc\\cron.d');
-      sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js &\n');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
@@ -183,7 +183,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output/etc/cron.d');
-      sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js &\n');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
     }
   });
 
