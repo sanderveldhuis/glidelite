@@ -21,7 +21,5 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/**
- * The GlideLite configuration loaded from the glconfig.json file.
- */
-export declare const glconfig: any;
+export * from './glconfig';
+export * from './logger';
