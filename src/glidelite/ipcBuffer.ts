@@ -32,7 +32,7 @@ const IPC_BUFFER_SIZE = 1000000; // 1MB
  * An IPC buffer for Inter-Process Communication used to filter messages out of the TCP data which could consist of complete, incomplete, or multiple IPC messages.
  */
 export class IpcBuffer {
-  buffer = '';
+  _buffer = '';
 
   /**
    * Filter messages out of the TCP data which could consist of complete, incomplete, or multiple IPC messages.
@@ -44,16 +44,16 @@ export class IpcBuffer {
     const messages: IpcMessage[] = [];
 
     // Merge data in buffer
-    this.buffer += data;
+    this._buffer += data;
 
     // Split buffer into separate payloads
-    const payloads = this.buffer.split(IPC_FRAME_START);
+    const payloads = this._buffer.split(IPC_FRAME_START);
     // Always remove first element, contains either an empty string or data not starting with the start frame (not belonging to any message)
     payloads.shift();
     // Stop and clear buffer if no start frame is found
     if (payloads.length <= 0) {
       // Always keep the last characters as it could contains the start frame partly
-      this.buffer = this.buffer.substring(this.buffer.length - IPC_FRAME_START.length);
+      this._buffer = this._buffer.substring(this._buffer.length - IPC_FRAME_START.length);
       return [];
     }
 
@@ -75,14 +75,14 @@ export class IpcBuffer {
     }
 
     // Store everything after the last end frame (could belong to an incomplete message)
-    const index = this.buffer.lastIndexOf(IPC_FRAME_STOP);
+    const index = this._buffer.lastIndexOf(IPC_FRAME_STOP);
     if (index > -1) {
-      this.buffer = this.buffer.substring(index + IPC_FRAME_STOP.length);
+      this._buffer = this._buffer.substring(index + IPC_FRAME_STOP.length);
     }
 
     // Prevent overflooding the buffer with maximum size
-    if (this.buffer.length > IPC_BUFFER_SIZE) {
-      this.buffer = this.buffer.slice(this.buffer.length - IPC_BUFFER_SIZE);
+    if (this._buffer.length > IPC_BUFFER_SIZE) {
+      this._buffer = this._buffer.slice(this._buffer.length - IPC_BUFFER_SIZE);
     }
 
     return messages;
