@@ -32,11 +32,13 @@ describe('ipcBuffer.ts', () => {
     let messages = buffer.filter('');
     expect(messages.length).to.be.equal(0);
     expect(buffer._buffer).to.be.equal('');
+
     // No start frame
     buffer = new IpcBuffer();
     messages = buffer.filter('GLS]{"name":"msg","type":"publish"}[GLE]');
     expect(messages.length).to.be.equal(0);
     expect(buffer._buffer).to.be.equal('[GLE]');
+
     // Party start frame, maintained for future data
     buffer = new IpcBuffer();
     messages = buffer.filter('only some gibberish[GLS');
@@ -53,16 +55,19 @@ describe('ipcBuffer.ts', () => {
     let messages = buffer.filter('[GLS]{}[GLE');
     expect(messages.length).to.be.equal(0);
     expect(buffer._buffer).to.be.equal('[GLS]{}[GLE');
+
     // Single start frame found with gibberish in front
     buffer = new IpcBuffer();
     messages = buffer.filter('gibberish[GLS]{}[GLE');
     expect(messages.length).to.be.equal(0);
     expect(buffer._buffer).to.be.equal('gibberish[GLS]{}[GLE');
+
     // Multiple start frames found
     buffer = new IpcBuffer();
     messages = buffer.filter('[GLS]{}[GLE[GLS]{}[GLE');
     expect(messages.length).to.be.equal(0);
     expect(buffer._buffer).to.be.equal('[GLS]{}[GLE[GLS]{}[GLE');
+
     // Multiple start frames found with gibberish in front
     buffer = new IpcBuffer();
     messages = buffer.filter('gibberish[GLS]{}[GLEgibberish[GLS]{}[GLE');
@@ -111,6 +116,7 @@ describe('ipcBuffer.ts', () => {
     let messages = buffer.filter('[GLS]{}[GLE]');
     expect(messages.length).to.be.equal(0);
     expect(buffer._buffer).to.be.equal('');
+
     // Single message, no leading or tailing data
     buffer = new IpcBuffer();
     messages = buffer.filter('[GLS]{"name":"msg","type":"publish"}[GLE]');
@@ -118,12 +124,14 @@ describe('ipcBuffer.ts', () => {
     expect(messages[0].name).to.be.equal('msg');
     expect(messages[0].type).to.be.equal('publish');
     expect(buffer._buffer).to.be.equal('');
+
     // Single message, with leading and tailing data
     messages = buffer.filter('gibberish[GLS]{"name":"msg","type":"publish"}[GLE]remainder');
     expect(messages.length).to.be.equal(1);
     expect(messages[0].name).to.be.equal('msg');
     expect(messages[0].type).to.be.equal('publish');
     expect(buffer._buffer).to.be.equal('remainder');
+
     // Multiple messages, with leading and tailing data
     messages = buffer.filter('gibberish[GLS]{"name":"msg1","type":"publish"}[GLE]gibberish[GLS]{"name":"msg2","type":"subscribe"}[GLE]remainder');
     expect(messages.length).to.be.equal(2);
@@ -132,6 +140,7 @@ describe('ipcBuffer.ts', () => {
     expect(messages[1].name).to.be.equal('msg2');
     expect(messages[1].type).to.be.equal('subscribe');
     expect(buffer._buffer).to.be.equal('remainder');
+
     // Validate if merging messages works
     messages = buffer.filter('a log of gibberish[GLS');
     expect(messages.length).to.equal(0);
@@ -139,13 +148,13 @@ describe('ipcBuffer.ts', () => {
     messages = buffer.filter(']{"name":"msg1","type":"indication"');
     expect(messages.length).to.equal(0);
     expect(buffer._buffer).to.be.equal('h[GLS]{"name":"msg1","type":"indication"');
-    messages = buffer.filter('}[GLE]invalid[GLE]invalid2[GLS]{"name":"msg2","type":"indication"}[GLE][GLS][GLS]{"name":"msg3","type":"indication"}');
+    messages = buffer.filter('}[GLE]invalid[GLE]invalid2[GLS]{"name":"msg2","type":"indication"}[GLE][GLS]{"name":"msg3","type":"indication"}');
     expect(messages.length).to.equal(2);
     expect(messages[0].name).to.equal('msg1');
     expect(messages[0].type).to.equal('indication');
     expect(messages[1].name).to.equal('msg2');
     expect(messages[1].type).to.equal('indication');
-    expect(buffer._buffer).to.be.equal('[GLS][GLS]{"name":"msg3","type":"indication"}');
+    expect(buffer._buffer).to.be.equal('[GLS]{"name":"msg3","type":"indication"}');
     messages = buffer.filter('[GLE][GLS]message 4');
     expect(messages.length).to.equal(1);
     expect(messages[0].name).to.equal('msg3');

@@ -22,10 +22,12 @@
  * SOFTWARE.
  */
 
-import { IpcMessage } from './ipcMessage';
+import {
+  IpcFrameEnd,
+  IpcFrameStart,
+  IpcMessage
+} from './ipcMessage';
 
-const IPC_FRAME_START = '[GLS]';
-const IPC_FRAME_STOP = '[GLE]';
 const IPC_BUFFER_SIZE = 1000000; // 1MB
 
 /**
@@ -42,42 +44,47 @@ export class IpcBuffer {
    */
   filter(data: string): IpcMessage[] {
     const messages: IpcMessage[] = [];
+    let startIndex = -1;
 
     // Merge data in buffer
     this._buffer += data;
 
-    // Split buffer into separate payloads
-    const payloads = this._buffer.split(IPC_FRAME_START);
-    // Always remove first element, contains either an empty string or data not starting with the start frame (not belonging to any message)
-    payloads.shift();
+    // Search for the first start frame
+    startIndex = this._buffer.indexOf(IpcFrameStart);
     // Stop and clear buffer if no start frame is found
-    if (payloads.length <= 0) {
+    if (startIndex === -1) {
       // Always keep the last characters as it could contains the start frame partly
-      this._buffer = this._buffer.substring(this._buffer.length - IPC_FRAME_START.length);
+      this._buffer = this._buffer.substring(this._buffer.length - IpcFrameStart.length);
       return [];
     }
 
     // Try to deserialize each payload into an IPC message
-    for (let payload of payloads) {
-      // Ignore payload if it does not contain an end frame (message not complete)
-      if (!payload.includes(IPC_FRAME_STOP)) {
-        continue;
+    do {
+      // Search for and end frame after the start frame
+      const endIndex = this._buffer.indexOf(IpcFrameEnd, startIndex);
+      // Stop if no end frame is found (message not complete)
+      if (endIndex === -1) {
+        break;
       }
 
-      // Strip everything after the end frame (not belonging to current message)
-      payload = payload.split(IPC_FRAME_STOP)[0];
+      // Get message payload from the buffer
+      const payload = this._buffer.substring(startIndex, endIndex + IpcFrameEnd.length);
 
       // Deserialize the payload into an IPC message
       const message = IpcMessage.deserialize(payload);
       if (message) {
         messages.push(message);
       }
+
+      // Search for the next start frame after the end frame
+      startIndex = this._buffer.indexOf(IpcFrameStart, endIndex);
     }
+    while (startIndex !== -1);
 
     // Store everything after the last end frame (could belong to an incomplete message)
-    const index = this._buffer.lastIndexOf(IPC_FRAME_STOP);
-    if (index > -1) {
-      this._buffer = this._buffer.substring(index + IPC_FRAME_STOP.length);
+    const endIndex = this._buffer.lastIndexOf(IpcFrameEnd);
+    if (endIndex !== -1) {
+      this._buffer = this._buffer.substring(endIndex + IpcFrameEnd.length);
     }
 
     // Prevent overflooding the buffer with maximum size

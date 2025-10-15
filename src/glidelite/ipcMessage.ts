@@ -27,6 +27,9 @@ export type IpcType = 'subscribe' | 'unsubscribe' | 'publish' | 'indication' | '
 const PAYLOAD_TYPES: string[] = ['string', 'number', 'boolean', 'object', 'undefined'];
 export type IpcPayload = string | number | boolean | object | null | undefined;
 
+export const IpcFrameStart = '[GLS]';
+export const IpcFrameEnd = '[GLE]';
+
 /**
  * An IPC message for Inter-Process Communication providing message serialization and deserialization.
  */
@@ -72,7 +75,7 @@ export class IpcMessage {
       default:
         break;
     }
-    return `{"name":"${this.name}","type":"${this.type}"${this.session !== undefined ? `,"session":${String(this.session)}` : ''}${payload}}`;
+    return `${IpcFrameStart}{"name":"${this.name}","type":"${this.type}"${this.session !== undefined ? `,"session":${String(this.session)}` : ''}${payload}}${IpcFrameEnd}`;
   }
 
   /**
@@ -81,9 +84,16 @@ export class IpcMessage {
    * @returns the IPC message, or `undefined` when the payload is not valid
    */
   static deserialize(payload: string): IpcMessage | undefined {
+    // Check start and end frame
+    if (!payload.startsWith(IpcFrameStart) || !payload.endsWith(IpcFrameEnd)) {
+      return undefined;
+    }
+    // Remove start and end frame
+    const data = payload.substring(IpcFrameStart.length, payload.length - IpcFrameEnd.length);
+
     try {
       // We always expect JSON payload
-      const json = JSON.parse(payload) as object;
+      const json = JSON.parse(data) as object;
 
       // Validate JSON object and construct IPC message
       if (
