@@ -29,6 +29,8 @@ import {
   IpcPayload
 } from './ipcMessage';
 
+const IPC_SESSION_MAX = 9999;
+
 /**
  * Enables sending subscribe, unsubscribe, request, and indication to a specific endpoint via Inter-Process Communication.
  */
@@ -107,6 +109,7 @@ export class IpcEndpointImpl {
   _subscriptions: Record<string, (name: string, payload: IpcPayload) => void>;
   _retryTimer: NodeJS.Timeout | undefined;
   _running: boolean;
+  _session: number;
 
   /**
    * Constructs a new IPC endpoint.
@@ -119,6 +122,7 @@ export class IpcEndpointImpl {
     this._buffer = new IpcBuffer();
     this._subscriptions = {};
     this._running = false;
+    this._session = 1;
   }
 
   /**
@@ -170,6 +174,7 @@ export class IpcEndpointImpl {
    * @see IpcEndpoint.indication for more details
    */
   indication(name: string, payload?: IpcPayload): void {
+    // Create and send indication message
     const message = new IpcMessage(name, 'indication', payload);
     this._socket.write(message.serialize());
   }
@@ -178,11 +183,18 @@ export class IpcEndpointImpl {
    * @see IpcEndpoint.request for more details
    */
   request(name: string, payload?: object): void {
-    const message = new IpcMessage(name, 'request', payload);
+    // Create and send request message
+    const message = new IpcMessage(name, 'request', payload, this._session);
     this._socket.write(message.serialize());
-    // TODO: should this be a blocking call with timeout waiting for responses? Or better to use a callback function?
-    // TODO: add session number
-    // TODO: add response object?
+
+    // Increment session number
+    this._session++;
+    if (this._session > IPC_SESSION_MAX) {
+      this._session = 1;
+    }
+
+    // TODO: should this be a blocking call with timeout waiting for responses? Or better to use a callback function? Or both options?
+    // TODO: add request object?
     // TODO: update all documentation
   }
 
