@@ -29,7 +29,7 @@ import {
   IpcPayload
 } from './ipcMessage';
 
-const IPC_SESSION_MAX = 9999;
+const IPC_SESSION_MAX = 99; // Only 99 simultaneous requests are possible
 
 /**
  * Enables sending subscribe, unsubscribe, request, and indication to a specific endpoint via Inter-Process Communication.
@@ -57,19 +57,32 @@ export interface IpcEndpoint {
    * Sends the specified payload as a request to the endpoint.
    * @details a request message works on timeout basis and no retry is performed if the endpoint is not connected
    * @param name the message name
-   * @param payload the message payload (optional)
+   * @param payload the message payload
+   * @param callback invoked when a response for the request is received
    * @details
    * ```js
    * // Sends a request message with different datatypes to the endpoint with name `application`
-   * ipc.to.application?.request('empty_message');
-   * ipc.to.application?.request('string_message', 'Hello, World!');
-   * ipc.to.application?.request('number_message', 1234);
-   * ipc.to.application?.request('boolean_message', true);
-   * ipc.to.application?.request('null_message', null);
-   * ipc.to.application?.request('object_message', { hello: 'world' });
+   * ipc.to.application?.request('empty_message', (name, payload) => {
+   *   console.log('Received response with name:', name, 'payload:', payload);
+   * });
+   * ipc.to.application?.request('string_message', 'Hello, World!', (name, payload) => {
+   *   console.log('Received response with name:', name, 'payload:', payload);
+   * });
+   * ipc.to.application?.request('number_message', 1234, (name, payload) => {
+   *   console.log('Received response with name:', name, 'payload:', payload);
+   * });
+   * ipc.to.application?.request('boolean_message', true, (name, payload) => {
+   *   console.log('Received response with name:', name, 'payload:', payload);
+   * });
+   * ipc.to.application?.request('null_message', null, (name, payload) => {
+   *   console.log('Received response with name:', name, 'payload:', payload);
+   * });
+   * ipc.to.application?.request('object_message', { hello: 'world' }, (name, payload) => {
+   *   console.log('Received response with name:', name, 'payload:', payload);
+   * });
    * ```
    */
-  request: (name: string, payload?: object) => void;
+  request: (name: string, payload: IpcPayload, callback: (name: string, payload?: IpcPayload) => void) => void;
 
   /**
    * Subscribes with the specified name and registers a callback which is invoked when receiving a publish message from the endpoint.
@@ -107,9 +120,10 @@ export class IpcEndpointImpl {
   _socket: net.Socket;
   _buffer: IpcBuffer;
   _subscriptions: Record<string, (name: string, payload: IpcPayload) => void>;
+  _requests: (((name: string, payload: IpcPayload) => void) | undefined)[];
+  _session: number;
   _retryTimer: NodeJS.Timeout | undefined;
   _running: boolean;
-  _session: number;
 
   /**
    * Constructs a new IPC endpoint.
@@ -121,8 +135,9 @@ export class IpcEndpointImpl {
     this._socket = new net.Socket();
     this._buffer = new IpcBuffer();
     this._subscriptions = {};
-    this._running = false;
+    this._requests = Array<(((name: string, payload: IpcPayload) => void) | undefined)>(IPC_SESSION_MAX);
     this._session = 1;
+    this._running = false;
   }
 
   /**
@@ -167,6 +182,7 @@ export class IpcEndpointImpl {
 
     // Cleanup and stop the socket
     this._subscriptions = {};
+    this._requests = Array<(((name: string, payload: IpcPayload) => void) | undefined)>(IPC_SESSION_MAX);
     this._socket.end();
   }
 
@@ -182,20 +198,19 @@ export class IpcEndpointImpl {
   /**
    * @see IpcEndpoint.request for more details
    */
-  request(name: string, payload?: object): void {
+  request(name: string, payload: IpcPayload, callback: (name: string, payload?: IpcPayload) => void): void {
+    // Store callback for use when a response is received
+    this._requests[this._session] = callback;
+
     // Create and send request message
     const message = new IpcMessage(name, 'request', payload, this._session);
     this._socket.write(message.serialize());
 
-    // Increment session number
+    // Increment session number for next request
     this._session++;
     if (this._session > IPC_SESSION_MAX) {
       this._session = 1;
     }
-
-    // TODO: should this be a blocking call with timeout waiting for responses? Or better to use a callback function? Or both options?
-    // TODO: add request object?
-    // TODO: update all documentation
   }
 
   /**
@@ -273,7 +288,7 @@ export class IpcEndpointImpl {
       if (message.type === 'publish') {
         this._onPublish(message);
       }
-      else if (message.type === 'response' && message.session !== undefined) {
+      else if (message.type === 'response') {
         this._onResponse(message);
       }
     }
@@ -295,7 +310,16 @@ export class IpcEndpointImpl {
    * @param message the message
    */
   _onResponse(message: IpcMessage): void {
-    // TODO: implement
-    console.log(message);
+    // Session number is a required
+    if (message.session === undefined) {
+      return;
+    }
+
+    // Invoke registered callback
+    const callback = this._requests[message.session];
+    if (callback) {
+      callback(message.name, message.payload);
+      this._requests[message.session] = undefined;
+    }
   }
 }

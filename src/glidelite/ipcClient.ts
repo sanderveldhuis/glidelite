@@ -24,7 +24,10 @@
 
 import net from 'node:net';
 import { IpcBuffer } from './ipcBuffer';
-import { IpcMessage } from './ipcMessage';
+import {
+  IpcMessage,
+  IpcPayload
+} from './ipcMessage';
 
 /**
  * An IPC client for Inter-Process Communication handling publish/subscribe, request/response, and indication.
@@ -35,7 +38,7 @@ export class IpcClient {
   _publishCache: Record<string, IpcMessage>;
   _subscriptions: string[];
   _onIndication: (message: IpcMessage) => void;
-  _onRequest: (message: IpcMessage) => void;
+  _onRequest: (message: IpcMessage, response: (payload?: IpcPayload) => void) => void;
 
   /**
    * Constructs a new IPC client for the specified socket.
@@ -44,7 +47,7 @@ export class IpcClient {
    * @param indicationCallback invoked when an indication message is received
    * @param requestCallback invoked when a request message is received
    */
-  constructor(socket: net.Socket, publishCache: Record<string, IpcMessage>, indicationCallback: (message: IpcMessage) => void, requestCallback: (message: IpcMessage) => void) {
+  constructor(socket: net.Socket, publishCache: Record<string, IpcMessage>, indicationCallback: (message: IpcMessage) => void, requestCallback: (message: IpcMessage, response: (payload?: IpcPayload) => void) => void) {
     this._socket = socket;
     this._buffer = new IpcBuffer();
     this._publishCache = publishCache;
@@ -135,8 +138,10 @@ export class IpcClient {
         this._onIndication(message);
       }
       else if (message.type === 'request' && message.session !== undefined) {
-        // TODO: add a response object which can be used to respond
-        this._onRequest(message);
+        this._onRequest(message, payload => {
+          const response = new IpcMessage(message.name, 'response', payload, message.session);
+          this._socket.write(response.serialize());
+        });
       }
     }
   }

@@ -114,12 +114,13 @@ export interface Ipc {
    * @details
    * ```js
    * // Registers a callback for request messages
-   * ipc.onRequest((name, payload) => {
+   * ipc.onRequest((name, payload, response) => {
    *   console.log('Received request with name:', name, 'payload:', payload);
+   *   response({ result: 'successfull' });
    * });
    * ```
    */
-  onRequest: (callback: (name: string, payload: IpcPayload) => void) => void;
+  onRequest: (callback: (name: string, payload: IpcPayload, response: (payload?: IpcPayload) => void) => void) => void;
 }
 
 /**
@@ -133,7 +134,7 @@ class IpcImpl {
   _publishCache: Record<string, IpcMessage> = {};
   _clients: IpcClient[] = [];
   _indicationCallbacks: ((name: string, payload: IpcPayload) => void)[] = [];
-  _requestCallbacks: ((name: string, payload: IpcPayload) => void)[] = [];
+  _requestCallbacks: ((name: string, payload: IpcPayload, response: (payload?: IpcPayload) => void) => void)[] = [];
   to: Record<string, IpcEndpointImpl> = {};
 
   /**
@@ -207,7 +208,7 @@ class IpcImpl {
   /**
    * @see Ipc.onRequest for details
    */
-  onRequest(callback: (name: string, payload: IpcPayload) => void): void {
+  onRequest(callback: (name: string, payload: IpcPayload, response: (payload?: IpcPayload) => void) => void): void {
     if (!this._requestCallbacks.includes(callback)) {
       this._requestCallbacks.push(callback);
     }
@@ -268,8 +269,8 @@ class IpcImpl {
     // Accept new connection
     const client = new IpcClient(socket, this._publishCache, message => {
       this._handleIndication(message);
-    }, message => {
-      this._handleRequest(message);
+    }, (message, response) => {
+      this._handleRequest(message, response);
     });
     this._clients.push(client);
     client.start();
@@ -298,11 +299,12 @@ class IpcImpl {
   /**
    * Invoked when a request message is received on any IPC client.
    * @param message the message
+   * @param response function which can be used to send a response
    */
-  _handleRequest(message: IpcMessage): void {
+  _handleRequest(message: IpcMessage, response: (payload?: IpcPayload) => void): void {
     // Invoke all registered callbacks
     for (const callback of this._requestCallbacks) {
-      callback(message.name, message.payload);
+      callback(message.name, message.payload, response);
     }
   }
 }
