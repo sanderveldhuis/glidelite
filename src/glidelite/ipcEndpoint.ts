@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
-import net from 'node:net';
+import * as net from 'node:net';
 import { IpcBuffer } from './ipcBuffer';
 import {
   IpcMessage,
   IpcPayload
 } from './ipcMessage';
 
-const IPC_SESSION_MAX = 99; // Only 99 simultaneous requests are possible
+const IPC_SESSION_MAX = 100; // Only 100 simultaneous requests are possible
 
 /**
  * Enables sending subscribe, unsubscribe, request, and indication to a specific endpoint via Inter-Process Communication.
@@ -144,10 +144,11 @@ export class IpcEndpointImpl {
    * Starts the IPC endpoint by handling all incoming events and connecting to the IPC server.
    */
   start(): void {
-    this._running = true;
-
     // Stop running retry timer
     clearTimeout(this._retryTimer);
+
+    // Ensure restart is done when the close event is received
+    this._running = true;
 
     // Register all listeners
     this._socket.on('connect', () => {
@@ -175,10 +176,11 @@ export class IpcEndpointImpl {
    * @details the IPC endpoint should not be used anymore afterwards
    */
   stop(): void {
-    this._running = false;
-
     // Stop running retry timer
     clearTimeout(this._retryTimer);
+
+    // Ensure no restart is done when the close event is received
+    this._running = false;
 
     // Cleanup and stop the socket
     this._subscriptions = {};
@@ -200,7 +202,7 @@ export class IpcEndpointImpl {
    */
   request(name: string, payload: IpcPayload, callback: (name: string, payload?: IpcPayload) => void): void {
     // Store callback for use when a response is received
-    this._requests[this._session] = callback;
+    this._requests[this._session - 1] = callback;
 
     // Create and send request message
     const message = new IpcMessage(name, 'request', payload, this._session);
@@ -237,7 +239,8 @@ export class IpcEndpointImpl {
   _onConnected(): void {
     // Resend cached subscriptions
     for (const name in this._subscriptions) {
-      this.subscribe(name, this._subscriptions[name]);
+      const message = new IpcMessage(name, 'subscribe');
+      this._socket.write(message.serialize());
     }
   }
 

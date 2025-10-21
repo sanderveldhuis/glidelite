@@ -141,7 +141,7 @@ describe('ipcClient.ts', () => {
     client._onError(new Error());
     sinon.assert.calledWithExactly(consoleError.getCall(0), 'ERR:ipc:client:');
 
-    // No error message
+    // With error message
     client._onError(new Error('Unknown error'));
     sinon.assert.calledWithExactly(consoleError.getCall(1), 'ERR:ipc:client:Unknown error');
   });

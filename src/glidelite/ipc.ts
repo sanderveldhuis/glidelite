@@ -23,7 +23,7 @@
  */
 
 import { rmSync } from 'node:fs';
-import net from 'node:net';
+import * as net from 'node:net';
 import { IpcClient } from './ipcClient';
 import {
   IpcEndpoint,
