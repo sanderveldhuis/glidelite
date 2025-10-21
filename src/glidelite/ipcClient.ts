@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import net from 'node:net';
+import * as net from 'node:net';
 import { IpcBuffer } from './ipcBuffer';
 import {
   IpcMessage,
@@ -73,7 +73,7 @@ export class IpcClient {
   }
 
   /**
-   * Stops the IPC client and the dedicated client socket.
+   * Stops the IPC client and the socket.
    * @details the IPC client should not be used anymore afterwards
    */
   stop(): void {
@@ -91,7 +91,8 @@ export class IpcClient {
   }
 
   /**
-   * Publishes the specified payload via the IPC client when a subscription is received before.
+   * Publishes the specified payload via the IPC client, only when a subscription for the message name is received before.
+   * @details the message is cached and re-transmitted once a subscription is received later in time
    * @param name the message name
    * @param message the message
    */
