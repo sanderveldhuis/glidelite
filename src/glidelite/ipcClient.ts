@@ -35,8 +35,9 @@ import {
 export class IpcClient {
   _socket: net.Socket;
   _buffer: IpcBuffer;
-  _publishCache: Record<string, IpcMessage>;
   _subscriptions: string[];
+  // The next variables will contain references so are readonly
+  _publishCache: Record<string, IpcMessage>;
   _onIndication: (message: IpcMessage) => void;
   _onRequest: (message: IpcMessage, response: (payload?: IpcPayload) => void) => void;
 
@@ -50,8 +51,8 @@ export class IpcClient {
   constructor(socket: net.Socket, publishCache: Record<string, IpcMessage>, indicationCallback: (message: IpcMessage) => void, requestCallback: (message: IpcMessage, response: (payload?: IpcPayload) => void) => void) {
     this._socket = socket;
     this._buffer = new IpcBuffer();
-    this._publishCache = publishCache;
     this._subscriptions = [];
+    this._publishCache = publishCache;
     this._onIndication = indicationCallback;
     this._onRequest = requestCallback;
   }
@@ -60,6 +61,9 @@ export class IpcClient {
    * Starts the IPC client by handling all incoming events.
    */
   start(): void {
+    // Remove listeners for safety, e.g. when this function was invoked before
+    this._socket.removeAllListeners();
+
     // Register all listeners
     this._socket.on('end', () => {
       this._onEnd();
@@ -78,8 +82,8 @@ export class IpcClient {
    */
   stop(): void {
     this._subscriptions = [];
-    this._publishCache = {};
     this._socket.end();
+    // Do not remove all listeners for the socket to prevent missing an error event
   }
 
   /**
@@ -97,7 +101,6 @@ export class IpcClient {
    * @param message the message
    */
   publish(name: string, message: IpcMessage): void {
-    this._publishCache[name] = message;
     if (this._subscriptions.includes(name)) {
       this._socket.write(message.serialize());
     }

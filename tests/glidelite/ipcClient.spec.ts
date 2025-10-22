@@ -59,6 +59,7 @@ describe('ipcClient.ts', () => {
   });
 
   it('validate starting an IPC client', () => {
+    socketMock.expects('removeAllListeners').once();
     socketMock.expects('on').once().withArgs('end');
     socketMock.expects('on').once().withArgs('error');
     socketMock.expects('on').once().withArgs('data');
@@ -83,7 +84,7 @@ describe('ipcClient.ts', () => {
 
     expect(client._socket).to.equal(socket);
     expect(client._buffer).to.not.equal(undefined);
-    expect(Object.keys(client._publishCache).length).to.equal(0);
+    expect(Object.keys(client._publishCache).length).to.equal(2);
     expect(client._subscriptions.length).to.equal(0);
     expect(client._onIndication).to.equal(onIndication);
     expect(client._onRequest).to.equal(onRequest);
@@ -107,26 +108,17 @@ describe('ipcClient.ts', () => {
   });
 
   it('validate publishing a message', () => {
-    // No subscriptions and publish cache available
-    const message1 = new IpcMessage('test1', 'publish', { result: true });
-    client.publish('test1', message1);
-    expect(Object.keys(client._publishCache).length).to.equal(1);
-    expect(client._publishCache.test1).to.deep.equal(message1);
+    // No subscriptions available
+    client.publish('test1', new IpcMessage('test1', 'publish', { result: true }));
 
-    // Message not yet existing in publish cache, subscription available
-    const message2 = new IpcMessage('test2', 'publish', { result: false });
+    // Subscription available
     client._subscriptions.push('test2');
+    client._subscriptions.push('test3');
     socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test2","type":"publish","payload":{"result":false}}[GLE]');
-    client.publish('test2', message2);
-    expect(Object.keys(client._publishCache).length).to.equal(2);
-    expect(client._publishCache.test1).to.deep.equal(message1);
-    expect(client._publishCache.test2).to.deep.equal(message2);
+    client.publish('test2', new IpcMessage('test2', 'publish', { result: false }));
 
-    // Message existing in publish cache, subscription not available
-    client.publish('test1', message1);
-    expect(Object.keys(client._publishCache).length).to.equal(2);
-    expect(client._publishCache.test1).to.deep.equal(message1);
-    expect(client._publishCache.test2).to.deep.equal(message2);
+    // Subscription not available
+    client.publish('test1', new IpcMessage('test1', 'publish', { result: true }));
   });
 
   it('validate handling an end event', () => {
