@@ -126,7 +126,7 @@ export interface Ipc {
 /**
  * Provides Inter-Process Communication (IPC) between GlideLite modules and applications.
  */
-class IpcImpl {
+export class IpcImpl {
   _name = '';
   _path = '';
   _server: net.Server = new net.Server({ keepAlive: true });
