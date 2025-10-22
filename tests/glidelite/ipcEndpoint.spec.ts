@@ -71,7 +71,7 @@ describe('ipcEndpoint.ts', () => {
       expect(endpoint._path).to.match(new RegExp(/^\\\\\.\\pipe\\.*\\test$/));
     }
     else {
-      expect(endpoint._path).to.equal(/^.*\/ipc_test$/);
+      expect(endpoint._path).to.match(/^.*\/ipc_test$/);
     }
   });
 
@@ -103,7 +103,7 @@ describe('ipcEndpoint.ts', () => {
       expect(endpoint._path).to.match(new RegExp(/^\\\\\.\\pipe\\.*\\test$/));
     }
     else {
-      expect(endpoint._path).to.equal(/^.*\/ipc_test$/);
+      expect(endpoint._path).to.match(/^.*\/ipc_test$/);
     }
   });
 

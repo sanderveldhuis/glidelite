@@ -92,7 +92,7 @@ describe('ipc.ts', () => {
       expect(ipc._path).to.match(new RegExp(/^\\\\\.\\pipe\\.*\\test1$/));
     }
     else {
-      expect(ipc._path).to.equal(/^.*\/ipc_test1$/);
+      expect(ipc._path).to.match(/^.*\/ipc_test1$/);
       sinon.assert.calledWithExactly(rmSync.getCall(0), ipc._path, { force: true });
     }
 
@@ -106,7 +106,7 @@ describe('ipc.ts', () => {
       expect(ipc._path).to.match(new RegExp(/^\\\\\.\\pipe\\.*\\test2$/));
     }
     else {
-      expect(ipc._path).to.equal(/^.*\/ipc_test2$/);
+      expect(ipc._path).to.match(/^.*\/ipc_test2$/);
       sinon.assert.calledWithExactly(rmSync.getCall(1), ipc._path, { force: true });
     }
 
