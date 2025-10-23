@@ -313,7 +313,7 @@ export class IpcEndpointImpl {
    * @param message the message
    */
   _onResponse(message: IpcMessage): void {
-    // Session number is a required
+    // Session number is required for request/response
     if (message.session === undefined) {
       return;
     }
