@@ -35,7 +35,7 @@ export const IpcFrameEnd = '[GLE]';
  */
 export class IpcMessage {
   name: string;
-  type: Readonly<IpcType>;
+  type: IpcType;
   payload: IpcPayload;
   session: number | undefined;
 

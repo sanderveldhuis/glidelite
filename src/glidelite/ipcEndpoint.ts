@@ -32,7 +32,7 @@ import {
 const IPC_SESSION_MAX = 100; // Only 100 simultaneous requests are possible
 
 /**
- * Enables sending subscribe, unsubscribe, request, and indication to a specific endpoint via Inter-Process Communication.
+ * IPC endpoint used to subscribe and unsubscribe on a publish message, and send indication and request messages to.
  */
 export interface IpcEndpoint {
   /**
@@ -55,7 +55,7 @@ export interface IpcEndpoint {
 
   /**
    * Sends the specified payload as a request to the endpoint.
-   * @details a request message works on timeout basis and no retry is performed if the endpoint is not connected
+   * @details a request message does not have a timeout and no retry is performed if the endpoint is not connected
    * @param name the message name
    * @param payload the message payload
    * @param callback invoked when a response for the request is received
