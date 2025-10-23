@@ -50,4 +50,4 @@ for (let dir = __dirname;; dir = dirname(dir)) {
 /**
  * The GlideLite configuration loaded from the glconfig.json file.
  */
-export const glconfig = JSON.parse(readFileSync(glconfigJson).toString()) as object;
+export const glconfig: any = JSON.parse(readFileSync(glconfigJson).toString()) as object; /* eslint-disable-line @typescript-eslint/no-explicit-any */
