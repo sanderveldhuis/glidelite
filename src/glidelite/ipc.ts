@@ -116,7 +116,7 @@ export interface Ipc {
    * // Registers a callback for request messages
    * ipc.onRequest((name, payload, response) => {
    *   console.log('Received request with name:', name, 'payload:', payload);
-   *   response({ result: 'successfull' });
+   *   response({ result: 'successful' });
    * });
    * ```
    */

@@ -1,11 +1,11 @@
 
 # Inter-Process communication
 
-Inter-process communication (IPC) is a mechanism to allow separate modules or processes, such as workers and APIs, to communicate with each other. In GlideLite the maximum payload size of an IPC message is 1MB, if a message exeeds this threshold it will automatically being dropped without error or warning.
+Inter-process communication (IPC) is a mechanism to allow separate modules or processes, such as workers and APIs, to communicate with each other. In GlideLite the maximum payload size of an IPC message is 1MB. If a message exceeds this threshold it will automatically be dropped without error or warning.
 
 ## Start and stop IPC
 
-IPC in GlideLite is based on endpoint names, where each module represents its own endpoint for which you can define a name yourself.
+IPC in GlideLite is based on endpoint names: each module represents an endpoint, and you provide a name for each endpoint you start.
 
 ```typescript
 import { ipc } from 'glidelite';
@@ -18,7 +18,7 @@ ipc.stop();
 
 ## Subscribe, unsubscribe, and publish
 
-Publish messages are transmitted asynchronous to all endpoints which are subscribed to that message name. The latest published message for each message name is cached and transmitted to endpoints which are subscribed later in time. Therefor publish messages are always guaranteed to be delivered.
+Publish messages are transmitted asynchronous to all endpoints which are subscribed to that message name. GlideLite caches the latest published message for each message name and will deliver that cached latest message to endpoints that subscribe later. Therefore publish messages are always guaranteed to be delivered.
 
 ```typescript
 import { ipc } from 'glidelite';
@@ -42,7 +42,7 @@ ipc.publish('object_message', { hello: 'world' });
 
 ## Indication
 
-Indication messages are transmitted asynchronous to a specified endpoint where the delivery is not guaranteed (fire-and-forget).
+Indication messages are transmitted asynchronous to a specified endpoint as a fire-and-forget message; delivery is not guaranteed.
 
 ```typescript
 import { ipc } from 'glidelite';
@@ -63,7 +63,7 @@ ipc.to.otherapplication1?.indication('object_message', { hello: 'world' });
 
 ## Request and response
 
-Request and response messages are transmitted asynchronous to a specified endpoint where the delivery is not guaranteed and no timeout is set. Once a response is received the specified callback will be invoked. GlideLite supports a maximum of 100 simultaneous open IPC requests.
+Request and response messages are transmitted asynchronous to a specified endpoint. Delivery is not guaranteed; there is no default timeout for requests. Once a response is received the specified callback will be invoked. GlideLite currently limits simultaneous open IPC requests to 100. If the limit is reached, the oldest pending requests will be dropped.
 
 ```typescript
 import { ipc } from 'glidelite';
@@ -71,7 +71,7 @@ import { ipc } from 'glidelite';
 // Register a callback for handling received request messages
 ipc.onRequest((name, payload, response) => {
   console.log('Received request with name:', name, 'payload:', payload);
-  response({ result: 'successfull' });
+  response({ result: 'successful' });
 });
 
 // Send a request message with different datatypes to the endpoint with name 'otherapplication1'
