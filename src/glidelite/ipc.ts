@@ -312,10 +312,10 @@ export class IpcImpl {
 /**
  * Provides Inter-Process Communication (IPC) for all GlideLite modules.
  *
- * The supported communication types are:
- * - Subscribe, unsubscribe, and publish (guaranteed delivery)
- * - Indication (fire-and-forget)
- * - Request and response (fire-and-timeout)
+ * The supported messaging patterns are:
+ * - Subscribe, unsubscribe, and publish (delivery guaranteed)
+ * - Indication (delivery not guaranteed)
+ * - Request and response (delivery not guaranteed)
  *
  * The maximum size of payload is 1MB.
  */

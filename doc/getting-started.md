@@ -54,5 +54,6 @@ npx glc -m workers
 To dive deeper into GlideLite it is time to start coding your project:
 
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
+* [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
 * [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)
