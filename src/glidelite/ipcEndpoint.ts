@@ -318,11 +318,17 @@ export class IpcEndpointImpl {
       return;
     }
 
+    // Validate session number range
+    const sessionIndex = message.session - 1;
+    if (sessionIndex < 0 || sessionIndex >= IPC_SESSION_MAX) {
+      return;
+    }
+
     // Invoke registered callback
-    const callback = this._requests[message.session];
+    const callback = this._requests[sessionIndex];
     if (callback) {
       callback(message.name, message.payload);
-      this._requests[message.session] = undefined;
+      this._requests[sessionIndex] = undefined;
     }
   }
 }

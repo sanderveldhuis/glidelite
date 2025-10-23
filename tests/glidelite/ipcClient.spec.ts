@@ -91,20 +91,30 @@ describe('ipcClient.ts', () => {
   });
 
   it('validate checking if the socket open', () => {
-    const stub = sinon.stub(socket, 'readyState');
+    const destroyedStub = sinon.stub(socket, 'destroyed');
+    const writableStub = sinon.stub(socket, 'writable');
+    const readableStub = sinon.stub(socket, 'readable');
 
-    stub.value('opening');
-    expect(client.isOpen()).to.equal(false);
-    stub.value('open');
+    destroyedStub.value(false);
+    writableStub.value(true);
+    readableStub.value(true);
     expect(client.isOpen()).to.equal(true);
-    stub.value('readOnly');
+    destroyedStub.value(true);
+    writableStub.value(true);
+    readableStub.value(true);
     expect(client.isOpen()).to.equal(false);
-    stub.value('writeOnly');
+    destroyedStub.value(false);
+    writableStub.value(false);
+    readableStub.value(true);
     expect(client.isOpen()).to.equal(false);
-    stub.value('closed');
+    destroyedStub.value(false);
+    writableStub.value(true);
+    readableStub.value(false);
     expect(client.isOpen()).to.equal(false);
 
-    stub.restore();
+    destroyedStub.restore();
+    writableStub.restore();
+    readableStub.restore();
   });
 
   it('validate publishing a message', () => {

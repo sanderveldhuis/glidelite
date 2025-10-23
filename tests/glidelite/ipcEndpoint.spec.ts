@@ -260,7 +260,7 @@ describe('ipcEndpoint.ts', () => {
       requestName = name;
       requestPayload = payload;
     };
-    endpoint._onData(Buffer.from('[GLS]{"name":"test","type":"response","payload":true,"session":99}[GLE]'));
+    endpoint._onData(Buffer.from('[GLS]{"name":"test","type":"response","payload":true,"session":100}[GLE]'));
     expect(requestName).to.equal('test');
     expect(requestPayload).to.equal(true);
     expect(endpoint._requests[99]).to.equal(undefined);
@@ -295,11 +295,11 @@ describe('ipcEndpoint.ts', () => {
     endpoint._onResponse(new IpcMessage('test', 'response'));
 
     // No registered callback for session number
-    endpoint._onResponse(new IpcMessage('test', 'response', undefined, 99));
+    endpoint._onResponse(new IpcMessage('test', 'response', undefined, 100));
 
     // Session number out of bounds should not cause an error
-    endpoint._onResponse(new IpcMessage('test', 'response', undefined, 100));
-    endpoint._onResponse(new IpcMessage('test', 'response', undefined, -1));
+    endpoint._onResponse(new IpcMessage('test', 'response', undefined, 101));
+    endpoint._onResponse(new IpcMessage('test', 'response', undefined, 0));
 
     // Registered callback but not for session number
     let requestName = '';
@@ -312,19 +312,19 @@ describe('ipcEndpoint.ts', () => {
       requestName = name;
       requestPayload = payload;
     };
-    endpoint._onResponse(new IpcMessage('test1', 'response', undefined, 99));
+    endpoint._onResponse(new IpcMessage('test1', 'response', undefined, 100));
     expect(requestName).to.equal('');
     expect(requestPayload).to.equal(undefined);
     expect(endpoint._requests[97]).to.not.equal(undefined);
     expect(endpoint._requests[98]).to.not.equal(undefined);
 
     // Registered callback for session number
-    endpoint._onResponse(new IpcMessage('test2', 'response', undefined, 98));
+    endpoint._onResponse(new IpcMessage('test2', 'response', undefined, 99));
     expect(requestName).to.equal('test2');
     expect(requestPayload).to.equal(undefined);
     expect(endpoint._requests[97]).to.not.equal(undefined);
     expect(endpoint._requests[98]).to.equal(undefined);
-    endpoint._onResponse(new IpcMessage('test3', 'response', { result: true }, 97));
+    endpoint._onResponse(new IpcMessage('test3', 'response', { result: true }, 98));
     expect(requestName).to.equal('test3');
     expect(requestPayload).to.deep.equal({ result: true });
     expect(endpoint._requests[97]).to.equal(undefined);

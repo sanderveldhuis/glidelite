@@ -91,7 +91,7 @@ export class IpcClient {
    * @returns `true` when open, or `false` otherwise
    */
   isOpen(): boolean {
-    return this._socket.readyState === 'open';
+    return !this._socket.destroyed && this._socket.writable && this._socket.readable;
   }
 
   /**
