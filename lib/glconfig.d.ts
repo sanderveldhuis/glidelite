@@ -24,4 +24,4 @@
 /**
  * The GlideLite configuration loaded from the glconfig.json file.
  */
-export declare const glconfig: any;
+export declare const glconfig: object;
