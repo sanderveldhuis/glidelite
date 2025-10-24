@@ -21,6 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-export * from './glconfig';
-export * from './ipc';
-export * from './logger';
+import { IpcMessage } from './ipcMessage';
+/**
+ * An IPC buffer for Inter-Process Communication used to filter messages out of the TCP data which could consist of complete, incomplete, or multiple IPC messages.
+ */
+export declare class IpcBuffer {
+    _buffer: string;
+    /**
+     * Filter messages out of the TCP data which could consist of complete, incomplete, or multiple IPC messages.
+     * @details incomplete IPC messages are stored in a buffer untill the rest of the message is available
+     * @param data the TCP data
+     * @returns the filtered IPC messages
+     */
+    filter(data: string): IpcMessage[];
+}
