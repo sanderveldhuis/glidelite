@@ -22,4 +22,5 @@
  * SOFTWARE.
  */
 export * from './glconfig';
+export * from './ipc';
 export * from './logger';
