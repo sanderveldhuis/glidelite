@@ -26,6 +26,7 @@ import {
   join,
   resolve
 } from 'node:path';
+import * as compileFrontend from './compileFrontend';
 import * as compileProject from './compileProject';
 import * as compileWorkers from './compileWorkers';
 import { initProject } from './initProject';
@@ -45,6 +46,7 @@ type ModuleNameCompilerMap = Map<string, Compiler>;
  */
 const moduleNameMap: ModuleNameCompilerMap = new Map<string, Compiler>([
   ['workers', compileWorkers],
+  ['frontend', compileFrontend],
   ['', compileProject]
 ]);
 
