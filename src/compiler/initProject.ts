@@ -38,6 +38,8 @@ export function initProject(workingDirectory: string): void {
   const workersDir = join(workingDirectory, 'backend', 'workers');
   const workersGlConfig = join(workingDirectory, 'glconfig.json');
   const workersTsConfig = join(workersDir, 'tsconfig.json');
+  const frontendDir = join(workingDirectory, 'frontend');
+  const frontendViteConfig = join(frontendDir, 'vite.config.js');
 
   // Check if all required files are not yet available to prevent overwriting existing user data
   if (exists(workersGlConfig)) {
@@ -48,11 +50,17 @@ export function initProject(workingDirectory: string): void {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${workersTsConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
+  if (exists(frontendViteConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'vite.config.js' file already defined at: '${frontendViteConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
 
   // Create the file system structure if not exists, and create all required files
   makeDir(workersDir);
   makeFile(workersGlConfig, '{}\n');
   makeFile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+  makeDir(frontendDir);
+  makeFile(frontendViteConfig, "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
 
   console.log(`Created a new GlideLite project at: '${workingDirectory}'.`);
 }

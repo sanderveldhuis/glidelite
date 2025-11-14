@@ -14,7 +14,9 @@
   "ignoreDependencies": [
     "@tsconfig/node-lts",
     "@types/mocha",
-    "mocha"
+    "@vitejs/plugin-react",
+    "mocha",
+    "vite"
   ],
   "ignoreBinaries": ["glc"]
 }

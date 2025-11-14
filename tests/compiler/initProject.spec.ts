@@ -86,6 +86,26 @@ describe('initProject.ts', () => {
     sinon.assert.calledOnceWithExactly(processExit, 2010);
   });
 
+  it('validate when the Vite config already exists', () => {
+    exists.onCall(0).returns(false).onCall(1).returns(false).onCall(2).returns(true);
+
+    initProject('test');
+
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\workers\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.js');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'vite.config.js' file already defined at: 'test\\frontend\\vite.config.js'.");
+    }
+    else {
+      sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/workers/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.js');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'vite.config.js' file already defined at: 'test/frontend/vite.config.js'.");
+    }
+    sinon.assert.calledOnceWithExactly(processExit, 2010);
+  });
+
   it('validate when the project is initialized', () => {
     initProject('test');
 
@@ -95,6 +115,8 @@ describe('initProject.ts', () => {
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'test\\backend\\workers');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'test\\glconfig.json', '{}\n');
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'test\\backend\\workers\\tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+      sinon.assert.calledWithExactly(makeDir.getCall(1), 'test\\frontend');
+      sinon.assert.calledWithExactly(makeFile.getCall(2), 'test\\frontend\\vite.config.js', "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
@@ -102,6 +124,8 @@ describe('initProject.ts', () => {
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'test/backend/workers');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'test/glconfig.json', '{}\n');
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'test/backend/workers/tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+      sinon.assert.calledWithExactly(makeDir.getCall(1), 'test/frontend');
+      sinon.assert.calledWithExactly(makeFile.getCall(2), 'test/frontend/vite.config.js', "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
     }
     sinon.assert.calledOnceWithExactly(consoleLog, "Created a new GlideLite project at: 'test'.");
   });

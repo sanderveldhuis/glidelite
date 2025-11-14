@@ -23,6 +23,7 @@
  */
 
 import { join } from 'node:path';
+import * as compileFrontend from './compileFrontend';
 import * as compileWorkers from './compileWorkers';
 import {
   makeDir,
@@ -44,6 +45,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
 
   // Clean each module
   compileWorkers.clean(pkg, config, outputDirectory);
+  compileFrontend.clean(pkg, config, outputDirectory);
 
   // Clean the project
   remove(join(outputDirectory, 'install'));
@@ -59,6 +61,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   compileWorkers.validate(pkg, config, workingDirectory);
+  compileFrontend.validate(pkg, config, workingDirectory);
 }
 
 /**
@@ -71,6 +74,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   // Compile each module
   compileWorkers.compile(pkg, config, workingDirectory, outputDirectory);
+  compileFrontend.compile(pkg, config, workingDirectory, outputDirectory);
 
   // Create project configuration files
   const optDir = join(outputDirectory, 'opt', config.name as string);
@@ -99,7 +103,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   );
 
   // Construct a list of required Linux APT packages and filter out duplicates
-  const packages = ['cron', 'logrotate', 'nodejs'].concat((config.packages ?? []) as string[]);
+  const packages = ['cron', 'logrotate', 'nodejs', 'nginx', 'certbot', 'python3-certbot-nginx'].concat((config.packages ?? []) as string[]);
   const filteredPackages = packages.filter((item, pos) => {
     return packages.indexOf(item) == pos;
   });
@@ -124,11 +128,13 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '  fi\n' +
       'fi\n\n' +
       '# Cleanup old project\n' +
+      `rm -rf /var/www/${config.name as string}\n` +
       `rm -rf /etc/cron.d/${config.name as string}_workers\n` +
       `rm -rf /opt/${config.name as string}\n` +
       `pkill -f "node /opt/${config.name as string}/workers"\n\n` +
       '# Copy new project\n' +
       `mkdir -p /var/log/${config.name as string}\n` +
+      'cp -r var /\n' +
       'cp -r opt /\n' +
       'cp -r etc /\n\n' +
       '# Install dependencies\n' +
