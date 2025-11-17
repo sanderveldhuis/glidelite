@@ -32,6 +32,8 @@ This will create the filesystem structure with required files for a GlideLite pr
 │  └─ workers           # contains code for workers
 │     └─ tsconfig.json  # TypeScript configuration for workers code
 ├─ frontend             # contains all frontend modules
+│  ├─ vite.config.js    # Vite configuration for frontend code
+│  └─ index.html        # Example frontend code
 └─ glconfig.json        # GlideLite configuration for the project
 ```
 
@@ -56,4 +58,5 @@ To dive deeper into GlideLite it is time to start coding your project:
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
+* [Frontend](https://github.com/sanderveldhuis/glidelite/blob/main/doc/frontend.md)
 * [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)
