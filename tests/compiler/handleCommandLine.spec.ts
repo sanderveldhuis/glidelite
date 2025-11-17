@@ -290,54 +290,54 @@ describe('handleCommandLine.ts', () => {
     sinon.assert.calledWithExactly(processExit.getCall(0), 0);
 
     options.clean = false;
-    readJsonFile.onCall(2).returns({ name: 'pkg', version: '1.0.0' }).onCall(3).returns({ name: 'cfg' });
+    readJsonFile.onCall(2).returns({ name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }).onCall(3).returns({ name: 'cfg', homepage: 'https://example2.com' });
     handleCommandLine(command);
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(2), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(3), process.cwd() + '\\glconfig.json');
-      sinon.assert.calledWithExactly(compileProject.getCall(1), { name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
+      sinon.assert.calledWithExactly(compileProject.getCall(1), { name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example2.com' }, process.cwd(), process.cwd() + '\\output');
     }
     else {
       sinon.assert.calledWithExactly(readJsonFile.getCall(2), process.cwd() + '/package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(3), process.cwd() + '/glconfig.json');
-      sinon.assert.calledWithExactly(compileProject.getCall(1), { name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
+      sinon.assert.calledWithExactly(compileProject.getCall(1), { name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example2.com' }, process.cwd(), process.cwd() + '/output');
     }
-    sinon.assert.calledWithExactly(validateProject.getCall(1), { name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
+    sinon.assert.calledWithExactly(validateProject.getCall(1), { name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example2.com' }, process.cwd());
     sinon.assert.calledWithExactly(processExit.getCall(1), 0);
 
     options.clean = true;
-    readJsonFile.onCall(4).returns({ name: 'pkg', version: '1.0.0' }).onCall(5).returns({ name: 'cfg' });
+    readJsonFile.onCall(4).returns({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }).onCall(5).returns({ name: 'cfg' });
     handleCommandLine(command);
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(4), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(5), process.cwd() + '\\glconfig.json');
-      sinon.assert.calledOnceWithExactly(cleanProject, { name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd() + '\\output');
-      sinon.assert.calledWithExactly(compileProject.getCall(2), { name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
+      sinon.assert.calledOnceWithExactly(cleanProject, { name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd() + '\\output');
+      sinon.assert.calledWithExactly(compileProject.getCall(2), { name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd(), process.cwd() + '\\output');
     }
     else {
       sinon.assert.calledWithExactly(readJsonFile.getCall(4), process.cwd() + '/package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(5), process.cwd() + '/glconfig.json');
-      sinon.assert.calledOnceWithExactly(cleanProject, { name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd() + '/output');
-      sinon.assert.calledWithExactly(compileProject.getCall(2), { name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
+      sinon.assert.calledOnceWithExactly(cleanProject, { name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd() + '/output');
+      sinon.assert.calledWithExactly(compileProject.getCall(2), { name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd(), process.cwd() + '/output');
     }
-    sinon.assert.calledWithExactly(validateProject.getCall(2), { name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
+    sinon.assert.calledWithExactly(validateProject.getCall(2), { name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd());
     sinon.assert.calledWithExactly(processExit.getCall(2), 0);
 
     options.clean = false;
     options.outdir = 'hello/../world';
-    readJsonFile.onCall(6).returns({ name: 'pkg', version: '1.0.0' }).onCall(7).returns({ version: '1.0.1' });
+    readJsonFile.onCall(6).returns({ name: 'pkg', version: '1.0.0' }).onCall(7).returns({ version: '1.0.1', homepage: 'https://example.com' });
     handleCommandLine(command);
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readJsonFile.getCall(6), process.cwd() + '\\package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(7), process.cwd() + '\\glconfig.json');
-      sinon.assert.calledWithExactly(compileProject.getCall(3), { name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1' }, process.cwd(), process.cwd() + '\\world');
+      sinon.assert.calledWithExactly(compileProject.getCall(3), { name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1', homepage: 'https://example.com' }, process.cwd(), process.cwd() + '\\world');
     }
     else {
       sinon.assert.calledWithExactly(readJsonFile.getCall(6), process.cwd() + '/package.json');
       sinon.assert.calledWithExactly(readJsonFile.getCall(7), process.cwd() + '/glconfig.json');
-      sinon.assert.calledWithExactly(compileProject.getCall(3), { name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1' }, process.cwd(), process.cwd() + '/world');
+      sinon.assert.calledWithExactly(compileProject.getCall(3), { name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1', homepage: 'https://example.com' }, process.cwd(), process.cwd() + '/world');
     }
-    sinon.assert.calledWithExactly(validateProject.getCall(3), { name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1' }, process.cwd());
+    sinon.assert.calledWithExactly(validateProject.getCall(3), { name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1', homepage: 'https://example.com' }, process.cwd());
     sinon.assert.calledWithExactly(processExit.getCall(3), 0);
   });
 });

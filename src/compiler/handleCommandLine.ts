@@ -84,9 +84,12 @@ export function handleCommandLine(command: Command): void {
     const pkg = readJsonFile(pkgJson);
     const config = readJsonFile(glConfig);
 
-    // If no name and/or version is defined in the GlideLite configuration then use the ones from the package.json
+    // If no name, version, and/or homepage is defined in the GlideLite configuration then use the ones from the package.json
     config.name = config.name ?? pkg.name;
     config.version = config.version ?? pkg.version;
+    if (config.homepage ?? pkg.homepage) {
+      config.homepage = config.homepage ?? pkg.homepage;
+    }
 
     if (command.options.clean) {
       module.clean(pkg, config, outputDirectory);

@@ -30,8 +30,13 @@ import {
   makeFile,
   remove
 } from './sysUtils';
-import { Json } from './types';
+import {
+  ExitStatus,
+  Json
+} from './types';
 import { version } from './version';
+
+const regexUrl = '^https?://[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}/?$';
 
 /**
  * Cleans the project output data from the specified output directory.
@@ -62,6 +67,12 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   compileWorkers.validate(pkg, config, workingDirectory);
   compileFrontend.validate(pkg, config, workingDirectory);
+
+  // Validate homepage
+  if (typeof config.homepage !== 'undefined' && (typeof config.homepage !== 'string' || !new RegExp(regexUrl).test(config.homepage))) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', invalid homepage '${typeof config.homepage === 'string' ? config.homepage : JSON.stringify(config.homepage)}'.`);
+    return process.exit(ExitStatus.ProjectInvalid);
+  }
 }
 
 /**
@@ -141,6 +152,9 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       `pushd /opt/${config.name as string}\n` +
       'npm install\n' +
       'popd\n\n' +
+      (config.homepage && (config.homepage as string).startsWith('https://') ?
+        '# Obtain the SSL/TLS certificate\n' +
+        `certbot --nginx -d ${(config.homepage as string).replace('https://', '').replace(/\/$/, '')}${(config.homepage as string).split('.').length > 2 ? '' : ` -d www.${(config.homepage as string).replace('https://', '').replace(/\/$/, '')}`}\n\n` : '') +
       '# Finish message\n' +
       'SECONDS=$(($(date +%s -d "$(date +%H:%M) + next minute") - $(date +%s) + 10))\n' +
       'echo "Installation finished!"\n' +

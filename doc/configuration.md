@@ -17,6 +17,18 @@ Specifies the name of the project and ends up being part of multiple directory n
 
 Specifies the version of your code. The name and version together form an identifier that is assumed to be completely unique. It is advised to increment the version for each release of your code to ensure your project will run flawless without using unintended old version code cached by systems such as a client browser.
 
+## Homepage - `homepage`
+
+**Default:** inherit from `package.json`
+
+Specifies the URL to the project homepage. This URL should containing the protocol and domain where a subdomain is optional. It is advised to use HTTPS to have a secure connection for which the certificates are installed on deployment.
+
+```json
+{
+  "homepage": "https://subdomain.domain.com/"
+}
+```
+
 ## Packages - `packages`
 
 **Default:** `[]`
