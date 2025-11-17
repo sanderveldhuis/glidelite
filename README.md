@@ -34,4 +34,5 @@ There are many ways to [contribute](https://github.com/sanderveldhuis/glidelite/
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
+* [Frontend](https://github.com/sanderveldhuis/glidelite/blob/main/doc/frontend.md)
 * [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)

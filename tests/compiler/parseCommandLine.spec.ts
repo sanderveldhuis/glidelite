@@ -178,25 +178,25 @@ describe('parseCommandLine.ts', () => {
     const command1 = parseCommandLine(['--module', 'backen']);
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'.");
     sinon.assert.calledWithExactly(processExit.getCall(0), 1003);
 
     const command2 = parseCommandLine(['-module', 'backendd']);
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'.");
     sinon.assert.calledWithExactly(processExit.getCall(1), 1003);
 
     const command3 = parseCommandLine(['--m', 'worker']);
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'.");
     sinon.assert.calledWithExactly(processExit.getCall(2), 1003);
 
     const command4 = parseCommandLine(['-m', 'frontendd']);
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'js', 'css', 'site', 'frontend'.");
+    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'.");
     sinon.assert.calledWithExactly(processExit.getCall(3), 1003);
   });
 

@@ -23,14 +23,20 @@
  */
 
 import { join } from 'node:path';
+import * as compileFrontend from './compileFrontend';
 import * as compileWorkers from './compileWorkers';
 import {
   makeDir,
   makeFile,
   remove
 } from './sysUtils';
-import { Json } from './types';
+import {
+  ExitStatus,
+  Json
+} from './types';
 import { version } from './version';
+
+const regexUrl = '^https?://[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}/?$';
 
 /**
  * Cleans the project output data from the specified output directory.
@@ -44,6 +50,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
 
   // Clean each module
   compileWorkers.clean(pkg, config, outputDirectory);
+  compileFrontend.clean(pkg, config, outputDirectory);
 
   // Clean the project
   remove(join(outputDirectory, 'install'));
@@ -59,6 +66,13 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   compileWorkers.validate(pkg, config, workingDirectory);
+  compileFrontend.validate(pkg, config, workingDirectory);
+
+  // Validate homepage
+  if (typeof config.homepage !== 'undefined' && (typeof config.homepage !== 'string' || !new RegExp(regexUrl).test(config.homepage))) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', invalid homepage '${typeof config.homepage === 'string' ? config.homepage : JSON.stringify(config.homepage)}'.`);
+    return process.exit(ExitStatus.ProjectInvalid);
+  }
 }
 
 /**
@@ -71,6 +85,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   // Compile each module
   compileWorkers.compile(pkg, config, workingDirectory, outputDirectory);
+  compileFrontend.compile(pkg, config, workingDirectory, outputDirectory);
 
   // Create project configuration files
   const optDir = join(outputDirectory, 'opt', config.name as string);
@@ -99,7 +114,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   );
 
   // Construct a list of required Linux APT packages and filter out duplicates
-  const packages = ['cron', 'logrotate', 'nodejs'].concat((config.packages ?? []) as string[]);
+  const packages = ['cron', 'logrotate', 'nodejs', 'nginx', 'certbot', 'python3-certbot-nginx'].concat((config.packages ?? []) as string[]);
   const filteredPackages = packages.filter((item, pos) => {
     return packages.indexOf(item) == pos;
   });
@@ -124,17 +139,22 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '  fi\n' +
       'fi\n\n' +
       '# Cleanup old project\n' +
+      `rm -rf /var/www/${config.name as string}\n` +
       `rm -rf /etc/cron.d/${config.name as string}_workers\n` +
       `rm -rf /opt/${config.name as string}\n` +
       `pkill -f "node /opt/${config.name as string}/workers"\n\n` +
       '# Copy new project\n' +
       `mkdir -p /var/log/${config.name as string}\n` +
+      'cp -r var /\n' +
       'cp -r opt /\n' +
       'cp -r etc /\n\n' +
       '# Install dependencies\n' +
       `pushd /opt/${config.name as string}\n` +
       'npm install\n' +
       'popd\n\n' +
+      (config.homepage && (config.homepage as string).startsWith('https://') ?
+        '# Obtain the SSL/TLS certificate\n' +
+        `certbot --nginx -d ${(config.homepage as string).replace('https://', '').replace(/\/$/, '')}${(config.homepage as string).split('.').length > 2 ? '' : ` -d www.${(config.homepage as string).replace('https://', '').replace(/\/$/, '')}`}\n\n` : '') +
       '# Finish message\n' +
       'SECONDS=$(($(date +%s -d "$(date +%H:%M) + next minute") - $(date +%s) + 10))\n' +
       'echo "Installation finished!"\n' +

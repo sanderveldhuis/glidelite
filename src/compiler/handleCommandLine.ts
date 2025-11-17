@@ -26,6 +26,7 @@ import {
   join,
   resolve
 } from 'node:path';
+import * as compileFrontend from './compileFrontend';
 import * as compileProject from './compileProject';
 import * as compileWorkers from './compileWorkers';
 import { initProject } from './initProject';
@@ -45,6 +46,7 @@ type ModuleNameCompilerMap = Map<string, Compiler>;
  */
 const moduleNameMap: ModuleNameCompilerMap = new Map<string, Compiler>([
   ['workers', compileWorkers],
+  ['frontend', compileFrontend],
   ['', compileProject]
 ]);
 
@@ -82,9 +84,12 @@ export function handleCommandLine(command: Command): void {
     const pkg = readJsonFile(pkgJson);
     const config = readJsonFile(glConfig);
 
-    // If no name and/or version is defined in the GlideLite configuration then use the ones from the package.json
+    // If no name, version, and/or homepage is defined in the GlideLite configuration then use the ones from the package.json
     config.name = config.name ?? pkg.name;
     config.version = config.version ?? pkg.version;
+    if (config.homepage ?? pkg.homepage) {
+      config.homepage = config.homepage ?? pkg.homepage;
+    }
 
     if (command.options.clean) {
       module.clean(pkg, config, outputDirectory);
