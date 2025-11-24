@@ -49,11 +49,11 @@
     "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/src/compiler/**/*.js\" lib && cpx \"built/src/glidelite/**/*.{js,ts}\" lib"
   },
   "dependencies": {
-    "@tsconfig/node-lts": "^22.0.2",
+    "@tsconfig/node-lts": "^24.0.0",
     "@types/node": "latest",
     "@vitejs/plugin-react": "^5.1.1",
     "typescript": "^5.9.3",
-    "vite": "^7.2.2"
+    "vite": "^7.2.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
