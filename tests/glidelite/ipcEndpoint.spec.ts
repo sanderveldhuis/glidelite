@@ -244,7 +244,7 @@ describe('ipcEndpoint.ts', () => {
 
     // Publish message
     let publishName = '';
-    let publishPayload: IpcPayload | undefined;
+    let publishPayload: IpcPayload;
     endpoint._subscriptions.test = (name, payload) => {
       publishName = name;
       publishPayload = payload;
@@ -255,7 +255,7 @@ describe('ipcEndpoint.ts', () => {
 
     // Response message
     let requestName = '';
-    let requestPayload: IpcPayload | undefined;
+    let requestPayload: IpcPayload;
     endpoint._requests[99] = (name, payload) => {
       requestName = name;
       requestPayload = payload;
@@ -272,7 +272,7 @@ describe('ipcEndpoint.ts', () => {
 
     // Registered callbacks but not for the specified name
     let publishName = '';
-    let publishPayload: IpcPayload | undefined;
+    let publishPayload: IpcPayload;
     endpoint._subscriptions.test2 = (name, payload) => {
       publishName = name;
       publishPayload = payload;
@@ -303,7 +303,7 @@ describe('ipcEndpoint.ts', () => {
 
     // Registered callback but not for session number
     let requestName = '';
-    let requestPayload: IpcPayload | undefined;
+    let requestPayload: IpcPayload;
     endpoint._requests[98] = (name, payload) => {
       requestName = name;
       requestPayload = payload;

@@ -43,7 +43,7 @@ export enum ExitStatus {
   ProjectCompileFailed = 3002
 }
 
-export type Json = Record<string, string | number | object | boolean | null | string[] | number[] | object[] | boolean[]>;
+export type Json = Record<string, string | number | object | boolean | null>;
 
 export interface Compiler {
   clean: (pkg: Json, config: Json, outputDirectory: string) => void;

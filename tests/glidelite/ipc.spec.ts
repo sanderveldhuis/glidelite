@@ -293,7 +293,7 @@ describe('ipc.ts', () => {
 
     // Indication callback available
     let indicationName = '';
-    let indicationPayload: IpcPayload | undefined;
+    let indicationPayload: IpcPayload;
     ipc._indicationCallbacks.push((name, payload) => {
       indicationName = name;
       indicationPayload = payload;
@@ -316,7 +316,7 @@ describe('ipc.ts', () => {
 
     // Request callback available
     let requestName = '';
-    let requestPayload: IpcPayload | undefined;
+    let requestPayload: IpcPayload;
     let requestResponse: ((payload?: IpcPayload) => void) | undefined;
     ipc._requestCallbacks.push((name, payload, response) => {
       requestName = name;
