@@ -37,6 +37,16 @@ This will create the filesystem structure with required files for a GlideLite pr
 └─ glconfig.json        # GlideLite configuration for the project
 ```
 
+## Running your code
+
+To run your project for local development use the run command:
+
+```bash
+npx glc -r
+```
+
+Until you hit `Ctrl+C` this command remains active and you can make changes to your code. The GlideLite Compiler will handle changes and restart or update the modules accordingly.
+
 ## Compiling your code
 
 It is possible to compile the full project or only specific parts, called modules. Let's first compile the full project:
@@ -50,16 +60,6 @@ Now compile a specific module of the project, in this example the `workers` modu
 ```bash
 npx glc -m workers
 ```
-
-## Running your code
-
-To run your project for local development use the run command:
-
-```bash
-npx glc -r
-```
-
-Until you hit `Ctrl+C` this command remains active and you can make changes to your code. The GlideLite Compiler will handle changes and restart or update the modules accordingly.
 
 # What's next?
 
