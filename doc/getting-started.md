@@ -51,6 +51,16 @@ Now compile a specific module of the project, in this example the `workers` modu
 npx glc -m workers
 ```
 
+## Running your code
+
+To run your project for local development use the run command:
+
+```bash
+npx glc -r
+```
+
+Until you hit `Ctrl+C` this command remains active and you can make changes to your code. The GlideLite Compiler will handle changes and restart or update the modules accordingly.
+
 # What's next?
 
 To dive deeper into GlideLite it is time to start coding your project:

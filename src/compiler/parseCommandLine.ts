@@ -45,6 +45,7 @@ const shortOptionNameMap: ShortOptionsNameMap = new Map<string, string>([
   ['h', 'help'],
   ['v', 'version'],
   ['i', 'init'],
+  ['r', 'run'],
   ['c', 'clean'],
   ['m', 'module'],
   ['o', 'outdir']
@@ -57,6 +58,7 @@ const optionNameMap: OptionsNameMap = new Map<string, CommandLineOption>([
   ['help', { name: 'help', type: 'boolean' }],
   ['version', { name: 'version', type: 'boolean' }],
   ['init', { name: 'init', type: 'boolean' }],
+  ['run', { name: 'run', type: 'boolean' }],
   ['clean', { name: 'clean', type: 'boolean' }],
   ['module', { name: 'module', type: 'string', values: ['workers', 'api', 'backend', 'frontend'] }],
   ['outdir', { name: 'outdir', type: 'string' }]

@@ -34,6 +34,7 @@ export function printHelp(): void {
   console.log('     --help, -h  Print this message.\n');
   console.log("  --version, -v  Print the compiler's version.\n");
   console.log('     --init, -i  Initializes a GlideLite project and creates all required files.\n');
+  console.log('      --run, -r  Runs a GlideLite project locally for development.\n');
   console.log('    --clean, -c  Deletes the output of a project or module before compiling.\n');
   console.log('   --module, -m  Select a module to clean and/or compile.');
   console.log('        one of:  workers, api, backend, frontend\n');
@@ -48,6 +49,8 @@ export function printHelp(): void {
   console.log('  Compiles the workers module in the working directory.\n');
   console.log('  glc -c -m workers');
   console.log('  Cleans and compiles the workers module in the working directory.\n');
+  console.log('  glc -r');
+  console.log('  Runs the project in the working directory.\n');
   console.log('  glc -i');
   console.log('  Initializes a GlideLite project in the working directory.\n');
 }
