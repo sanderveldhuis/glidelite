@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import {
   execute,
@@ -56,6 +57,21 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
     console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${viteConfig}'.`);
     return process.exit(ExitStatus.ProjectInvalid);
   }
+}
+
+/**
+ * Runs the frontend input data at the specified working directory for development.
+ * @param pkg the package configuration loaded from the package.json file
+ * @param config the GlideLite configuration loaded from the glconfig.json file
+ * @param workingDirectory the working directory to be run
+ */
+export function run(pkg: Json, config: Json, workingDirectory: string): void {
+  const frontendDir = join(workingDirectory, 'frontend');
+
+  // Run the frontend
+  const child = spawn('npm exec vite', { shell: true, cwd: frontendDir });
+  child.stdout.pipe(process.stdout);
+  child.stderr.pipe(process.stderr);
 }
 
 /**

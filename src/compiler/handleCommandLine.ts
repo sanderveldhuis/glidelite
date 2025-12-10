@@ -71,35 +71,41 @@ export function handleCommandLine(command: Command): void {
     return process.exit(ExitStatus.Success);
   }
 
-  const moduleName = String(command.options.module || '');
-  const module = moduleNameMap.get(moduleName);
+  const pkgJson = join(workingDirectory, 'package.json');
+  const glConfig = join(workingDirectory, 'glconfig.json');
+  const pkg = readJsonFile(pkgJson);
+  const config = readJsonFile(glConfig);
+  // If no name, version, and/or homepage is defined in the GlideLite configuration then use the ones from the package.json
+  config.name = config.name ?? pkg.name;
+  config.version = config.version ?? pkg.version;
+  if (config.homepage ?? pkg.homepage) {
+    config.homepage = config.homepage ?? pkg.homepage;
+  }
 
-  if (module) {
-    const outdir = String(command.options.outdir || 'output');
-    const pkgJson = join(workingDirectory, 'package.json');
-    const glConfig = join(workingDirectory, 'glconfig.json');
-
-    // Resolve output directory path and read JSON configuration files
-    const outputDirectory = resolve(outdir);
-    const pkg = readJsonFile(pkgJson);
-    const config = readJsonFile(glConfig);
-
-    // If no name, version, and/or homepage is defined in the GlideLite configuration then use the ones from the package.json
-    config.name = config.name ?? pkg.name;
-    config.version = config.version ?? pkg.version;
-    if (config.homepage ?? pkg.homepage) {
-      config.homepage = config.homepage ?? pkg.homepage;
-    }
-
-    if (command.options.clean) {
-      module.clean(pkg, config, outputDirectory);
-    }
-    module.validate(pkg, config, workingDirectory);
-    module.compile(pkg, config, workingDirectory, outputDirectory);
-    return process.exit(ExitStatus.Success);
+  if (command.options.run) {
+    compileProject.validate(pkg, config, workingDirectory);
+    compileProject.run(pkg, config, workingDirectory);
+    // No process.exit here because the run function will spawn asynchronous commands, we rely on the SIGINT of the user
+    return;
   }
   else {
-    console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
-    return process.exit(ExitStatus.CommandLineArgumentInvalid);
+    const moduleName = String(command.options.module || '');
+    const module = moduleNameMap.get(moduleName);
+
+    if (module) {
+      const outdir = String(command.options.outdir || 'output');
+      const outputDirectory = resolve(outdir);
+
+      if (command.options.clean) {
+        module.clean(pkg, config, outputDirectory);
+      }
+      module.validate(pkg, config, workingDirectory);
+      module.compile(pkg, config, workingDirectory, outputDirectory);
+      return process.exit(ExitStatus.Success);
+    }
+    else {
+      console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
+      return process.exit(ExitStatus.CommandLineArgumentInvalid);
+    }
   }
 }

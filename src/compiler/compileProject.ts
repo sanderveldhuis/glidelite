@@ -76,6 +76,17 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 }
 
 /**
+ * Runs the project input data at the specified working directory for development.
+ * @param pkg the package configuration loaded from the package.json file
+ * @param config the GlideLite configuration loaded from the glconfig.json file
+ * @param workingDirectory the working directory to be run
+ */
+export function run(pkg: Json, config: Json, workingDirectory: string): void {
+  compileWorkers.run(pkg, config, workingDirectory);
+  compileFrontend.run(pkg, config, workingDirectory);
+}
+
+/**
  * Compiles the project input data in the specified working directory.
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
