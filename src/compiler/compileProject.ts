@@ -23,8 +23,8 @@
  */
 
 import { join } from 'node:path';
+import * as compileBackend from './compileBackend';
 import * as compileFrontend from './compileFrontend';
-import * as compileWorkers from './compileWorkers';
 import {
   makeDir,
   makeFile,
@@ -49,7 +49,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
   // user data if the user specified an invalid output directory (e.g. the user home folder)
 
   // Clean each module
-  compileWorkers.clean(pkg, config, outputDirectory);
+  compileBackend.clean(pkg, config, outputDirectory);
   compileFrontend.clean(pkg, config, outputDirectory);
 
   // Clean the project
@@ -65,7 +65,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  compileWorkers.validate(pkg, config, workingDirectory);
+  compileBackend.validate(pkg, config, workingDirectory);
   compileFrontend.validate(pkg, config, workingDirectory);
 
   // Validate homepage
@@ -82,7 +82,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  * @param workingDirectory the working directory to be run
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
-  compileWorkers.run(pkg, config, workingDirectory);
+  compileBackend.run(pkg, config, workingDirectory);
   compileFrontend.run(pkg, config, workingDirectory);
 }
 
@@ -95,7 +95,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   // Compile each module
-  compileWorkers.compile(pkg, config, workingDirectory, outputDirectory);
+  compileBackend.compile(pkg, config, workingDirectory, outputDirectory);
   compileFrontend.compile(pkg, config, workingDirectory, outputDirectory);
 
   // Create project configuration files
