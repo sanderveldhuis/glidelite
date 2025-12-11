@@ -31,7 +31,7 @@ function writeFile(data: string): void {
 writeFile('Hello, World!');
 ```
 
-You will notice that this TypeScript file is not yet started by the GlideLite Compiler because it is not yet a real worker, let's change this.
+You will notice that this TypeScript file is not yet started by the GlideLite Compiler because it is not defined as a worker. Let's change this.
 
 ## Define as service or task
 
