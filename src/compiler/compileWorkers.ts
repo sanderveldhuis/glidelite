@@ -194,7 +194,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Compile the TypeScript files
-  execute(`tsc -p ${workersDir} --rootDir ${workersDir} --outDir ${outputDir}`, workingDirectory);
+  execute(`npm exec -- tsc -p ${workersDir} --rootDir ${workersDir} --outDir ${outputDir}`, workingDirectory);
 
   // Construct Crontab content based on compiler instructions in the TypeScript files
   let crontab = '';

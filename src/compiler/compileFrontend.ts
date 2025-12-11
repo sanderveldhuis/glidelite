@@ -69,7 +69,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const frontendDir = join(workingDirectory, 'frontend');
 
   // Run the frontend
-  const child = spawn('npm exec vite', { shell: true, cwd: frontendDir });
+  const child = spawn('npm exec -- vite', { shell: true, cwd: frontendDir });
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
 }
@@ -86,5 +86,5 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   const outputDir = join(outputDirectory, 'var', 'www', config.name as string);
 
   // Compile the frontend
-  execute(`vite build --outDir ${outputDir} --emptyOutDir`, frontendDir);
+  execute(`npm exec -- vite build --outDir ${outputDir} --emptyOutDir`, frontendDir);
 }
