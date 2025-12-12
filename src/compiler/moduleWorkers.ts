@@ -28,6 +28,7 @@ import {
 } from 'node:child_process';
 import { watch } from 'node:fs';
 import { join } from 'node:path';
+import { yellow } from './color';
 import {
   execute,
   exists,
@@ -61,6 +62,8 @@ const regex = `["']glc (service|task (` +
   '(' + monthList + '(,' + monthList + ')*|' + any + ') ' + // Single/list month, comma separated months, or any value (*)
   '(' + dayOfWeekList + '(,' + dayOfWeekList + ')*|' + any + ')' + // Single/list day of week, comma separated days of week, or any value (*)
   `)))["']`;
+
+const restartDelay = 1000;
 
 /**
  * Searches for all TypeScript files with a valid compiler instruction.
@@ -137,6 +140,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const skippedWorkers: string[] = [];
   const children: ChildProcess[] = [];
   const workersDir = join(workingDirectory, 'backend', 'workers');
+  let restartTimeout: NodeJS.Timeout;
 
   // Internal function to start running all workers
   const runWorkers = () => {
@@ -150,8 +154,8 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       // Only run service workers
       if (instruction[1] !== 'service') {
         if (!skippedWorkers.includes(filePath)) {
-          console.log(`Skipped worker: '${filePath}', only service workers are executed.`);
-          console.log(`Use the following command to run the worker manually: 'npx ts-node ${filePath}'.`);
+          console.log(yellow(`Skipped worker: '${filePath}', only service workers are executed.`));
+          console.log(yellow(`Use the following command to run the worker manually: 'npx ts-node ${filePath}'.`));
         }
         skippedWorkers.push(filePath);
         continue;
@@ -169,11 +173,20 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   // Watch for changes in files and restart workers when files changed
   const watcher = watch(workersDir, { recursive: true });
   watcher.on('change', () => {
-    let child: ChildProcess | undefined;
-    while ((child = children.pop()) !== undefined) {
-      child.kill('SIGKILL');
-    }
-    runWorkers();
+    // Use a delay to prevent restarting too much
+    clearTimeout(restartTimeout);
+    restartTimeout = setTimeout(() => {
+      let child: ChildProcess | undefined;
+      while ((child = children.pop()) !== undefined) {
+        if ('win32' === process.platform) {
+          spawn('taskkill', ['/pid', String(child.pid), '/f', '/t']);
+        }
+        else {
+          spawn('sh', ['-c', `kill -9 ${String(child.pid)}`]);
+        }
+      }
+      runWorkers();
+    }, restartDelay);
   });
 }
 
