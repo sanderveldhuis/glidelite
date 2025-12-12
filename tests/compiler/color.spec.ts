@@ -22,26 +22,23 @@
  * SOFTWARE.
  */
 
-import sinon from 'ts-sinon';
-import { printHelp } from '../../src/compiler/printHelp';
-import { version } from '../../src/compiler/version';
+import { expect } from 'chai';
+import {
+  blue,
+  bold,
+  yellow
+} from '../../src/compiler/color';
 
-describe('printHelp.ts', () => {
-  let consoleLog: sinon.SinonStub;
-
-  beforeEach(() => {
-    consoleLog = sinon.stub(console, 'log');
+describe('color.ts', () => {
+  it('validate the bold terminal output', () => {
+    expect(bold('bold output')).to.equal('\x1b[1mbold output\x1b[22m');
   });
 
-  afterEach(() => {
-    consoleLog.restore();
+  it('validate the blue terminal output', () => {
+    expect(blue('blue output')).to.equal('\x1b[94mblue output\x1b[39m');
   });
 
-  it('validate printing the help', () => {
-    printHelp();
-    // We are only validating the important output
-    sinon.assert.calledWithExactly(consoleLog, 'glc: The GlideLite Compiler - Version', version, '\n');
-    sinon.assert.calledWithExactly(consoleLog, '     \x1b[94m--help, -h\x1b[39m  Print this message.\n');
-    sinon.assert.calledWithExactly(consoleLog, "  \x1b[94m--version, -v\x1b[39m  Print the compiler's version.\n");
+  it('validate the yellow terminal output', () => {
+    expect(yellow('yellow output')).to.equal('\x1b[93myellow output\x1b[39m');
   });
 });

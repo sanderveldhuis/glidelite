@@ -22,26 +22,29 @@
  * SOFTWARE.
  */
 
-import sinon from 'ts-sinon';
-import { printHelp } from '../../src/compiler/printHelp';
-import { version } from '../../src/compiler/version';
+/**
+ * Converts the specified string to bold terminal output.
+ * @param str the string
+ * @returns the bold terminal output
+ */
+export function bold(str: string): string {
+  return `\x1b[1m${str}\x1b[22m`;
+}
 
-describe('printHelp.ts', () => {
-  let consoleLog: sinon.SinonStub;
+/**
+ * Converts the specified string to blue terminal output.
+ * @param str the string
+ * @returns the blue terminal output
+ */
+export function blue(str: string): string {
+  return `\x1b[94m${str}\x1b[39m`;
+}
 
-  beforeEach(() => {
-    consoleLog = sinon.stub(console, 'log');
-  });
-
-  afterEach(() => {
-    consoleLog.restore();
-  });
-
-  it('validate printing the help', () => {
-    printHelp();
-    // We are only validating the important output
-    sinon.assert.calledWithExactly(consoleLog, 'glc: The GlideLite Compiler - Version', version, '\n');
-    sinon.assert.calledWithExactly(consoleLog, '     \x1b[94m--help, -h\x1b[39m  Print this message.\n');
-    sinon.assert.calledWithExactly(consoleLog, "  \x1b[94m--version, -v\x1b[39m  Print the compiler's version.\n");
-  });
-});
+/**
+ * Converts the specified string to yellow terminal output.
+ * @param str the string
+ * @returns the yellow terminal output
+ */
+export function yellow(str: string): string {
+  return `\x1b[93m${str}\x1b[39m`;
+}

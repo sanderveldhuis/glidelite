@@ -180,16 +180,16 @@ describe('moduleWorkers.ts', () => {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input\\backend\\workers');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
-      sinon.assert.calledWithExactly(consoleLog.getCall(0), "Skipped worker: 'input\\backend\\workers\\sub1\\sub2\\test1.ts', only service workers are executed.");
-      sinon.assert.calledWithExactly(consoleLog.getCall(1), "Use the following command to run the worker manually: 'npx ts-node input\\backend\\workers\\sub1\\sub2\\test1.ts'.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(0), "\x1b[93mSkipped worker: 'input\\backend\\workers\\sub1\\sub2\\test1.ts', only service workers are executed.\x1b[39m");
+      sinon.assert.calledWithExactly(consoleLog.getCall(1), "\x1b[93mUse the following command to run the worker manually: 'npx ts-node input\\backend\\workers\\sub1\\sub2\\test1.ts'.\x1b[39m");
       sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input\\backend\\workers\\sub2\\sub3\\test2.ts', { shell: true, cwd: 'input', stdio: 'inherit' });
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/workers');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'input/backend/workers/sub2/sub3/test2.ts');
-      sinon.assert.calledWithExactly(consoleLog.getCall(0), "Skipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed.");
-      sinon.assert.calledWithExactly(consoleLog.getCall(1), "Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(0), "\x1b[93mSkipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed.\x1b[39m");
+      sinon.assert.calledWithExactly(consoleLog.getCall(1), "\x1b[93mUse the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'.\x1b[39m");
       sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input/backend/workers/sub2/sub3/test2.ts', { shell: true, cwd: 'input', stdio: 'inherit' });
     }
 
@@ -207,15 +207,15 @@ describe('moduleWorkers.ts', () => {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input\\backend\\workers');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
-      sinon.assert.calledWithExactly(consoleLog.getCall(2), "Skipped worker: 'input\\backend\\workers\\sub2\\sub3\\test2.ts', only service workers are executed.");
-      sinon.assert.calledWithExactly(consoleLog.getCall(3), "Use the following command to run the worker manually: 'npx ts-node input\\backend\\workers\\sub2\\sub3\\test2.ts'.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(2), "\x1b[93mSkipped worker: 'input\\backend\\workers\\sub2\\sub3\\test2.ts', only service workers are executed.\x1b[39m");
+      sinon.assert.calledWithExactly(consoleLog.getCall(3), "\x1b[93mUse the following command to run the worker manually: 'npx ts-node input\\backend\\workers\\sub2\\sub3\\test2.ts'.\x1b[39m");
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/workers');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
-      sinon.assert.calledWithExactly(consoleLog.getCall(2), "Skipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed.");
-      sinon.assert.calledWithExactly(consoleLog.getCall(3), "Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(2), "\x1b[93mSkipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed.\x1b[39m");
+      sinon.assert.calledWithExactly(consoleLog.getCall(3), "\x1b[93mUse the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'.\x1b[39m");
     }
     expect(killSignal).to.equal('SIGKILL');
   });

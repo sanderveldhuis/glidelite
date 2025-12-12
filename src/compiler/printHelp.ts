@@ -22,6 +22,10 @@
  * SOFTWARE.
  */
 
+import {
+  blue,
+  bold
+} from './color';
 import { version } from './version';
 
 /**
@@ -30,27 +34,27 @@ import { version } from './version';
 export function printHelp(): void {
   console.log('glc: The GlideLite Compiler - Version', version, '\n');
 
-  console.log('COMMAND LINE FLAGS\n');
-  console.log('     --help, -h  Print this message.\n');
-  console.log("  --version, -v  Print the compiler's version.\n");
-  console.log('     --init, -i  Initializes a GlideLite project and creates all required files.\n');
-  console.log('      --run, -r  Runs a GlideLite project locally for development.\n');
-  console.log('    --clean, -c  Deletes the output of a project or module before compiling.\n');
-  console.log('   --module, -m  Select a module to clean and/or compile.');
-  console.log('        one of:  workers, api, backend, frontend\n');
-  console.log('   --outDir, -o  Specify an output directory.\n');
+  console.log(`${bold('COMMAND LINE FLAGS')}\n`);
+  console.log(`     ${blue('--help, -h')}  Print this message.\n`);
+  console.log(`  ${blue('--version, -v')}  Print the compiler's version.\n`);
+  console.log(`     ${blue('--init, -i')}  Initializes a GlideLite project and creates all required files.\n`);
+  console.log(`      ${blue('--run, -r')}  Runs a GlideLite project locally for development.\n`);
+  console.log(`    ${blue('--clean, -c')}  Deletes the output of a project or module before compiling.\n`);
+  console.log(`   ${blue('--module, -m')}  Select a module to clean and/or compile.`);
+  console.log(`        one of:  workers, api, backend, frontend\n`);
+  console.log(`   ${blue('--outDir, -o')}  Specify an output directory.\n`);
 
-  console.log('COMMON COMMANDS\n');
-  console.log('  glc');
+  console.log(`${bold('COMMON COMMANDS')}\n`);
+  console.log(blue('  glc'));
   console.log('  Compiles the project in the working directory.\n');
-  console.log('  glc -c');
+  console.log(blue('  glc -c'));
   console.log('  Cleans and compiles the project in the working directory.\n');
-  console.log('  glc -m workers');
+  console.log(blue('  glc -m workers'));
   console.log('  Compiles the workers module in the working directory.\n');
-  console.log('  glc -c -m workers');
+  console.log(blue('  glc -c -m workers'));
   console.log('  Cleans and compiles the workers module in the working directory.\n');
-  console.log('  glc -r');
+  console.log(blue('  glc -r'));
   console.log('  Runs the project in the working directory.\n');
-  console.log('  glc -i');
+  console.log(blue('  glc -i'));
   console.log('  Initializes a GlideLite project in the working directory.\n');
 }
