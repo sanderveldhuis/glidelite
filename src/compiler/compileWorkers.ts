@@ -23,7 +23,7 @@
  */
 
 import {
-  ChildProcessWithoutNullStreams,
+  ChildProcess,
   spawn
 } from 'node:child_process';
 import { watch } from 'node:fs';
@@ -135,11 +135,11 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const skippedWorkers: string[] = [];
-  const children: ChildProcessWithoutNullStreams[] = [];
+  const children: ChildProcess[] = [];
   const workersDir = join(workingDirectory, 'backend', 'workers');
 
   // Internal function to start running all workers
-  const runWokers = () => {
+  const runWorkers = () => {
     const workerFiles = getWorkerFiles(workersDir);
     if (workerFiles === undefined) {
       return;
@@ -158,24 +158,22 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       }
 
       // Run the worker and restart if the file has changed
-      const child = spawn('node', ['-r', 'ts-node/register', filePath], { cwd: workingDirectory });
+      const child = spawn(`npm exec -- ts-node ${filePath}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
       children.push(child);
-      child.stdout.pipe(process.stdout);
-      child.stderr.pipe(process.stderr);
     }
   };
 
   // Start running all workers
-  runWokers();
+  runWorkers();
 
   // Watch for changes in files and restart workers when files changed
   const watcher = watch(workersDir, { recursive: true });
   watcher.on('change', () => {
-    let child: ChildProcessWithoutNullStreams | undefined;
+    let child: ChildProcess | undefined;
     while ((child = children.pop()) !== undefined) {
       child.kill('SIGKILL');
     }
-    runWokers();
+    runWorkers();
   });
 }
 

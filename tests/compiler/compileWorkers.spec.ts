@@ -118,8 +118,6 @@ describe('compileWorkers.ts', () => {
   it('validate running the workers', () => {
     let watchEvent;
     let watchCallback: (() => void) | undefined;
-    let outStream;
-    let errStream;
     let killSignal;
     watch.returns({
       on: (event: string, callback: () => void) => {
@@ -128,16 +126,6 @@ describe('compileWorkers.ts', () => {
       }
     });
     spawn.returns({
-      stdout: {
-        pipe: (stream: NodeJS.WriteStream) => {
-          outStream = stream;
-        }
-      },
-      stderr: {
-        pipe: (stream: NodeJS.WriteStream) => {
-          errStream = stream;
-        }
-      },
       kill: (signal: string) => {
         killSignal = signal;
       }
@@ -194,7 +182,7 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(readFile.getCall(2), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
       sinon.assert.calledWithExactly(consoleLog.getCall(0), "Skipped worker: 'input\\backend\\workers\\sub1\\sub2\\test1.ts', only service workers are executed.");
       sinon.assert.calledWithExactly(consoleLog.getCall(1), "Use the following command to run the worker manually: 'npx ts-node input\\backend\\workers\\sub1\\sub2\\test1.ts'.");
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'node', ['-r', 'ts-node/register', 'input\\backend\\workers\\sub2\\sub3\\test2.ts'], { cwd: 'input' });
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input\\backend\\workers\\sub2\\sub3\\test2.ts', { shell: true, cwd: 'input', stdio: 'inherit' });
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/workers');
@@ -202,10 +190,8 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(readFile.getCall(2), 'input/backend/workers/sub2/sub3/test2.ts');
       sinon.assert.calledWithExactly(consoleLog.getCall(0), "Skipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed.");
       sinon.assert.calledWithExactly(consoleLog.getCall(1), "Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'.");
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'node', ['-r', 'ts-node/register', 'input/backend/workers/sub2/sub3/test2.ts'], { cwd: 'input' });
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input/backend/workers/sub2/sub3/test2.ts', { shell: true, cwd: 'input', stdio: 'inherit' });
     }
-    expect(outStream).to.equal(process.stdout);
-    expect(errStream).to.equal(process.stderr);
 
     // Files with .ts extension available in workers directory, valid instructions found, and spawned processes should be killed
     // Validating all regexes are not part of this test, it will be done in another test
@@ -231,8 +217,6 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(consoleLog.getCall(2), "Skipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed.");
       sinon.assert.calledWithExactly(consoleLog.getCall(3), "Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'.");
     }
-    expect(outStream).to.equal(process.stdout);
-    expect(errStream).to.equal(process.stderr);
     expect(killSignal).to.equal('SIGKILL');
   });
 

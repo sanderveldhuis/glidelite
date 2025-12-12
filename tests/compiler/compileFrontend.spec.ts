@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
 import * as childProcess from 'node:child_process';
 import sinon from 'ts-sinon';
 import {
@@ -95,30 +94,13 @@ describe('compileFrontend.ts', () => {
   });
 
   it('validate running the frontend', () => {
-    let outStream;
-    let errStream;
-    spawn.returns({
-      stdout: {
-        pipe: (stream: NodeJS.WriteStream) => {
-          outStream = stream;
-        }
-      },
-      stderr: {
-        pipe: (stream: NodeJS.WriteStream) => {
-          errStream = stream;
-        }
-      }
-    });
-
     run({ name: 'pkg' }, { name: 'cfg' }, 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(spawn, 'npm exec -- vite', { shell: true, cwd: 'output\\frontend' });
+      sinon.assert.calledOnceWithExactly(spawn, 'npm exec -- vite', { shell: true, cwd: 'output\\frontend', stdio: 'inherit' });
     }
     else {
-      sinon.assert.calledOnceWithExactly(spawn, 'npm exec -- vite', { shell: true, cwd: 'output/frontend' });
+      sinon.assert.calledOnceWithExactly(spawn, 'npm exec -- vite', { shell: true, cwd: 'output/frontend', stdio: 'inherit' });
     }
-    expect(outStream).to.equal(process.stdout);
-    expect(errStream).to.equal(process.stderr);
   });
 
   it('validate compiling the frontend', () => {
