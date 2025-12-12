@@ -228,8 +228,8 @@ describe('compileWorkers.ts', () => {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/workers');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
-      sinon.assert.calledWithExactly(consoleLog.getCall(2), "Skipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed.");
-      sinon.assert.calledWithExactly(consoleLog.getCall(3), "Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(2), "Skipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(3), "Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'.");
     }
     expect(outStream).to.equal(process.stdout);
     expect(errStream).to.equal(process.stderr);
