@@ -223,24 +223,26 @@ describe('parseCommandLine.ts', () => {
   });
 
   it('validate when all options are given', () => {
-    const command1 = parseCommandLine(['--help', '--version', '--init', '--clean', '--module', 'workers', '--outDir', 'output', 'world', 'universe']);
-    expect(Object.keys(command1.options).length).to.equal(6);
+    const command1 = parseCommandLine(['--help', '--version', '--init', '--clean', '--run', '--module', 'workers', '--outDir', 'output', 'world', 'universe']);
+    expect(Object.keys(command1.options).length).to.equal(7);
     expect(command1.options.help).to.equal(true);
     expect(command1.options.version).to.equal(true);
     expect(command1.options.init).to.equal(true);
     expect(command1.options.clean).to.equal(true);
+    expect(command1.options.run).to.equal(true);
     expect(command1.options.outdir).to.equal('output');
     expect(command1.options.module).to.equal('workers');
     expect(command1.paths.length).to.equal(2);
     expect(command1.paths[0]).to.equal('world');
     expect(command1.paths[1]).to.equal('universe');
 
-    const command2 = parseCommandLine(['world', '--help', 'universe', '--version', '--init', 'false', '--clean', '--module', 'workers', '--outDir', 'output', 'multiverse']);
-    expect(Object.keys(command1.options).length).to.equal(6);
+    const command2 = parseCommandLine(['world', '--help', 'universe', '--version', '--init', 'false', '--clean', '--run', 'false', '--module', 'workers', '--outDir', 'output', 'multiverse']);
+    expect(Object.keys(command1.options).length).to.equal(7);
     expect(command2.options.help).to.equal(true);
     expect(command2.options.version).to.equal(true);
     expect(command2.options.init).to.equal(false);
     expect(command2.options.clean).to.equal(true);
+    expect(command2.options.run).to.equal(false);
     expect(command2.options.outdir).to.equal('output');
     expect(command2.options.module).to.equal('workers');
     expect(command2.paths.length).to.equal(3);
@@ -248,12 +250,13 @@ describe('parseCommandLine.ts', () => {
     expect(command2.paths[1]).to.equal('universe');
     expect(command2.paths[2]).to.equal('multiverse');
 
-    const command3 = parseCommandLine(['world', '-h', 'universe', '-v', '-i', 'false', '-c', '-m', 'workers', '-o', 'output', 'multiverse']);
-    expect(Object.keys(command1.options).length).to.equal(6);
+    const command3 = parseCommandLine(['world', '-h', 'universe', '-v', '-i', 'false', '-c', '-r', 'false', '-m', 'workers', '-o', 'output', 'multiverse']);
+    expect(Object.keys(command1.options).length).to.equal(7);
     expect(command3.options.help).to.equal(true);
     expect(command3.options.version).to.equal(true);
     expect(command3.options.init).to.equal(false);
     expect(command3.options.clean).to.equal(true);
+    expect(command3.options.run).to.equal(false);
     expect(command3.options.outdir).to.equal('output');
     expect(command3.options.module).to.equal('workers');
     expect(command3.paths.length).to.equal(3);

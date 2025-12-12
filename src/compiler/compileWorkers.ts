@@ -66,9 +66,9 @@ const regex = `["']glc (service|task (` +
  * Searches for all TypeScript files with a valid compiler instruction.
  * @details this function will search directories recursively
  * @param workersDir the directory containing the TypeScript files
- * @returns the list of worker files
+ * @returns the list of worker files, or `undefined` on error
  */
-function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> {
+function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> | undefined {
   const workerFiles: Record<string, RegExpExecArray> = {};
 
   // Get a list of all TypeScript files
@@ -132,24 +132,28 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
  * @param workingDirectory the working directory to be run
- * @return the `Promise` containing running workers, or `null` if no workers are executed
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
+  const skippedWorkers: string[] = [];
   const children: ChildProcessWithoutNullStreams[] = [];
   const workersDir = join(workingDirectory, 'backend', 'workers');
 
   // Internal function to start running all workers
-  const runWokers = (firstRun = false) => {
+  const runWokers = () => {
     const workerFiles = getWorkerFiles(workersDir);
+    if (workerFiles === undefined) {
+      return;
+    }
 
     // Run workers based on compiler instructions in the TypeScript files
     for (const [filePath, instruction] of Object.entries(workerFiles)) {
       // Only run service workers
       if (instruction[1] !== 'service') {
-        if (firstRun) {
+        if (!skippedWorkers.includes(filePath)) {
           console.log(`Skipped worker: '${filePath}', only service workers are executed.`);
           console.log(`Use the following command to run the worker manually: 'npx ts-node ${filePath}'.`);
         }
+        skippedWorkers.push(filePath);
         continue;
       }
 
@@ -162,7 +166,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   };
 
   // Start running all workers
-  runWokers(true);
+  runWokers();
 
   // Watch for changes in files and restart workers when files changed
   const watcher = watch(workersDir, { recursive: true });
@@ -188,7 +192,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
   // Get a list of all worker files
   const workerFiles = getWorkerFiles(workersDir);
-  if (Object.keys(workerFiles).length <= 0) {
+  if (workerFiles === undefined || Object.keys(workerFiles).length <= 0) {
     // Nothing to compile
     return;
   }
@@ -211,10 +215,8 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Write Crontab file
-  if (crontab !== '') {
-    const cronDir = join(outputDirectory, 'etc', 'cron.d');
-    const cronFile = join(cronDir, `${config.name as string}_workers`);
-    makeDir(cronDir);
-    makeFile(cronFile, crontab);
-  }
+  const cronDir = join(outputDirectory, 'etc', 'cron.d');
+  const cronFile = join(cronDir, `${config.name as string}_workers`);
+  makeDir(cronDir);
+  makeFile(cronFile, crontab);
 }

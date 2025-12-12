@@ -22,17 +22,24 @@
  * SOFTWARE.
  */
 
+import { expect } from 'chai';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
 import sinon from 'ts-sinon';
 import {
   clean,
   compile,
+  run,
   validate
 } from '../../src/compiler/compileWorkers';
 import * as sysUtils from '../../src/compiler/sysUtils';
 
 describe('compileWorkers.ts', () => {
+  let consoleLog: sinon.SinonStub;
   let consoleError: sinon.SinonStub;
   let processExit: sinon.SinonStub;
+  let watch: sinon.SinonStub;
+  let spawn: sinon.SinonStub;
   let exists: sinon.SinonStub;
   let readDir: sinon.SinonStub;
   let readFile: sinon.SinonStub;
@@ -42,8 +49,11 @@ describe('compileWorkers.ts', () => {
   let execute: sinon.SinonStub;
 
   beforeEach(() => {
+    consoleLog = sinon.stub(console, 'log');
     consoleError = sinon.stub(console, 'error');
     processExit = sinon.stub(process, 'exit');
+    watch = sinon.stub(fs, 'watch');
+    spawn = sinon.stub(childProcess, 'spawn');
     exists = sinon.stub(sysUtils, 'exists');
     readDir = sinon.stub(sysUtils, 'readDir');
     readFile = sinon.stub(sysUtils, 'readFile');
@@ -54,8 +64,11 @@ describe('compileWorkers.ts', () => {
   });
 
   afterEach(() => {
+    consoleLog.restore();
     consoleError.restore();
     processExit.restore();
+    watch.restore();
+    spawn.restore();
     exists.restore();
     readDir.restore();
     readFile.restore();
@@ -102,6 +115,127 @@ describe('compileWorkers.ts', () => {
     }
   });
 
+  it('validate running the workers', () => {
+    let watchEvent;
+    let watchCallback: (() => void) | undefined;
+    let outStream;
+    let errStream;
+    let killSignal;
+    watch.returns({
+      on: (event: string, callback: () => void) => {
+        watchEvent = event;
+        watchCallback = callback;
+      }
+    });
+    spawn.returns({
+      stdout: {
+        pipe: (stream: NodeJS.WriteStream) => {
+          outStream = stream;
+        }
+      },
+      stderr: {
+        pipe: (stream: NodeJS.WriteStream) => {
+          errStream = stream;
+        }
+      },
+      kill: (signal: string) => {
+        killSignal = signal;
+      }
+    });
+
+    // No files available in workers directory
+    readDir.onCall(0).returns([]);
+    run({ name: 'pkg' }, { name: 'cfg' }, 'input');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(readDir.getCall(0), 'input\\backend\\workers');
+      sinon.assert.calledOnceWithExactly(watch, 'input\\backend\\workers', { recursive: true });
+    }
+    else {
+      sinon.assert.calledWithExactly(readDir.getCall(0), 'input/backend/workers');
+      sinon.assert.calledOnceWithExactly(watch, 'input/backend/workers', { recursive: true });
+    }
+    expect(watchEvent).to.equal('change');
+    expect(watchCallback).to.not.equal(undefined);
+    // Next if statement is for satisfying TypeScript as it should not be reached
+    if (watchCallback === undefined) {
+      return;
+    }
+
+    // Files with .ts extension available in workers directory, invalid instructions found
+    // Validating all regexes are not part of this test, it will be done in another test
+    readDir.onCall(1).returns([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
+    readFile.onCall(0).returns('"use strict";\n"glc task @test"\nconsole.log("done")');
+    watchCallback();
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(readDir.getCall(1), 'input\\backend\\workers');
+      sinon.assert.calledWithExactly(readFile.getCall(0), 'path1\\test1.ts');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1\\test1.ts'.");
+    }
+    else {
+      sinon.assert.calledWithExactly(readDir.getCall(1), 'input/backend/workers');
+      sinon.assert.calledWithExactly(readFile.getCall(0), 'path1/test1.ts');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1/test1.ts'.");
+    }
+    sinon.assert.calledOnceWithExactly(processExit, 3002);
+
+    // Files with .ts extension available in workers directory, valid instructions found
+    // Validating all regexes are not part of this test, it will be done in another test
+    if ('win32' === process.platform) {
+      readDir.onCall(2).returns([{ name: 'test1.ts', parentPath: 'input\\backend\\workers\\sub1\\sub2' }, { name: 'test2.ts', parentPath: 'input\\backend\\workers\\sub2\\sub3' }]);
+    }
+    else {
+      readDir.onCall(2).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
+    }
+    readFile.onCall(1).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(2).returns('"use strict";\n"glc service"\nconsole.log("done")');
+    watchCallback();
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(readDir.getCall(2), 'input\\backend\\workers');
+      sinon.assert.calledWithExactly(readFile.getCall(1), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
+      sinon.assert.calledWithExactly(readFile.getCall(2), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
+      sinon.assert.calledWithExactly(consoleLog.getCall(0), "Skipped worker: 'input\\backend\\workers\\sub1\\sub2\\test1.ts', only service workers are executed.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(1), "Use the following command to run the worker manually: 'npx ts-node input\\backend\\workers\\sub1\\sub2\\test1.ts'.");
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'node', ['-r', 'ts-node/register', 'input\\backend\\workers\\sub2\\sub3\\test2.ts'], { cwd: 'input' });
+    }
+    else {
+      sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/workers');
+      sinon.assert.calledWithExactly(readFile.getCall(1), 'input/backend/workers/sub1/sub2/test1.ts');
+      sinon.assert.calledWithExactly(readFile.getCall(2), 'input/backend/workers/sub2/sub3/test2.ts');
+      sinon.assert.calledWithExactly(consoleLog.getCall(0), "Skipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(1), "Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'.");
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'node', ['-r', 'ts-node/register', 'input/backend/workers/sub2/sub3/test2.ts'], { cwd: 'input' });
+    }
+    expect(outStream).to.equal(process.stdout);
+    expect(errStream).to.equal(process.stderr);
+
+    // Files with .ts extension available in workers directory, valid instructions found, and spawned processes should be killed
+    // Validating all regexes are not part of this test, it will be done in another test
+    if ('win32' === process.platform) {
+      readDir.onCall(3).returns([{ name: 'test1.ts', parentPath: 'input\\backend\\workers\\sub1\\sub2' }, { name: 'test2.ts', parentPath: 'input\\backend\\workers\\sub2\\sub3' }]);
+    }
+    else {
+      readDir.onCall(3).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
+    }
+    readFile.onCall(3).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(4).returns('"use strict";\n"glc task @monthly"\nconsole.log("done")');
+    watchCallback();
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(readDir.getCall(3), 'input\\backend\\workers');
+      sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
+      sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
+      sinon.assert.calledWithExactly(consoleLog.getCall(2), "Skipped worker: 'input\\backend\\workers\\sub2\\sub3\\test2.ts', only service workers are executed.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(3), "Use the following command to run the worker manually: 'npx ts-node input\\backend\\workers\\sub2\\sub3\\test2.ts'.");
+    }
+    else {
+      sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/workers');
+      sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
+      sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
+      sinon.assert.calledWithExactly(consoleLog.getCall(2), "Skipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed.");
+      sinon.assert.calledWithExactly(consoleLog.getCall(3), "Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'.");
+    }
+    expect(outStream).to.equal(process.stdout);
+    expect(errStream).to.equal(process.stderr);
+    expect(killSignal).to.equal('SIGKILL');
+  });
+
   it('validate compiling the workers', () => {
     // No files available in workers directory
     readDir.onCall(0).returns([]);
@@ -129,13 +263,11 @@ describe('compileWorkers.ts', () => {
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'path2\\test2.ts');
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'path2/test2.ts');
     }
@@ -147,13 +279,11 @@ describe('compileWorkers.ts', () => {
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'path1\\test1.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1\\test1.ts'.");
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(2), 'path1/test1.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL3002:', "Invalid compiler instruction found in: 'path1/test1.ts'.");
     }
@@ -171,7 +301,7 @@ describe('compileWorkers.ts', () => {
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
+      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output\\etc\\cron.d');
@@ -179,7 +309,7 @@ describe('compileWorkers.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
+      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output/etc/cron.d');
