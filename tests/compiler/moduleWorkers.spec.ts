@@ -35,6 +35,7 @@ import {
 import * as sysUtils from '../../src/compiler/sysUtils';
 
 describe('moduleWorkers.ts', () => {
+  let setTimeout: sinon.SinonStub;
   let consoleLog: sinon.SinonStub;
   let consoleError: sinon.SinonStub;
   let processExit: sinon.SinonStub;
@@ -49,6 +50,7 @@ describe('moduleWorkers.ts', () => {
   let execute: sinon.SinonStub;
 
   beforeEach(() => {
+    setTimeout = sinon.stub(global, 'setTimeout');
     consoleLog = sinon.stub(console, 'log');
     consoleError = sinon.stub(console, 'error');
     processExit = sinon.stub(process, 'exit');
@@ -61,9 +63,14 @@ describe('moduleWorkers.ts', () => {
     makeDir = sinon.stub(sysUtils, 'makeDir');
     remove = sinon.stub(sysUtils, 'remove');
     execute = sinon.stub(sysUtils, 'execute');
+    // Ensure to call a timeout callback directly without delay
+    setTimeout.callsFake((cb: () => void) => {
+      cb();
+    });
   });
 
   afterEach(() => {
+    setTimeout.restore();
     consoleLog.restore();
     consoleError.restore();
     processExit.restore();
@@ -118,18 +125,13 @@ describe('moduleWorkers.ts', () => {
   it('validate running the workers', () => {
     let watchEvent;
     let watchCallback: (() => void) | undefined;
-    let killSignal;
     watch.returns({
       on: (event: string, callback: () => void) => {
         watchEvent = event;
         watchCallback = callback;
       }
     });
-    spawn.returns({
-      kill: (signal: string) => {
-        killSignal = signal;
-      }
-    });
+    spawn.returns({ pid: 1234 });
 
     // No files available in workers directory
     readDir.onCall(0).returns([]);
@@ -209,6 +211,7 @@ describe('moduleWorkers.ts', () => {
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
       sinon.assert.calledWithExactly(consoleLog.getCall(2), "\x1b[93mSkipped worker: 'input\\backend\\workers\\sub2\\sub3\\test2.ts', only service workers are executed.\x1b[39m");
       sinon.assert.calledWithExactly(consoleLog.getCall(3), "\x1b[93mUse the following command to run the worker manually: 'npx ts-node input\\backend\\workers\\sub2\\sub3\\test2.ts'.\x1b[39m");
+      sinon.assert.calledWithExactly(spawn.getCall(1), 'taskkill', ['/pid', '1234', '/f', '/t']);
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/workers');
@@ -216,8 +219,8 @@ describe('moduleWorkers.ts', () => {
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
       sinon.assert.calledWithExactly(consoleLog.getCall(2), "\x1b[93mSkipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed.\x1b[39m");
       sinon.assert.calledWithExactly(consoleLog.getCall(3), "\x1b[93mUse the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'.\x1b[39m");
+      sinon.assert.calledWithExactly(spawn.getCall(1), 'sh', ['-c', `kill -9 1234`]);
     }
-    expect(killSignal).to.equal('SIGKILL');
   });
 
   it('validate compiling the workers', () => {

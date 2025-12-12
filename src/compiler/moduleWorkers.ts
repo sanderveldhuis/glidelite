@@ -63,6 +63,8 @@ const regex = `["']glc (service|task (` +
   '(' + dayOfWeekList + '(,' + dayOfWeekList + ')*|' + any + ')' + // Single/list day of week, comma separated days of week, or any value (*)
   `)))["']`;
 
+const restartDelay = 1000;
+
 /**
  * Searches for all TypeScript files with a valid compiler instruction.
  * @details this function will search directories recursively
@@ -138,6 +140,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const skippedWorkers: string[] = [];
   const children: ChildProcess[] = [];
   const workersDir = join(workingDirectory, 'backend', 'workers');
+  let restartTimeout: NodeJS.Timeout;
 
   // Internal function to start running all workers
   const runWorkers = () => {
@@ -170,11 +173,20 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   // Watch for changes in files and restart workers when files changed
   const watcher = watch(workersDir, { recursive: true });
   watcher.on('change', () => {
-    let child: ChildProcess | undefined;
-    while ((child = children.pop()) !== undefined) {
-      child.kill('SIGKILL');
-    }
-    runWorkers();
+    // Use a delay to prevent restarting too much
+    clearTimeout(restartTimeout);
+    restartTimeout = setTimeout(() => {
+      let child: ChildProcess | undefined;
+      while ((child = children.pop()) !== undefined) {
+        if ('win32' === process.platform) {
+          spawn('taskkill', ['/pid', String(child.pid), '/f', '/t']);
+        }
+        else {
+          spawn('sh', ['-c', `kill -9 ${String(child.pid)}`]);
+        }
+      }
+      runWorkers();
+    }, restartDelay);
   });
 }
 
