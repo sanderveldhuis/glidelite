@@ -48,5 +48,6 @@ export type Json = Record<string, string | number | object | boolean | null>;
 export interface Compiler {
   clean: (pkg: Json, config: Json, outputDirectory: string) => void;
   validate: (pkg: Json, config: Json, workingDirectory: string) => void;
+  run: (pkg: Json, config: Json, workingDirectory: string) => void;
   compile: (pkg: Json, config: Json, workingDirectory: string, outputDirectory: string) => void;
 }

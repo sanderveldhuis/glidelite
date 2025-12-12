@@ -1,7 +1,7 @@
 
 # Getting Started
 
-To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, and `npm`.
+To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, `npm`, and `Vite`.
 
 ## Installing GlideLite
 
@@ -36,6 +36,16 @@ This will create the filesystem structure with required files for a GlideLite pr
 │  └─ index.html        # Example frontend code
 └─ glconfig.json        # GlideLite configuration for the project
 ```
+
+## Running your code
+
+To run your project for local development use the run command:
+
+```bash
+npx glc -r
+```
+
+Until you hit `Ctrl+C` this command remains active and you can make changes to your code. The GlideLite Compiler will handle changes and restart or update the modules accordingly.
 
 ## Compiling your code
 

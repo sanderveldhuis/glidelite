@@ -22,6 +22,11 @@
  * SOFTWARE.
  */
 
+import {
+  ChildProcess,
+  spawn
+} from 'node:child_process';
+import { watch } from 'node:fs';
 import { join } from 'node:path';
 import {
   execute,
@@ -58,6 +63,45 @@ const regex = `["']glc (service|task (` +
   `)))["']`;
 
 /**
+ * Searches for all TypeScript files with a valid compiler instruction.
+ * @details this function will search directories recursively
+ * @param workersDir the directory containing the TypeScript files
+ * @returns the list of worker files, or `undefined` on error
+ */
+function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> | undefined {
+  const workerFiles: Record<string, RegExpExecArray> = {};
+
+  // Get a list of all TypeScript files
+  const allFiles = readDir(workersDir);
+  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
+
+  // Check for compiler instruction in each TypeScript file
+  for (const file of tsFiles) {
+    // Read the TypeScript file content
+    const filePath = join(file.parentPath, file.name);
+    const content = readFile(filePath);
+
+    // Check whether compiler instruction is available
+    const gotInstruction = new RegExp(/["']glc .*["']/).exec(content);
+    if (gotInstruction === null) {
+      continue;
+    }
+
+    // Check whether compiler instruction is valid
+    const instruction = new RegExp(regex).exec(content);
+    if (instruction === null) {
+      console.error(`error GL${String(ExitStatus.ProjectCompileFailed)}:`, `Invalid compiler instruction found in: '${filePath}'.`);
+      return process.exit(ExitStatus.ProjectCompileFailed);
+    }
+
+    // Append the executable worker
+    workerFiles[filePath] = instruction;
+  }
+
+  return workerFiles;
+}
+
+/**
  * Cleans the workers output data from the specified output directory.
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
@@ -84,6 +128,56 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 }
 
 /**
+ * Runs the workers input data at the specified working directory for development.
+ * @param pkg the package configuration loaded from the package.json file
+ * @param config the GlideLite configuration loaded from the glconfig.json file
+ * @param workingDirectory the working directory to be run
+ */
+export function run(pkg: Json, config: Json, workingDirectory: string): void {
+  const skippedWorkers: string[] = [];
+  const children: ChildProcess[] = [];
+  const workersDir = join(workingDirectory, 'backend', 'workers');
+
+  // Internal function to start running all workers
+  const runWorkers = () => {
+    const workerFiles = getWorkerFiles(workersDir);
+    if (workerFiles === undefined) {
+      return;
+    }
+
+    // Run workers based on compiler instructions in the TypeScript files
+    for (const [filePath, instruction] of Object.entries(workerFiles)) {
+      // Only run service workers
+      if (instruction[1] !== 'service') {
+        if (!skippedWorkers.includes(filePath)) {
+          console.log(`Skipped worker: '${filePath}', only service workers are executed.`);
+          console.log(`Use the following command to run the worker manually: 'npx ts-node ${filePath}'.`);
+        }
+        skippedWorkers.push(filePath);
+        continue;
+      }
+
+      // Run the worker and restart if the file has changed
+      const child = spawn(`npm exec -- ts-node ${filePath}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
+      children.push(child);
+    }
+  };
+
+  // Start running all workers
+  runWorkers();
+
+  // Watch for changes in files and restart workers when files changed
+  const watcher = watch(workersDir, { recursive: true });
+  watcher.on('change', () => {
+    let child: ChildProcess | undefined;
+    while ((child = children.pop()) !== undefined) {
+      child.kill('SIGKILL');
+    }
+    runWorkers();
+  });
+}
+
+/**
  * Compiles the workers input data in the specified working directory.
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
@@ -94,37 +188,19 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   const workersDir = join(workingDirectory, 'backend', 'workers');
   const outputDir = join(outputDirectory, 'opt', config.name as string, 'workers');
 
-  // Get a list of all TypeScript files
-  const allFiles = readDir(workersDir);
-  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
-  if (tsFiles.length <= 0) {
+  // Get a list of all worker files
+  const workerFiles = getWorkerFiles(workersDir);
+  if (workerFiles === undefined || Object.keys(workerFiles).length <= 0) {
     // Nothing to compile
     return;
   }
 
   // Compile the TypeScript files
-  execute(`tsc -p ${workersDir} --rootDir ${workersDir} --outDir ${outputDir}`, workingDirectory);
+  execute(`npm exec -- tsc -p ${workersDir} --rootDir ${workersDir} --outDir ${outputDir}`, workingDirectory);
 
   // Construct Crontab content based on compiler instructions in the TypeScript files
   let crontab = '';
-  for (const file of tsFiles) {
-    // Read the TypeScript file content
-    const filePath = join(file.parentPath, file.name);
-    const content = readFile(filePath);
-
-    // Check whether compiler instruction is available
-    const gotInstruction = new RegExp(/["']glc .*["']/).exec(content);
-    if (gotInstruction === null) {
-      continue;
-    }
-
-    // Check whether compiler instruction is valid
-    const instruction = new RegExp(regex).exec(content);
-    if (instruction === null) {
-      console.error(`error GL${String(ExitStatus.ProjectCompileFailed)}:`, `Invalid compiler instruction found in: '${filePath}'.`);
-      return process.exit(ExitStatus.ProjectCompileFailed);
-    }
-
+  for (const [filePath, instruction] of Object.entries(workerFiles)) {
     // Construct Crontab content for either a task or a service
     const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
     if (instruction[1] === 'service') {
@@ -137,10 +213,8 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Write Crontab file
-  if (crontab !== '') {
-    const cronDir = join(outputDirectory, 'etc', 'cron.d');
-    const cronFile = join(cronDir, `${config.name as string}_workers`);
-    makeDir(cronDir);
-    makeFile(cronFile, crontab);
-  }
+  const cronDir = join(outputDirectory, 'etc', 'cron.d');
+  const cronFile = join(cronDir, `${config.name as string}_workers`);
+  makeDir(cronDir);
+  makeFile(cronFile, crontab);
 }

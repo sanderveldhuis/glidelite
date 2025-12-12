@@ -22,20 +22,23 @@
  * SOFTWARE.
  */
 
+import * as childProcess from 'node:child_process';
 import sinon from 'ts-sinon';
 import {
   clean,
   compile,
+  run,
   validate
-} from '../../src/compiler/compileFrontend';
+} from '../../src/compiler/moduleFrontend';
 import * as sysUtils from '../../src/compiler/sysUtils';
 
-describe('compileFrontend.ts', () => {
+describe('moduleFrontend.ts', () => {
   let consoleError: sinon.SinonStub;
   let processExit: sinon.SinonStub;
   let exists: sinon.SinonStub;
   let remove: sinon.SinonStub;
   let execute: sinon.SinonStub;
+  let spawn: sinon.SinonStub;
 
   beforeEach(() => {
     consoleError = sinon.stub(console, 'error');
@@ -43,6 +46,7 @@ describe('compileFrontend.ts', () => {
     exists = sinon.stub(sysUtils, 'exists');
     remove = sinon.stub(sysUtils, 'remove');
     execute = sinon.stub(sysUtils, 'execute');
+    spawn = sinon.stub(childProcess, 'spawn');
   });
 
   afterEach(() => {
@@ -51,6 +55,7 @@ describe('compileFrontend.ts', () => {
     exists.restore();
     remove.restore();
     execute.restore();
+    spawn.restore();
   });
 
   it('validate checking the frontend', () => {
@@ -81,20 +86,30 @@ describe('compileFrontend.ts', () => {
   it('validate cleaning the frontend', () => {
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(remove.getCall(0), 'output\\var\\www\\cfg');
+      sinon.assert.calledOnceWithExactly(remove, 'output\\var\\www\\cfg');
     }
     else {
-      sinon.assert.calledWithExactly(remove.getCall(0), 'output/var/www/cfg');
+      sinon.assert.calledOnceWithExactly(remove, 'output/var/www/cfg');
+    }
+  });
+
+  it('validate running the frontend', () => {
+    run({ name: 'pkg' }, { name: 'cfg' }, 'output');
+    if ('win32' === process.platform) {
+      sinon.assert.calledOnceWithExactly(spawn, 'npm exec -- vite', { shell: true, cwd: 'output\\frontend', stdio: 'inherit' });
+    }
+    else {
+      sinon.assert.calledOnceWithExactly(spawn, 'npm exec -- vite', { shell: true, cwd: 'output/frontend', stdio: 'inherit' });
     }
   });
 
   it('validate compiling the frontend', () => {
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(execute, 'vite build --outDir output\\var\\www\\cfg --emptyOutDir', 'input\\frontend');
+      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- vite build --outDir output\\var\\www\\cfg --emptyOutDir', 'input\\frontend');
     }
     else {
-      sinon.assert.calledOnceWithExactly(execute, 'vite build --outDir output/var/www/cfg --emptyOutDir', 'input/frontend');
+      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir', 'input/frontend');
     }
   });
 });

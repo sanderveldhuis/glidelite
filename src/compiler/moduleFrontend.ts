@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import {
   execute,
@@ -59,6 +60,19 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 }
 
 /**
+ * Runs the frontend input data at the specified working directory for development.
+ * @param pkg the package configuration loaded from the package.json file
+ * @param config the GlideLite configuration loaded from the glconfig.json file
+ * @param workingDirectory the working directory to be run
+ */
+export function run(pkg: Json, config: Json, workingDirectory: string): void {
+  const frontendDir = join(workingDirectory, 'frontend');
+
+  // Run the frontend
+  spawn('npm exec -- vite', { shell: true, cwd: frontendDir, stdio: 'inherit' });
+}
+
+/**
  * Compiles the frontend input data in the specified working directory.
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
@@ -70,5 +84,5 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   const outputDir = join(outputDirectory, 'var', 'www', config.name as string);
 
   // Compile the frontend
-  execute(`vite build --outDir ${outputDir} --emptyOutDir`, frontendDir);
+  execute(`npm exec -- vite build --outDir ${outputDir} --emptyOutDir`, frontendDir);
 }

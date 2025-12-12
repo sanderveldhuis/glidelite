@@ -52,6 +52,8 @@
     "@tsconfig/node-lts": "^24.0.0",
     "@types/node": "latest",
     "@vitejs/plugin-react": "^5.1.1",
+    "npm": "^11.7.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vite": "^7.2.7"
   },
@@ -68,7 +70,6 @@
     "knip": "^5.71.0",
     "mocha": "^11.7.5",
     "nyc": "^17.1.0",
-    "ts-node": "^10.9.2",
     "ts-sinon": "^2.0.2",
     "typescript-eslint": "^8.48.1"
   }

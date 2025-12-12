@@ -26,10 +26,11 @@ import {
   join,
   resolve
 } from 'node:path';
-import * as compileFrontend from './compileFrontend';
-import * as compileProject from './compileProject';
-import * as compileWorkers from './compileWorkers';
 import { initProject } from './initProject';
+import * as moduleBackend from './moduleBackend';
+import * as moduleFrontend from './moduleFrontend';
+import * as moduleProject from './moduleProject';
+import * as moduleWorkers from './moduleWorkers';
 import { printHelp } from './printHelp';
 import { printVersion } from './printVersion';
 import { readJsonFile } from './sysUtils';
@@ -45,9 +46,10 @@ type ModuleNameCompilerMap = Map<string, Compiler>;
  * Mapping of module names to their dedicated compiler.
  */
 const moduleNameMap: ModuleNameCompilerMap = new Map<string, Compiler>([
-  ['workers', compileWorkers],
-  ['frontend', compileFrontend],
-  ['', compileProject]
+  ['workers', moduleWorkers],
+  ['backend', moduleBackend],
+  ['frontend', moduleFrontend],
+  ['', moduleProject]
 ]);
 
 /**
@@ -73,33 +75,37 @@ export function handleCommandLine(command: Command): void {
 
   const moduleName = String(command.options.module || '');
   const module = moduleNameMap.get(moduleName);
-
-  if (module) {
-    const outdir = String(command.options.outdir || 'output');
-    const pkgJson = join(workingDirectory, 'package.json');
-    const glConfig = join(workingDirectory, 'glconfig.json');
-
-    // Resolve output directory path and read JSON configuration files
-    const outputDirectory = resolve(outdir);
-    const pkg = readJsonFile(pkgJson);
-    const config = readJsonFile(glConfig);
-
-    // If no name, version, and/or homepage is defined in the GlideLite configuration then use the ones from the package.json
-    config.name = config.name ?? pkg.name;
-    config.version = config.version ?? pkg.version;
-    if (config.homepage ?? pkg.homepage) {
-      config.homepage = config.homepage ?? pkg.homepage;
-    }
-
-    if (command.options.clean) {
-      module.clean(pkg, config, outputDirectory);
-    }
-    module.validate(pkg, config, workingDirectory);
-    module.compile(pkg, config, workingDirectory, outputDirectory);
-    return process.exit(ExitStatus.Success);
-  }
-  else {
+  if (module === undefined) {
     console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
     return process.exit(ExitStatus.CommandLineArgumentInvalid);
   }
+
+  const pkgJson = join(workingDirectory, 'package.json');
+  const glConfig = join(workingDirectory, 'glconfig.json');
+  const pkg = readJsonFile(pkgJson);
+  const config = readJsonFile(glConfig);
+
+  // If no name, version, and/or homepage is defined in the GlideLite configuration then use the ones from the package.json
+  config.name = config.name ?? pkg.name;
+  config.version = config.version ?? pkg.version;
+  if (config.homepage ?? pkg.homepage) {
+    config.homepage = config.homepage ?? pkg.homepage;
+  }
+
+  if (command.options.run) {
+    moduleProject.validate(pkg, config, workingDirectory);
+    moduleProject.run(pkg, config, workingDirectory);
+    // No process.exit here because the run function will spawn asynchronous commands, we rely on the SIGINT of the user
+    return;
+  }
+
+  const outdir = String(command.options.outdir || 'output');
+  const outputDirectory = resolve(outdir);
+
+  if (command.options.clean) {
+    module.clean(pkg, config, outputDirectory);
+  }
+  module.validate(pkg, config, workingDirectory);
+  module.compile(pkg, config, workingDirectory, outputDirectory);
+  return process.exit(ExitStatus.Success);
 }

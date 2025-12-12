@@ -6,6 +6,14 @@ Workers are small applications with a specific purpose running in the background
 * _Service_: runs continuously and is started at each boot of the deployment system. When exited or crashed the system will automatically restart the service.
 * _Task_: runs periodically at fixed time, date, or interval.
 
+## Running your code
+
+First, run your project for local development:
+
+```bash
+npx glc -r
+```
+
 ## Build your first worker
 
 In your editor, type the following TypeScript code in `backend/workers/writer.ts`:
@@ -17,28 +25,13 @@ import { join } from 'node:path';
 function writeFile(data: string): void {
   const filePath = join(process.cwd(), Date.now().toString());
   writeFileSync(filePath, data);
+  console.log('Written file:', filePath);
 }
 
 writeFile('Hello, World!');
 ```
 
-## Compiling your code
-
-At the command line, run the GlideLite Compiler:
-
-```bash
-npx glc -m workers
-```
-
-## Testing your code
-
-The compiled JavaScript output can be found at `output/opt/[project]/workers/writer.js`. You can run this JavaScript file manually to validate its behaviour. Use the command line to run the worker causing a file to be written in your project root directory:
-
-```bash
-node output/opt/[project]/workers/writer.js
-```
-
-For now, the JavaScript file should be executed manually meaning it is not yet a real worker, let's change this.
+You will notice that this TypeScript file is not yet started by the GlideLite Compiler because it is not defined as a worker. Let's change this.
 
 ## Define as service or task
 
@@ -89,7 +82,7 @@ To define the TypeScript file as a task:
 Open your editor and update `backend/workers/writer.ts` with the following TypeScript code:
 
 ```typescript
-'glc task 30 5 * * *';
+'glc service';
 
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -97,12 +90,16 @@ import { join } from 'node:path';
 function writeFile(data: string): void {
   const filePath = join(process.cwd(), Date.now().toString());
   writeFileSync(filePath, data);
+  console.log('Written file:', filePath);
 }
 
 writeFile('Hello, World!');
 ```
 
-After recompiling, you'll notice an additional file is generated at `output/etc/cron.d/[project]_workers`. This will make sure, after deployment, that your task is executed each night at 5:30 AM as you defined in the compiler instruction.
+After saving the TypeScript file, you'll notice that the GlideLite Compiler detects the changes and starts the worker causing a file to be written in your project root directory.
+
+> [!IMPORTANT]
+> Only workers defined as a service will be started by the GlideLite Compiler. Workers defined as a task will not run automatically and should be executed manually.
 
 ## Use configuration values
 
@@ -119,7 +116,7 @@ In your editor, type the following JSON in `glconfig.json`:
 Now make use of this configuration value, update `backend/workers/writer.ts` with the following TypeScript code:
 
 ```typescript
-'glc task 30 5 * * *';
+'glc service';
 
 import { glconfig } from 'glidelite';
 import { writeFileSync } from 'node:fs';
@@ -128,6 +125,7 @@ import { join } from 'node:path';
 function writeFile(data: string): void {
   const filePath = join(process.cwd(), Date.now().toString());
   writeFileSync(filePath, data);
+  console.log('Written file:', filePath);
 }
 
 writeFile(`Hello, ${glconfig.user}!`);
@@ -149,7 +147,7 @@ log.[name].error('message');
 Let's name your worker `writer` and update `backend/workers/writer.ts` with the following TypeScript code:
 
 ```typescript
-'glc task 30 5 * * *';
+'glc service';
 
 import { glconfig, log } from 'glidelite';
 import { writeFileSync } from 'node:fs';
@@ -186,10 +184,10 @@ In your editor, add the following dependencies to your `package.json`:
 }
 ```
 
-Install the newly added dependencies by running `npm install` and use it in the `backend/workers/writer.ts` TypeScript code:
+Stop the local development run by pressing `Ctrl+C`, install the newly added dependencies by running `npm install` and use it in the `backend/workers/writer.ts` TypeScript code:
 
 ```typescript
-'glc task 30 5 * * *';
+'glc service';
 
 import { randomInt } from 'd3-random';
 import { glconfig, log } from 'glidelite';
@@ -205,4 +203,4 @@ function writeFile(data: string): void {
 writeFile(`Hello, ${glconfig.user} with ID: ${randomInt(1000)()}!`);
 ```
 
-Recompile and manually run the worker to test it again. You should see a newly written file containing the configured value with a random ID.
+Restart the local development run to test it again. You should see a newly written file containing the configured value with a random ID.
