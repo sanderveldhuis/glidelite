@@ -31,10 +31,10 @@ import {
   compile,
   run,
   validate
-} from '../../src/compiler/compileWorkers';
+} from '../../src/compiler/moduleWorkers';
 import * as sysUtils from '../../src/compiler/sysUtils';
 
-describe('compileWorkers.ts', () => {
+describe('moduleWorkers.ts', () => {
   let consoleLog: sinon.SinonStub;
   let consoleError: sinon.SinonStub;
   let processExit: sinon.SinonStub;

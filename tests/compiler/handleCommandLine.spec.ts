@@ -23,12 +23,12 @@
  */
 
 import sinon from 'ts-sinon';
-import * as compileBackendSrc from '../../src/compiler/compileBackend';
-import * as compileFrontendSrc from '../../src/compiler/compileFrontend';
-import * as compileProjectSrc from '../../src/compiler/compileProject';
-import * as compileWorkersSrc from '../../src/compiler/compileWorkers';
 import { handleCommandLine } from '../../src/compiler/handleCommandLine';
 import * as initProjectSrc from '../../src/compiler/initProject';
+import * as moduleBackendSrc from '../../src/compiler/moduleBackend';
+import * as moduleFrontendSrc from '../../src/compiler/moduleFrontend';
+import * as moduleProjectSrc from '../../src/compiler/moduleProject';
+import * as moduleWorkersSrc from '../../src/compiler/moduleWorkers';
 import * as printHelpSrc from '../../src/compiler/printHelp';
 import * as printVersionSrc from '../../src/compiler/printVersion';
 import * as sysUtilsSrc from '../../src/compiler/sysUtils';
@@ -61,19 +61,19 @@ describe('handleCommandLine.ts', () => {
   beforeEach(() => {
     consoleError = sinon.stub(console, 'error');
     processExit = sinon.stub(process, 'exit');
-    cleanProject = sinon.stub(compileProjectSrc, 'clean');
-    compileProject = sinon.stub(compileProjectSrc, 'compile');
-    validateProject = sinon.stub(compileProjectSrc, 'validate');
-    runProject = sinon.stub(compileProjectSrc, 'run');
-    cleanWorkers = sinon.stub(compileWorkersSrc, 'clean');
-    compileWorkers = sinon.stub(compileWorkersSrc, 'compile');
-    validateWorkers = sinon.stub(compileWorkersSrc, 'validate');
-    cleanFrontend = sinon.stub(compileFrontendSrc, 'clean');
-    compileFrontend = sinon.stub(compileFrontendSrc, 'compile');
-    validateFrontend = sinon.stub(compileFrontendSrc, 'validate');
-    cleanBackend = sinon.stub(compileBackendSrc, 'clean');
-    compileBackend = sinon.stub(compileBackendSrc, 'compile');
-    validateBackend = sinon.stub(compileBackendSrc, 'validate');
+    cleanProject = sinon.stub(moduleProjectSrc, 'clean');
+    compileProject = sinon.stub(moduleProjectSrc, 'compile');
+    validateProject = sinon.stub(moduleProjectSrc, 'validate');
+    runProject = sinon.stub(moduleProjectSrc, 'run');
+    cleanWorkers = sinon.stub(moduleWorkersSrc, 'clean');
+    compileWorkers = sinon.stub(moduleWorkersSrc, 'compile');
+    validateWorkers = sinon.stub(moduleWorkersSrc, 'validate');
+    cleanFrontend = sinon.stub(moduleFrontendSrc, 'clean');
+    compileFrontend = sinon.stub(moduleFrontendSrc, 'compile');
+    validateFrontend = sinon.stub(moduleFrontendSrc, 'validate');
+    cleanBackend = sinon.stub(moduleBackendSrc, 'clean');
+    compileBackend = sinon.stub(moduleBackendSrc, 'compile');
+    validateBackend = sinon.stub(moduleBackendSrc, 'validate');
     initProject = sinon.stub(initProjectSrc, 'initProject');
     printVersion = sinon.stub(printVersionSrc, 'printVersion');
     printHelp = sinon.stub(printHelpSrc, 'printHelp');

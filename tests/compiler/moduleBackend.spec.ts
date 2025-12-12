@@ -28,20 +28,20 @@ import {
   compile,
   run,
   validate
-} from '../../src/compiler/compileBackend';
-import * as compileWorkersSrc from '../../src/compiler/compileWorkers';
+} from '../../src/compiler/moduleBackend';
+import * as moduleWorkersSrc from '../../src/compiler/moduleWorkers';
 
-describe('compileBackend.ts', () => {
+describe('moduleBackend.ts', () => {
   let runWorkers: sinon.SinonStub;
   let cleanWorkers: sinon.SinonStub;
   let compileWorkers: sinon.SinonStub;
   let validateWorkers: sinon.SinonStub;
 
   beforeEach(() => {
-    runWorkers = sinon.stub(compileWorkersSrc, 'run');
-    cleanWorkers = sinon.stub(compileWorkersSrc, 'clean');
-    compileWorkers = sinon.stub(compileWorkersSrc, 'compile');
-    validateWorkers = sinon.stub(compileWorkersSrc, 'validate');
+    runWorkers = sinon.stub(moduleWorkersSrc, 'run');
+    cleanWorkers = sinon.stub(moduleWorkersSrc, 'clean');
+    compileWorkers = sinon.stub(moduleWorkersSrc, 'compile');
+    validateWorkers = sinon.stub(moduleWorkersSrc, 'validate');
   });
 
   afterEach(() => {

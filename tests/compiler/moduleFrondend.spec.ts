@@ -29,10 +29,10 @@ import {
   compile,
   run,
   validate
-} from '../../src/compiler/compileFrontend';
+} from '../../src/compiler/moduleFrontend';
 import * as sysUtils from '../../src/compiler/sysUtils';
 
-describe('compileFrontend.ts', () => {
+describe('moduleFrontend.ts', () => {
   let consoleError: sinon.SinonStub;
   let processExit: sinon.SinonStub;
   let exists: sinon.SinonStub;

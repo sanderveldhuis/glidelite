@@ -23,8 +23,8 @@
  */
 
 import { join } from 'node:path';
-import * as compileBackend from './compileBackend';
-import * as compileFrontend from './compileFrontend';
+import * as moduleBackend from './moduleBackend';
+import * as moduleFrontend from './moduleFrontend';
 import {
   makeDir,
   makeFile,
@@ -49,8 +49,8 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
   // user data if the user specified an invalid output directory (e.g. the user home folder)
 
   // Clean each module
-  compileBackend.clean(pkg, config, outputDirectory);
-  compileFrontend.clean(pkg, config, outputDirectory);
+  moduleBackend.clean(pkg, config, outputDirectory);
+  moduleFrontend.clean(pkg, config, outputDirectory);
 
   // Clean the project
   remove(join(outputDirectory, 'install'));
@@ -65,8 +65,8 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  compileBackend.validate(pkg, config, workingDirectory);
-  compileFrontend.validate(pkg, config, workingDirectory);
+  moduleBackend.validate(pkg, config, workingDirectory);
+  moduleFrontend.validate(pkg, config, workingDirectory);
 
   // Validate homepage
   if (typeof config.homepage !== 'undefined' && (typeof config.homepage !== 'string' || !new RegExp(regexUrl).test(config.homepage))) {
@@ -82,8 +82,8 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  * @param workingDirectory the working directory to be run
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
-  compileBackend.run(pkg, config, workingDirectory);
-  compileFrontend.run(pkg, config, workingDirectory);
+  moduleBackend.run(pkg, config, workingDirectory);
+  moduleFrontend.run(pkg, config, workingDirectory);
 }
 
 /**
@@ -95,8 +95,8 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   // Compile each module
-  compileBackend.compile(pkg, config, workingDirectory, outputDirectory);
-  compileFrontend.compile(pkg, config, workingDirectory, outputDirectory);
+  moduleBackend.compile(pkg, config, workingDirectory, outputDirectory);
+  moduleFrontend.compile(pkg, config, workingDirectory, outputDirectory);
 
   // Create project configuration files
   const optDir = join(outputDirectory, 'opt', config.name as string);

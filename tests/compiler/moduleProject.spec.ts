@@ -23,17 +23,17 @@
  */
 
 import sinon from 'ts-sinon';
-import * as compileBackendSrc from '../../src/compiler/compileBackend';
-import * as compileFrontendSrc from '../../src/compiler/compileFrontend';
+import * as moduleBackendSrc from '../../src/compiler/moduleBackend';
+import * as moduleFrontendSrc from '../../src/compiler/moduleFrontend';
 import {
   clean,
   compile,
   run,
   validate
-} from '../../src/compiler/compileProject';
+} from '../../src/compiler/moduleProject';
 import * as sysUtilsSrc from '../../src/compiler/sysUtils';
 
-describe('compileProject.ts', () => {
+describe('moduleProject.ts', () => {
   let consoleError: sinon.SinonStub;
   let processExit: sinon.SinonStub;
   let cleanBackend: sinon.SinonStub;
@@ -51,14 +51,14 @@ describe('compileProject.ts', () => {
   beforeEach(() => {
     consoleError = sinon.stub(console, 'error');
     processExit = sinon.stub(process, 'exit');
-    cleanBackend = sinon.stub(compileBackendSrc, 'clean');
-    compileBackend = sinon.stub(compileBackendSrc, 'compile');
-    validateBackend = sinon.stub(compileBackendSrc, 'validate');
-    runBackend = sinon.stub(compileBackendSrc, 'run');
-    cleanFrontend = sinon.stub(compileFrontendSrc, 'clean');
-    compileFrontend = sinon.stub(compileFrontendSrc, 'compile');
-    validateFrontend = sinon.stub(compileFrontendSrc, 'validate');
-    runFrontend = sinon.stub(compileFrontendSrc, 'run');
+    cleanBackend = sinon.stub(moduleBackendSrc, 'clean');
+    compileBackend = sinon.stub(moduleBackendSrc, 'compile');
+    validateBackend = sinon.stub(moduleBackendSrc, 'validate');
+    runBackend = sinon.stub(moduleBackendSrc, 'run');
+    cleanFrontend = sinon.stub(moduleFrontendSrc, 'clean');
+    compileFrontend = sinon.stub(moduleFrontendSrc, 'compile');
+    validateFrontend = sinon.stub(moduleFrontendSrc, 'validate');
+    runFrontend = sinon.stub(moduleFrontendSrc, 'run');
     remove = sinon.stub(sysUtilsSrc, 'remove');
     makeDir = sinon.stub(sysUtilsSrc, 'makeDir');
     makeFile = sinon.stub(sysUtilsSrc, 'makeFile');

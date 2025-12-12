@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import * as compileWorkers from './compileWorkers';
+import * as moduleWorkers from './moduleWorkers';
 import { Json } from './types';
 
 /**
@@ -32,7 +32,7 @@ import { Json } from './types';
  * @param outputDirectory the output directory to be cleaned
  */
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
-  compileWorkers.clean(pkg, config, outputDirectory);
+  moduleWorkers.clean(pkg, config, outputDirectory);
 }
 
 /**
@@ -42,7 +42,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  compileWorkers.validate(pkg, config, workingDirectory);
+  moduleWorkers.validate(pkg, config, workingDirectory);
 }
 
 /**
@@ -52,7 +52,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  * @param workingDirectory the working directory to be run
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
-  compileWorkers.run(pkg, config, workingDirectory);
+  moduleWorkers.run(pkg, config, workingDirectory);
 }
 
 /**
@@ -63,5 +63,5 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  * @param outputDirectory the output directory where to put the compilation results in
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
-  compileWorkers.compile(pkg, config, workingDirectory, outputDirectory);
+  moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
 }

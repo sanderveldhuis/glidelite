@@ -26,11 +26,11 @@ import {
   join,
   resolve
 } from 'node:path';
-import * as compileBackend from './compileBackend';
-import * as compileFrontend from './compileFrontend';
-import * as compileProject from './compileProject';
-import * as compileWorkers from './compileWorkers';
 import { initProject } from './initProject';
+import * as moduleBackend from './moduleBackend';
+import * as moduleFrontend from './moduleFrontend';
+import * as moduleProject from './moduleProject';
+import * as moduleWorkers from './moduleWorkers';
 import { printHelp } from './printHelp';
 import { printVersion } from './printVersion';
 import { readJsonFile } from './sysUtils';
@@ -46,10 +46,10 @@ type ModuleNameCompilerMap = Map<string, Compiler>;
  * Mapping of module names to their dedicated compiler.
  */
 const moduleNameMap: ModuleNameCompilerMap = new Map<string, Compiler>([
-  ['workers', compileWorkers],
-  ['backend', compileBackend],
-  ['frontend', compileFrontend],
-  ['', compileProject]
+  ['workers', moduleWorkers],
+  ['backend', moduleBackend],
+  ['frontend', moduleFrontend],
+  ['', moduleProject]
 ]);
 
 /**
@@ -93,8 +93,8 @@ export function handleCommandLine(command: Command): void {
   }
 
   if (command.options.run) {
-    compileProject.validate(pkg, config, workingDirectory);
-    compileProject.run(pkg, config, workingDirectory);
+    moduleProject.validate(pkg, config, workingDirectory);
+    moduleProject.run(pkg, config, workingDirectory);
     // No process.exit here because the run function will spawn asynchronous commands, we rely on the SIGINT of the user
     return;
   }
