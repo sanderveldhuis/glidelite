@@ -51,7 +51,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  const viteConfig = join(workingDirectory, 'frontend', 'vite.config.js');
+  const viteConfig = join(workingDirectory, 'frontend', 'vite.config.ts');
 
   if (!exists(viteConfig)) {
     console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${viteConfig}'.`);

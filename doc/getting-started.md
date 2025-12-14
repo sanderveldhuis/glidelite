@@ -32,7 +32,7 @@ This will create the filesystem structure with required files for a GlideLite pr
 │  └─ workers           # contains code for workers
 │     └─ tsconfig.json  # TypeScript configuration for workers code
 ├─ frontend             # contains all frontend modules
-│  ├─ vite.config.js    # Vite configuration for frontend code
+│  ├─ vite.config.ts    # Vite configuration for frontend code
 │  └─ index.html        # Example frontend code
 └─ glconfig.json        # GlideLite configuration for the project
 ```
