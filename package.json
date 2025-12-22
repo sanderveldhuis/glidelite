@@ -51,7 +51,7 @@
   "dependencies": {
     "@tsconfig/node-lts": "^24.0.0",
     "@types/node": "latest",
-    "@vitejs/plugin-react": "^5.1.1",
+    "@vitejs/plugin-react": "^5.1.2",
     "npm": "^11.7.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
