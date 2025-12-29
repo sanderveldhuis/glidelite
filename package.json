@@ -62,7 +62,7 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
-    "chai": "^6.2.1",
+    "chai": "^6.2.2",
     "cpx2": "^8.0.0",
     "dprint": "^0.51.1",
     "eslint": "^9.39.2",
