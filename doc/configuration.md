@@ -40,3 +40,21 @@ Specifies an array of additional Linux APT packages which are required to run th
   "packages": ["redis-server", "mariadb-server"]
 }
 ```
+
+## Ports - `ports`
+
+Specifies the ports used for running the project on your development system. These ports should be set in case multiple GlideLite projects are running on the development system or the ports are reserved by other applications.
+
+### Proxy server - `proxy`
+
+**Default:** `9001`
+
+Specifies the port for the proxy server which passes requests towards the dedicated API or asset.
+
+```json
+{
+  "ports": {
+    "proxy": 9001
+  }
+}
+```
