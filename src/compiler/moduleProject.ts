@@ -165,7 +165,9 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       "        add_header Vary 'Origin, Accept-Encoding' always;\n" +
       "        add_header X-Content-Type-Options 'nosniff' always;\n" +
       `        root /var/www/${config.name as string};\n` +
-      // TODO: generate default error pages and add them here?
+      '        error_page 404 /404.html;\n' +
+      '        error_page 429 /429.html;\n' +
+      '        error_page 500 /500.html;\n' +
       '    }\n' +
       '    location / {\n' +
       "        add_header Access-Control-Allow-Origin '$scheme://$host' always;\n" +
@@ -182,7 +184,9 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       "        add_header X-Xss-Protection '0' always;\n" +
       "        add_header Content-Security-Policy 'default-src data: blob: \\'self\\' \\'unsafe-inline\\' \\'unsafe-eval\\'; script-src \\'unsafe-inline\\' blob: data: \\'self\\' \\'unsafe-eval\\' https://*.google-analytics.com; style-src \\'self\\' \\'unsafe-inline\\'; connect-src blob: \\'self\\' https://*.google-analytics.com; font-src \\'self\\' data:; img-src \\'self\\' data: blob:; media-src \\'self\\'; frame-src \\'self\\' data:; worker-src blob: \\'self\\' data:; block-all-mixed-content; upgrade-insecure-requests;' always;\n" +
       `        root /var/www/${config.name as string};\n` +
-      // TODO: generate default error pages and add them here?
+      '        error_page 404 /404.html;\n' +
+      '        error_page 429 /429.html;\n' +
+      '        error_page 500 /500.html;\n' +
       '    }\n' +
       '}\n'
   );
