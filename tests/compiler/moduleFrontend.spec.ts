@@ -23,7 +23,6 @@
  */
 
 import * as childProcess from 'node:child_process';
-import { read } from 'node:fs';
 import sinon from 'ts-sinon';
 import {
   clean,
