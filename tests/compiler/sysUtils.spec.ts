@@ -199,12 +199,13 @@ describe('sysUtils.ts', () => {
   });
 
   it('validate executing a command', () => {
-    execute('test', 'path');
+    let result = execute('test', 'path');
+    expect(result).to.equal(true);
     sinon.assert.calledWithExactly(execSync.getCall(0), 'test', { cwd: 'path', stdio: 'inherit' });
 
     execSync.throws(new Error('unknown'));
-    execute('test', 'path');
+    result = execute('test', 'path');
+    expect(result).to.equal(false);
     sinon.assert.calledWithExactly(execSync.getCall(1), 'test', { cwd: 'path', stdio: 'inherit' });
-    sinon.assert.calledWithExactly(processExit.getCall(0), 3002);
   });
 });

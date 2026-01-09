@@ -7,7 +7,7 @@
 
 A command-line tool for building modern web applications end to end.
 
-GlideLite provides a fast backend development experience with built-in support for APIs, services, scheduled tasks, configuration, logging, and IPC. Everything is paired seamlessly with [Vite](https://vite.dev/)-based frontends.
+GlideLite provides a fast backend and frontend development experience with built-in support for APIs, services, scheduled tasks, configuration, logging, and IPC. Everything is paired seamlessly with [Vite](https://vite.dev/)-based frontends.
 
 ## Installing
 

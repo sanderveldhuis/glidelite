@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+// TODO: if no homepage is defined the project should still be installable, so run on localhost
+// TODO: possible to run with Nginx in development mode?
+
 import { join } from 'node:path';
 import * as moduleBackend from './moduleBackend';
 import * as moduleFrontend from './moduleFrontend';
@@ -56,6 +59,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
   remove(join(outputDirectory, 'install'));
   remove(join(outputDirectory, 'opt', config.name as string));
   remove(join(outputDirectory, 'etc', 'logrotate.d'));
+  remove(join(outputDirectory, 'etc', 'nginx'));
 }
 
 /**
@@ -124,6 +128,65 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '}\n'
   );
 
+  // Create Nginx configuration files
+  const ports = (config.ports ?? {}) as Record<string, number>;
+  const nginxDir = join(outputDirectory, 'etc', 'nginx', 'sites-available');
+  const nginxGatewayCnf = join(nginxDir, `${config.name as string}.gateway.conf`);
+  const nginxProxyCnf = join(nginxDir, `${config.name as string}.proxy.conf`);
+  makeDir(nginxDir);
+  makeFile(
+    nginxGatewayCnf,
+    'server {\n' +
+      '    listen 80;\n' +
+      '    listen [::]:80;\n' +
+      (config.homepage ?
+        `    server_name ${(config.homepage as string).replace(/https:\/\/|http:\/\//, '').replace(/\/$/, '')}${(config.homepage as string).split('.').length > 2 ? '' : ` www.${(config.homepage as string).replace(/https:\/\/|http:\/\//, '').replace(/\/$/, '')}`};\n` : '') +
+      `    access_log /var/log/${config.name as string}/gateway.access.log;\n` +
+      `    error_log /var/log/${config.name as string}/gateway.error.log;\n` +
+      '    server_tokens off;\n' +
+      (config.homepage && (config.homepage as string).startsWith('https://') ? "    add_header Strict-Transport-Security 'max-age=31536000; includeSubDomains' always;\n" : '') +
+      '    location / {\n' +
+      `        proxy_pass http://127.0.0.1:${ports.proxy ? String(ports.proxy) : '9001'};\n` +
+      '    }\n' +
+      '}\n'
+  );
+  makeFile(
+    nginxProxyCnf,
+    'server {\n' +
+      `    listen ${ports.proxy ? String(ports.proxy) : '9001'};\n` +
+      `    access_log /var/log/${config.name as string}/proxy.access.log;\n` +
+      `    error_log /var/log/${config.name as string}/proxy.error.log;\n` +
+      '    server_tokens off;\n' +
+      '    location /assets {\n' +
+      "        add_header Access-Control-Allow-Origin '*' always;\n" +
+      "        add_header Cross-Origin-Resource-Policy 'cross-origin' always;\n" +
+      "        add_header Origin-Agent-Cluster '?0' always;\n" +
+      "        add_header Cache-Control 'public, max-age=31536000, immutable' always;\n" +
+      "        add_header Vary 'Origin, Accept-Encoding' always;\n" +
+      "        add_header X-Content-Type-Options 'nosniff' always;\n" +
+      `        root /var/www/${config.name as string};\n` +
+      // TODO: generate default error pages and add them here?
+      '    }\n' +
+      '    location / {\n' +
+      "        add_header Access-Control-Allow-Origin '$scheme://$host' always;\n" +
+      "        add_header Cross-Origin-Resource-Policy 'same-origin' always;\n" +
+      "        add_header Cross-Origin-Opener-Policy 'same-origin' always;\n" +
+      "        add_header Cross-Origin-Embedder-Policy 'require-corp' always;\n" +
+      "        add_header Origin-Agent-Cluster '?0' always;\n" +
+      "        add_header Cache-Control 'private, no-cache, no-store, must-revalidate' always;\n" +
+      "        add_header Pragma 'no-cache' always;\n" +
+      "        add_header Vary 'Origin, Accept-Encoding' always;\n" +
+      "        add_header Expires 'Sat, 01 Jan 2000 00:00:00 GMT' always;\n" +
+      "        add_header X-Content-Type-Options 'nosniff' always;\n" +
+      "        add_header X-Frame-Options 'DENY' always;\n" +
+      "        add_header X-Xss-Protection '0' always;\n" +
+      "        add_header Content-Security-Policy 'default-src data: blob: \\'self\\' \\'unsafe-inline\\' \\'unsafe-eval\\'; script-src \\'unsafe-inline\\' blob: data: \\'self\\' \\'unsafe-eval\\' https://*.google-analytics.com; style-src \\'self\\' \\'unsafe-inline\\'; connect-src blob: \\'self\\' https://*.google-analytics.com; font-src \\'self\\' data:; img-src \\'self\\' data: blob:; media-src \\'self\\'; frame-src \\'self\\' data:; worker-src blob: \\'self\\' data:; block-all-mixed-content; upgrade-insecure-requests;' always;\n" +
+      `        root /var/www/${config.name as string};\n` +
+      // TODO: generate default error pages and add them here?
+      '    }\n' +
+      '}\n'
+  );
+
   // Construct a list of required Linux APT packages and filter out duplicates
   const packages = ['cron', 'logrotate', 'nodejs', 'nginx', 'certbot', 'python3-certbot-nginx'].concat((config.packages ?? []) as string[]);
   const filteredPackages = packages.filter((item, pos) => {
@@ -152,6 +215,8 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '# Cleanup old project\n' +
       `rm -rf /var/www/${config.name as string}\n` +
       `rm -rf /etc/cron.d/${config.name as string}_workers\n` +
+      `rm -rf /etc/nginx/sites-available/${config.name as string}.*.conf\n` +
+      `rm -rf /etc/nginx/sites-enabled/${config.name as string}.*.conf\n` +
       `rm -rf /opt/${config.name as string}\n` +
       `pkill -f "node /opt/${config.name as string}/workers"\n\n` +
       '# Copy new project\n' +
@@ -163,6 +228,12 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       `pushd /opt/${config.name as string}\n` +
       'npm install\n' +
       'popd\n\n' +
+      '# Prepare Nginx\n' +
+      `for file in /etc/nginx/sites-available/${config.name as string}.*.conf\n` +
+      'do\n' +
+      '  ln -s $file /etc/nginx/sites-enabled\n' +
+      'done\n' +
+      'service nginx reload\n\n' +
       (config.homepage && (config.homepage as string).startsWith('https://') ?
         '# Obtain the SSL/TLS certificate\n' +
         `certbot --nginx -d ${(config.homepage as string).replace('https://', '').replace(/\/$/, '')}${(config.homepage as string).split('.').length > 2 ? '' : ` -d www.${(config.homepage as string).replace('https://', '').replace(/\/$/, '')}`}\n\n` : '') +
