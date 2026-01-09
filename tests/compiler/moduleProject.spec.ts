@@ -132,11 +132,13 @@ describe('moduleProject.ts', () => {
       sinon.assert.calledWithExactly(remove.getCall(0), 'output\\install');
       sinon.assert.calledWithExactly(remove.getCall(1), 'output\\opt\\cfg');
       sinon.assert.calledWithExactly(remove.getCall(2), 'output\\etc\\logrotate.d');
+      sinon.assert.calledWithExactly(remove.getCall(3), 'output\\etc\\nginx');
     }
     else {
       sinon.assert.calledWithExactly(remove.getCall(0), 'output/install');
       sinon.assert.calledWithExactly(remove.getCall(1), 'output/opt/cfg');
       sinon.assert.calledWithExactly(remove.getCall(2), 'output/etc/logrotate.d');
+      sinon.assert.calledWithExactly(remove.getCall(3), 'output/etc/nginx');
     }
   });
 
@@ -157,7 +159,10 @@ describe('moduleProject.ts', () => {
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
       sinon.assert.calledWithExactly(makeDir.getCall(1), 'output\\etc\\logrotate.d');
       sinon.assert.calledWith(makeFile.getCall(2), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the logrotate file
-      sinon.assert.calledWithMatch(makeFile.getCall(3), 'output\\install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx > /dev/null 2>&1\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithExactly(makeDir.getCall(2), 'output\\etc\\nginx\\sites-available');
+      sinon.assert.calledWith(makeFile.getCall(3), 'output\\etc\\nginx\\sites-available\\cfg.gateway.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWith(makeFile.getCall(4), 'output\\etc\\nginx\\sites-available\\cfg.proxy.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWithMatch(makeFile.getCall(5), 'output\\install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx > /dev/null 2>&1\n'); // Not validating the full content of the install file
     }
     else {
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'output/opt/cfg');
@@ -165,51 +170,66 @@ describe('moduleProject.ts', () => {
       sinon.assert.calledWithExactly(makeFile.getCall(1), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
       sinon.assert.calledWithExactly(makeDir.getCall(1), 'output/etc/logrotate.d');
       sinon.assert.calledWith(makeFile.getCall(2), 'output/etc/logrotate.d/cfg'); // Not validating the content of the logrotate file
-      sinon.assert.calledWithMatch(makeFile.getCall(3), 'output/install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx > /dev/null 2>&1\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithExactly(makeDir.getCall(2), 'output/etc/nginx/sites-available');
+      sinon.assert.calledWith(makeFile.getCall(3), 'output/etc/nginx/sites-available/cfg.gateway.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWith(makeFile.getCall(4), 'output/etc/nginx/sites-available/cfg.proxy.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWithMatch(makeFile.getCall(5), 'output/install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx > /dev/null 2>&1\n'); // Not validating the full content of the install file
     }
 
     // Dependencies available, packages available, homepage available without subdomain
     compile({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com/', packages: ['logrotate', 'example'] }, 'input', 'output');
     sinon.assert.calledWithExactly(compileBackend.getCall(1), { name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com/', packages: ['logrotate', 'example'] }, 'input', 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(makeDir.getCall(2), 'output\\opt\\cfg');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://example.com/","packages":["logrotate","example"]}');
-      sinon.assert.calledWithExactly(makeDir.getCall(3), 'output\\etc\\logrotate.d');
-      sinon.assert.calledWith(makeFile.getCall(6), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the logrotate file
-      sinon.assert.calledWithMatch(makeFile.getCall(7), 'output\\install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n'); // Not validating the full content of the install file
-      sinon.assert.calledWithMatch(makeFile.getCall(7), 'output\\install', 'certbot --nginx -d example.com -d www.example.com\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithExactly(makeDir.getCall(3), 'output\\opt\\cfg');
+      sinon.assert.calledWithExactly(makeFile.getCall(6), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(7), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://example.com/","packages":["logrotate","example"]}');
+      sinon.assert.calledWithExactly(makeDir.getCall(4), 'output\\etc\\logrotate.d');
+      sinon.assert.calledWith(makeFile.getCall(8), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the logrotate file
+      sinon.assert.calledWithExactly(makeDir.getCall(5), 'output\\etc\\nginx\\sites-available');
+      sinon.assert.calledWith(makeFile.getCall(9), 'output\\etc\\nginx\\sites-available\\cfg.gateway.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWith(makeFile.getCall(10), 'output\\etc\\nginx\\sites-available\\cfg.proxy.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWithMatch(makeFile.getCall(11), 'output\\install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithMatch(makeFile.getCall(11), 'output\\install', 'certbot --nginx -d example.com -d www.example.com\n'); // Not validating the full content of the install file
     }
     else {
-      sinon.assert.calledWithExactly(makeDir.getCall(2), 'output/opt/cfg');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      sinon.assert.calledWithExactly(makeFile.getCall(5), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://example.com/","packages":["logrotate","example"]}');
-      sinon.assert.calledWithExactly(makeDir.getCall(3), 'output/etc/logrotate.d');
-      sinon.assert.calledWith(makeFile.getCall(6), 'output/etc/logrotate.d/cfg'); // Not validating the content of the logrotate file
-      sinon.assert.calledWithMatch(makeFile.getCall(7), 'output/install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n'); // Not validating the full content of the install file
-      sinon.assert.calledWithMatch(makeFile.getCall(7), 'output/install', 'certbot --nginx -d example.com -d www.example.com\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithExactly(makeDir.getCall(3), 'output/opt/cfg');
+      sinon.assert.calledWithExactly(makeFile.getCall(6), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(7), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://example.com/","packages":["logrotate","example"]}');
+      sinon.assert.calledWithExactly(makeDir.getCall(4), 'output/etc/logrotate.d');
+      sinon.assert.calledWith(makeFile.getCall(8), 'output/etc/logrotate.d/cfg'); // Not validating the content of the logrotate file
+      sinon.assert.calledWithExactly(makeDir.getCall(5), 'output/etc/nginx/sites-available');
+      sinon.assert.calledWith(makeFile.getCall(9), 'output/etc/nginx/sites-available/cfg.gateway.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWith(makeFile.getCall(10), 'output/etc/nginx/sites-available/cfg.proxy.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWithMatch(makeFile.getCall(11), 'output/install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithMatch(makeFile.getCall(11), 'output/install', 'certbot --nginx -d example.com -d www.example.com\n'); // Not validating the full content of the install file
     }
 
     // Dependencies available, packages available, homepage available with subdomain
-    compile({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://www.example.com/', packages: ['logrotate', 'example'] }, 'input', 'output');
-    sinon.assert.calledWithExactly(compileBackend.getCall(2), { name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://www.example.com/', packages: ['logrotate', 'example'] }, 'input', 'output');
+    compile({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://www.example.com/', packages: ['logrotate', 'example'], ports: { proxy: 9999 } }, 'input', 'output');
+    sinon.assert.calledWithExactly(compileBackend.getCall(2), { name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://www.example.com/', packages: ['logrotate', 'example'], ports: { proxy: 9999 } }, 'input', 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(makeDir.getCall(4), 'output\\opt\\cfg');
-      sinon.assert.calledWithExactly(makeFile.getCall(8), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      sinon.assert.calledWithExactly(makeFile.getCall(9), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://www.example.com/","packages":["logrotate","example"]}');
-      sinon.assert.calledWithExactly(makeDir.getCall(5), 'output\\etc\\logrotate.d');
-      sinon.assert.calledWith(makeFile.getCall(10), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the logrotate file
-      sinon.assert.calledWithMatch(makeFile.getCall(11), 'output\\install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n'); // Not validating the full content of the install file
-      sinon.assert.calledWithMatch(makeFile.getCall(11), 'output\\install', 'certbot --nginx -d www.example.com\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithExactly(makeDir.getCall(6), 'output\\opt\\cfg');
+      sinon.assert.calledWithExactly(makeFile.getCall(12), 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(13), 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://www.example.com/","packages":["logrotate","example"],"ports":{"proxy":9999}}');
+      sinon.assert.calledWithExactly(makeDir.getCall(7), 'output\\etc\\logrotate.d');
+      sinon.assert.calledWith(makeFile.getCall(14), 'output\\etc\\logrotate.d\\cfg'); // Not validating the content of the logrotate file
+      sinon.assert.calledWithExactly(makeDir.getCall(8), 'output\\etc\\nginx\\sites-available');
+      sinon.assert.calledWith(makeFile.getCall(15), 'output\\etc\\nginx\\sites-available\\cfg.gateway.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWith(makeFile.getCall(16), 'output\\etc\\nginx\\sites-available\\cfg.proxy.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWithMatch(makeFile.getCall(17), 'output\\install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithMatch(makeFile.getCall(17), 'output\\install', 'certbot --nginx -d www.example.com\n'); // Not validating the full content of the install file
     }
     else {
-      sinon.assert.calledWithExactly(makeDir.getCall(4), 'output/opt/cfg');
-      sinon.assert.calledWithExactly(makeFile.getCall(8), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      sinon.assert.calledWithExactly(makeFile.getCall(9), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://www.example.com/","packages":["logrotate","example"]}');
-      sinon.assert.calledWithExactly(makeDir.getCall(5), 'output/etc/logrotate.d');
-      sinon.assert.calledWith(makeFile.getCall(10), 'output/etc/logrotate.d/cfg'); // Not validating the content of the logrotate file
-      sinon.assert.calledWithMatch(makeFile.getCall(11), 'output/install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n'); // Not validating the full content of the install file
-      sinon.assert.calledWithMatch(makeFile.getCall(11), 'output/install', 'certbot --nginx -d www.example.com\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithExactly(makeDir.getCall(6), 'output/opt/cfg');
+      sinon.assert.calledWithExactly(makeFile.getCall(12), 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+      sinon.assert.calledWithExactly(makeFile.getCall(13), 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://www.example.com/","packages":["logrotate","example"],"ports":{"proxy":9999}}');
+      sinon.assert.calledWithExactly(makeDir.getCall(7), 'output/etc/logrotate.d');
+      sinon.assert.calledWith(makeFile.getCall(14), 'output/etc/logrotate.d/cfg'); // Not validating the content of the logrotate file
+      sinon.assert.calledWithExactly(makeDir.getCall(8), 'output/etc/nginx/sites-available');
+      sinon.assert.calledWith(makeFile.getCall(15), 'output/etc/nginx/sites-available/cfg.gateway.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWith(makeFile.getCall(16), 'output/etc/nginx/sites-available/cfg.proxy.conf'); // Not validating the content of the nginx config file
+      sinon.assert.calledWithMatch(makeFile.getCall(17), 'output/install', 'dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n'); // Not validating the full content of the install file
+      sinon.assert.calledWithMatch(makeFile.getCall(17), 'output/install', 'certbot --nginx -d www.example.com\n'); // Not validating the full content of the install file
     }
   });
 });
