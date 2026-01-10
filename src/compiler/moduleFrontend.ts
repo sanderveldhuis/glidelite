@@ -52,10 +52,15 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  const viteConfig = join(workingDirectory, 'frontend', 'vite.config.ts');
+  const viteConfigJs = join(workingDirectory, 'frontend', 'vite.config.js');
+  const viteConfigMjs = join(workingDirectory, 'frontend', 'vite.config.mjs');
+  const viteConfigCjs = join(workingDirectory, 'frontend', 'vite.config.cjs');
+  const viteConfigTs = join(workingDirectory, 'frontend', 'vite.config.ts');
+  const viteConfigMts = join(workingDirectory, 'frontend', 'vite.config.mts');
+  const viteConfigCts = join(workingDirectory, 'frontend', 'vite.config.cts');
 
-  if (!exists(viteConfig)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${viteConfig}'.`);
+  if (!exists(viteConfigJs) && !exists(viteConfigMjs) && !exists(viteConfigCjs) && !exists(viteConfigTs) && !exists(viteConfigMts) && !exists(viteConfigCts)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${viteConfigTs}'.`);
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }

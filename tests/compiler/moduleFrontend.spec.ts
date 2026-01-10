@@ -66,21 +66,36 @@ describe('moduleFrontend.ts', () => {
     exists.onCall(0).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\frontend\\vite.config.js');
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/frontend/vite.config.js');
     }
 
     // Not all required files and directories exist
     exists.onCall(1).returns(false);
+    exists.onCall(2).returns(false);
+    exists.onCall(3).returns(false);
+    exists.onCall(4).returns(false);
+    exists.onCall(5).returns(false);
+    exists.onCall(6).returns(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input2\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input2\\frontend\\vite.config.js');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'input2\\frontend\\vite.config.mjs');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'input2\\frontend\\vite.config.cjs');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input2\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'input2\\frontend\\vite.config.mts');
+      sinon.assert.calledWithExactly(exists.getCall(6), 'input2\\frontend\\vite.config.cts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL3001:', "No valid project found at: 'input2', missing file 'input2\\frontend\\vite.config.ts'.");
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input2/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input2/frontend/vite.config.js');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'input2/frontend/vite.config.mjs');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'input2/frontend/vite.config.cjs');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input2/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'input2/frontend/vite.config.mts');
+      sinon.assert.calledWithExactly(exists.getCall(6), 'input2/frontend/vite.config.cts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL3001:', "No valid project found at: 'input2', missing file 'input2/frontend/vite.config.ts'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 3001);
