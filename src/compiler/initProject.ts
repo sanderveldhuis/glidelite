@@ -41,6 +41,9 @@ export function initProject(workingDirectory: string): void {
   const frontendDir = join(workingDirectory, 'frontend');
   const frontendViteConfig = join(frontendDir, 'vite.config.ts');
   const frontendIndex = join(frontendDir, 'index.html');
+  const frontend404 = join(frontendDir, 'public', '404.html');
+  const frontend429 = join(frontendDir, 'public', '429.html');
+  const frontend500 = join(frontendDir, 'public', '500.html');
 
   // Check if all required files are not yet available to prevent overwriting existing user data
   if (exists(workersGlConfig)) {
@@ -59,6 +62,18 @@ export function initProject(workingDirectory: string): void {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'index.html' file already defined at: '${frontendIndex}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
+  if (exists(frontend404)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A '404.html' file already defined at: '${frontend404}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
+  if (exists(frontend429)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A '429.html' file already defined at: '${frontend429}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
+  if (exists(frontend500)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A '500.html' file already defined at: '${frontend500}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
 
   // Create the file system structure if not exists, and create all required files
   makeDir(workersDir);
@@ -66,7 +81,10 @@ export function initProject(workingDirectory: string): void {
   makeFile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
   makeDir(frontendDir);
   makeFile(frontendViteConfig, "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
-  makeFile(frontendIndex, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
+  makeFile(frontendIndex, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
+  makeFile(frontend404, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>404 Not Found · GlideLite</title>\n  </head>\n  <body>\n    Not found!\n  </body>\n</html>\n');
+  makeFile(frontend429, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>429 Too Many Requests · GlideLite</title>\n  </head>\n  <body>\n    Too Many Requests!\n  </body>\n</html>\n');
+  makeFile(frontend500, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>500 Internal Server Error · GlideLite</title>\n  </head>\n  <body>\n    Internal Server Error!\n  </body>\n</html>\n');
 
   console.log(`Created a new GlideLite project at: '${workingDirectory}'.`);
 }
