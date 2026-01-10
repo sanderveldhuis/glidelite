@@ -179,7 +179,7 @@ describe('moduleFrontend.ts', () => {
       sinon.assert.calledWithExactly(execute.getCall(4), 'npm exec -- tsc -b --noEmit', 'input4\\frontend');
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input4/frontend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'input4/frontend/tsconfig.json');
       sinon.assert.calledWithExactly(readDir.getCall(1), 'input4/frontend');
       sinon.assert.calledWithExactly(execute.getCall(4), 'npm exec -- tsc -b --noEmit', 'input4/frontend');
     }
@@ -197,7 +197,7 @@ describe('moduleFrontend.ts', () => {
       sinon.assert.calledWithExactly(execute.getCall(5), 'npm exec -- tsc -b --noEmit', 'input5\\frontend');
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input5/frontend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input5/frontend/tsconfig.json');
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input5/frontend');
       sinon.assert.calledOnceWithExactly(remove, 'path2/test.app.tsbuildinfo');
       sinon.assert.calledWithExactly(execute.getCall(5), 'npm exec -- tsc -b --noEmit', 'input5/frontend');
