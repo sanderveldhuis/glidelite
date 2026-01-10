@@ -164,8 +164,8 @@ describe('moduleFrontend.ts', () => {
     else {
       sinon.assert.calledWithExactly(exists.getCall(2), 'input3/frontend/tsconfig.json');
       sinon.assert.calledWithExactly(readDir.getCall(0), 'input3/frontend');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'npm exec -- tsc -b --noEmit', 'input2/frontend');
-      sinon.assert.calledWithExactly(execute.getCall(3), 'npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir', 'input2/frontend');
+      sinon.assert.calledWithExactly(execute.getCall(2), 'npm exec -- tsc -b --noEmit', 'input3/frontend');
+      sinon.assert.calledWithExactly(execute.getCall(3), 'npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir', 'input3/frontend');
     }
 
     // TypeScript validation needed, no generated files available, execution failed
