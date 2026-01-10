@@ -129,7 +129,7 @@ describe('initProject.ts', () => {
       sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/workers/tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A '500.html' file already defined at: 'test/frontend/index.html'.");
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'index.html' file already defined at: 'test/frontend/index.html'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 2010);
   });
