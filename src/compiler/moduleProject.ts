@@ -22,9 +22,6 @@
  * SOFTWARE.
  */
 
-// TODO: if no homepage is defined the project should still be installable, so run on localhost
-// TODO: possible to run with Nginx in development mode?
-
 import { join } from 'node:path';
 import * as moduleBackend from './moduleBackend';
 import * as moduleFrontend from './moduleFrontend';
@@ -137,10 +134,9 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   makeFile(
     nginxGatewayCnf,
     'server {\n' +
-      '    listen 80;\n' +
-      '    listen [::]:80;\n' +
-      (config.homepage ?
-        `    server_name ${(config.homepage as string).replace(/https:\/\/|http:\/\//, '').replace(/\/$/, '')}${(config.homepage as string).split('.').length > 2 ? '' : ` www.${(config.homepage as string).replace(/https:\/\/|http:\/\//, '').replace(/\/$/, '')}`};\n` : '') +
+      `    listen ${ports.gateway && !config.homepage ? String(ports.gateway) : '80'};\n` +
+      `    listen [::]:${ports.gateway && !config.homepage ? String(ports.gateway) : '80'};\n` +
+      `    server_name ${config.homepage ? (config.homepage as string).replace(/https:\/\/|http:\/\//, '').replace(/\/$/, '') + ((config.homepage as string).split('.').length > 2 ? '' : ` www.${(config.homepage as string).replace(/https:\/\/|http:\/\//, '').replace(/\/$/, '')}`) : '_'};\n` +
       `    access_log /var/log/${config.name as string}/gateway.access.log;\n` +
       `    error_log /var/log/${config.name as string}/gateway.error.log;\n` +
       '    server_tokens off;\n' +
@@ -182,7 +178,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       "        add_header X-Content-Type-Options 'nosniff' always;\n" +
       "        add_header X-Frame-Options 'DENY' always;\n" +
       "        add_header X-Xss-Protection '0' always;\n" +
-      "        add_header Content-Security-Policy 'default-src data: blob: \\'self\\' \\'unsafe-inline\\' \\'unsafe-eval\\'; script-src \\'unsafe-inline\\' blob: data: \\'self\\' \\'unsafe-eval\\' https://*.google-analytics.com; style-src \\'self\\' \\'unsafe-inline\\'; connect-src blob: \\'self\\' https://*.google-analytics.com; font-src \\'self\\' data:; img-src \\'self\\' data: blob:; media-src \\'self\\'; frame-src \\'self\\' data:; worker-src blob: \\'self\\' data:; block-all-mixed-content; upgrade-insecure-requests;' always;\n" +
+      (config.homepage && (config.homepage as string).startsWith('https://') ? "        add_header Content-Security-Policy 'default-src data: blob: \\'self\\' \\'unsafe-inline\\' \\'unsafe-eval\\'; script-src \\'unsafe-inline\\' blob: data: \\'self\\' \\'unsafe-eval\\' https://*.google-analytics.com; style-src \\'self\\' \\'unsafe-inline\\'; connect-src blob: \\'self\\' https://*.google-analytics.com; font-src \\'self\\' data:; img-src \\'self\\' data: blob:; media-src \\'self\\'; frame-src \\'self\\' data:; worker-src blob: \\'self\\' data:; block-all-mixed-content; upgrade-insecure-requests;' always;\n" : '') +
       `        root /var/www/${config.name as string};\n` +
       '        error_page 404 /404.html;\n' +
       '        error_page 429 /429.html;\n' +

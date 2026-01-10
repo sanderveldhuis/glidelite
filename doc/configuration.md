@@ -43,7 +43,24 @@ Specifies an array of additional Linux APT packages which are required to run th
 
 ## Ports - `ports`
 
-Specifies the ports used for running the project on your development system. These ports should be set in case multiple GlideLite projects are running on the development system or the ports are reserved by other applications.
+Specifies the ports used for running the project on your deployment system. These ports should be set in case multiple GlideLite projects are running on the deployment system or if the ports are reserved by other applications.
+
+### Gateway server - `gateway`
+
+**Default:** `80`
+
+Specifies the port for the gateway server which is the entrypoint webserver of the project.
+
+> [!IMPORTANT]
+> This configuration only works for GlideLite projects which are reachable for the local network only, i.e. no `homepage` configuration value is set.
+
+```json
+{
+  "ports": {
+    "gateway": 80
+  }
+}
+```
 
 ### Proxy server - `proxy`
 
