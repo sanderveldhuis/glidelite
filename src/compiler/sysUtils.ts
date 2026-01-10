@@ -141,13 +141,15 @@ export function readJsonFile(path: string): Json {
  * @details the output of the command is routed to the console
  * @param command the command to be executed
  * @param workingDirectory the working directory where to execute the command
+ * @returns `true` when successful, or `false` otherwise
  */
-export function execute(command: string, workingDirectory: string): void {
+export function execute(command: string, workingDirectory: string): boolean {
   try {
     execSync(command, { cwd: workingDirectory, stdio: 'inherit' });
   }
   catch (error) { // eslint-disable-line @typescript-eslint/no-unused-vars
     // No need to log the error to the console because the output of the command will already be logged to the console
-    process.exit(ExitStatus.ProjectCompileFailed);
+    return false;
   }
+  return true;
 }

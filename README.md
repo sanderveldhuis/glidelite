@@ -5,7 +5,9 @@
 [![Nightly Build](https://github.com/sanderveldhuis/glidelite/actions/workflows/nightly.yaml/badge.svg)](https://github.com/sanderveldhuis/glidelite//actions/workflows/nightly.yaml)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/sanderveldhuis/glidelite/badge)](https://securityscorecards.dev/viewer/?uri=github.com/sanderveldhuis/glidelite)
 
-Builds secure web applications including API, database, and worker support for Linux systems.
+A command-line tool for building modern web applications end to end.
+
+GlideLite provides a fast backend and frontend development experience with built-in support for APIs, services, scheduled tasks, configuration, logging, and IPC. Everything is paired seamlessly with [Vite](https://vite.dev/)-based frontends.
 
 ## Installing
 

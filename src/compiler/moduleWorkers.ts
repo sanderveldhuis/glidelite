@@ -209,25 +209,28 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Compile the TypeScript files
-  execute(`npm exec -- tsc -p ${workersDir} --rootDir ${workersDir} --outDir ${outputDir}`, workingDirectory);
+  if (execute(`npm exec -- tsc -p ${workersDir} --rootDir ${workersDir} --outDir ${outputDir}`, workingDirectory)) {
+    // Construct Crontab content based on compiler instructions in the TypeScript files
+    let crontab = '';
+    for (const [filePath, instruction] of Object.entries(workerFiles)) {
+      // Construct Crontab content for either a task or a service
+      const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
+      if (instruction[1] === 'service') {
+        crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+        crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      }
+      else {
+        crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      }
+    }
 
-  // Construct Crontab content based on compiler instructions in the TypeScript files
-  let crontab = '';
-  for (const [filePath, instruction] of Object.entries(workerFiles)) {
-    // Construct Crontab content for either a task or a service
-    const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
-    if (instruction[1] === 'service') {
-      crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
-      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
-    }
-    else {
-      crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
-    }
+    // Write Crontab file
+    const cronDir = join(outputDirectory, 'etc', 'cron.d');
+    const cronFile = join(cronDir, `${config.name as string}_workers`);
+    makeDir(cronDir);
+    makeFile(cronFile, crontab);
   }
-
-  // Write Crontab file
-  const cronDir = join(outputDirectory, 'etc', 'cron.d');
-  const cronFile = join(cronDir, `${config.name as string}_workers`);
-  makeDir(cronDir);
-  makeFile(cronFile, crontab);
+  else {
+    process.exit(ExitStatus.ProjectCompileFailed);
+  }
 }

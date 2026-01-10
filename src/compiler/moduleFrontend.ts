@@ -27,6 +27,7 @@ import { join } from 'node:path';
 import {
   execute,
   exists,
+  readDir,
   remove
 } from './sysUtils';
 import {
@@ -51,10 +52,15 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  const viteConfig = join(workingDirectory, 'frontend', 'vite.config.ts');
+  const viteConfigJs = join(workingDirectory, 'frontend', 'vite.config.js');
+  const viteConfigMjs = join(workingDirectory, 'frontend', 'vite.config.mjs');
+  const viteConfigCjs = join(workingDirectory, 'frontend', 'vite.config.cjs');
+  const viteConfigTs = join(workingDirectory, 'frontend', 'vite.config.ts');
+  const viteConfigMts = join(workingDirectory, 'frontend', 'vite.config.mts');
+  const viteConfigCts = join(workingDirectory, 'frontend', 'vite.config.cts');
 
-  if (!exists(viteConfig)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${viteConfig}'.`);
+  if (!exists(viteConfigJs) && !exists(viteConfigMjs) && !exists(viteConfigCjs) && !exists(viteConfigTs) && !exists(viteConfigMts) && !exists(viteConfigCts)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${viteConfigTs}'.`);
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }
@@ -82,7 +88,24 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   const frontendDir = join(workingDirectory, 'frontend');
   const outputDir = join(outputDirectory, 'var', 'www', config.name as string);
+  const tsConfig = join(frontendDir, 'tsconfig.json');
+  let successful = true;
+
+  // Validate TypeScript only if the frontend uses TypeScript
+  if (exists(tsConfig)) {
+    successful = execute(`npm exec -- tsc -b --noEmit`, frontendDir);
+
+    // Always cleanup generated build info files
+    const allFiles = readDir(frontendDir);
+    const buildInfoFiles = allFiles.filter(file => new RegExp('.tsbuildinfo$').test(file.name));
+    for (const file of buildInfoFiles) {
+      remove(join(file.parentPath, file.name));
+    }
+  }
 
   // Compile the frontend
-  execute(`npm exec -- vite build --outDir ${outputDir} --emptyOutDir`, frontendDir);
+  if (!successful || !execute(`npm exec -- vite build --outDir ${outputDir} --emptyOutDir`, frontendDir)) {
+    // No need to log the error to the console because the output of the command will already be logged to the console
+    process.exit(ExitStatus.ProjectCompileFailed);
+  }
 }

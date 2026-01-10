@@ -4,7 +4,7 @@
   "homepage": "https://sanderveldhuis.nl/",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "Builds secure web applications including API, database, and worker support",
+  "description": "A command-line tool for building modern web applications end to end",
   "keywords": [
     "GlideLite",
     "compiler",

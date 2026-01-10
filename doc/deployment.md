@@ -13,7 +13,7 @@ The following requirements apply on the deployment system:
 
 ## Defining your homepage
 
-By default all compiled projects will be deployed and reachable for the local network only. If the project should be reachable on a public domain ensure to set the `homepage` configuration value in the [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) file.
+By default all compiled projects will be deployed and reachable for the local network only. If the project should be reachable on a public domain ensure to set the `homepage` configuration value in the [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) file. In case multiple GlideLite projects are running on the development system or specific ports are reserved by other applications ensure to set the `ports` configuration values in the [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) file.
 
 ## Compiling your code
 
