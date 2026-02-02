@@ -29,6 +29,8 @@ This will create the filesystem structure with required files for a GlideLite pr
 
 ```bash
 ├─ backend              # contains all backend modules
+│  ├─ api               # contains code for API handlers
+│  │  └─ tsconfig.json  # TypeScript configuration for API handlers
 │  └─ workers           # contains code for workers
 │     └─ tsconfig.json  # TypeScript configuration for workers code
 ├─ frontend             # contains all frontend modules
@@ -67,6 +69,7 @@ To dive deeper into GlideLite it is time to start coding your project:
 
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
+* [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
 * [Frontend](https://github.com/sanderveldhuis/glidelite/blob/main/doc/frontend.md)
 * [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)

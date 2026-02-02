@@ -35,19 +35,27 @@ import { ExitStatus } from './types';
  * @param workingDirectory the working directory to create the new project at
  */
 export function initProject(workingDirectory: string): void {
-  const workersDir = join(workingDirectory, 'backend', 'workers');
-  const workersGlConfig = join(workingDirectory, 'glconfig.json');
+  const glConfig = join(workingDirectory, 'glconfig.json');
+  const backendDir = join(workingDirectory, 'backend');
+  const apiDir = join(backendDir, 'api');
+  const apiTsConfig = join(apiDir, 'tsconfig.json');
+  const workersDir = join(backendDir, 'workers');
   const workersTsConfig = join(workersDir, 'tsconfig.json');
   const frontendDir = join(workingDirectory, 'frontend');
   const frontendViteConfig = join(frontendDir, 'vite.config.ts');
   const frontendIndex = join(frontendDir, 'index.html');
-  const frontend404 = join(frontendDir, 'public', '404.html');
-  const frontend429 = join(frontendDir, 'public', '429.html');
-  const frontend500 = join(frontendDir, 'public', '500.html');
+  const frontendPublicDir = join(frontendDir, 'public');
+  const frontend404 = join(frontendPublicDir, '404.html');
+  const frontend429 = join(frontendPublicDir, '429.html');
+  const frontend500 = join(frontendPublicDir, '500.html');
 
   // Check if all required files are not yet available to prevent overwriting existing user data
-  if (exists(workersGlConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${workersGlConfig}'.`);
+  if (exists(glConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${glConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
+  if (exists(apiTsConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${apiTsConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(workersTsConfig)) {
@@ -76,12 +84,15 @@ export function initProject(workingDirectory: string): void {
   }
 
   // Create the file system structure if not exists, and create all required files
+  makeFile(glConfig, '{}\n');
+  makeDir(apiDir);
+  makeFile(apiTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
   makeDir(workersDir);
-  makeFile(workersGlConfig, '{}\n');
   makeFile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
   makeDir(frontendDir);
   makeFile(frontendViteConfig, "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
   makeFile(frontendIndex, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
+  makeDir(frontendPublicDir);
   makeFile(frontend404, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>404 Not Found · GlideLite</title>\n  </head>\n  <body>\n    Not found!\n  </body>\n</html>\n');
   makeFile(frontend429, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>429 Too Many Requests · GlideLite</title>\n  </head>\n  <body>\n    Too Many Requests!\n  </body>\n</html>\n');
   makeFile(frontend500, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>500 Internal Server Error · GlideLite</title>\n  </head>\n  <body>\n    Internal Server Error!\n  </body>\n</html>\n');
