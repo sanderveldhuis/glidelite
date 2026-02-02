@@ -29,13 +29,17 @@ This will create the filesystem structure with required files for a GlideLite pr
 
 ```bash
 ├─ backend              # contains all backend modules
-│  ├─ api               # contains code for API handlers
-│  │  └─ tsconfig.json  # TypeScript configuration for API handlers
+│  ├─ api               # contains code for the API
+│  │  └─ tsconfig.json  # TypeScript configuration for the API
 │  └─ workers           # contains code for workers
 │     └─ tsconfig.json  # TypeScript configuration for workers code
 ├─ frontend             # contains all frontend modules
+│  ├─ public            # contains public assets
+│  │  ├─ 404.html       # Example 404 page
+│  │  ├─ 429.html       # Example 429 page
+│  │  └─ 500.html       # Example 500 page
 │  ├─ vite.config.ts    # Vite configuration for frontend code
-│  └─ index.html        # Example frontend code
+│  └─ index.html        # Example index page
 └─ glconfig.json        # GlideLite configuration for the project
 ```
 
