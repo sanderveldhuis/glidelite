@@ -22,51 +22,49 @@
  * SOFTWARE.
  */
 
-import * as moduleApi from './moduleApi';
-import * as moduleWorkers from './moduleWorkers';
 import { Json } from './types';
 
 /**
- * Cleans the backend output data from the specified output directory.
+ * Cleans the API output data from the specified output directory.
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
  * @param outputDirectory the output directory to be cleaned
  */
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
-  moduleWorkers.clean(pkg, config, outputDirectory);
-  moduleApi.clean(pkg, config, outputDirectory);
+  // TODO
+  console.log(outputDirectory);
 }
 
 /**
- * Validates the backend input data in the specified working directory to ensure everything is present for running the compilation.
+ * Validates the API input data in the specified working directory to ensure everything is present for running the compilation.
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  moduleWorkers.validate(pkg, config, workingDirectory);
-  moduleApi.validate(pkg, config, workingDirectory);
+  // TODO
+  console.log(workingDirectory);
 }
 
 /**
- * Runs the backend input data at the specified working directory for development.
+ * Runs the API input data at the specified working directory for development.
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
  * @param workingDirectory the working directory to be run
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
-  moduleWorkers.run(pkg, config, workingDirectory);
-  moduleApi.run(pkg, config, workingDirectory);
+  // TODO
+  console.log(workingDirectory);
 }
 
 /**
- * Compiles the backend input data in the specified working directory.
+ * Compiles the API input data in the specified working directory.
  * @param pkg the package configuration loaded from the package.json file
  * @param config the GlideLite configuration loaded from the glconfig.json file
  * @param workingDirectory the working directory to be compiled
  * @param outputDirectory the output directory where to put the compilation results in
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
-  moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
-  moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
+  // TODO
+  console.log(outputDirectory);
 }
