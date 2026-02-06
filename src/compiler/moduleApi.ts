@@ -22,7 +22,22 @@
  * SOFTWARE.
  */
 
-import { Json } from './types';
+import {
+  ChildProcess,
+  spawn
+} from 'node:child_process';
+import { watch } from 'node:fs';
+import { join } from 'node:path';
+import {
+  exists,
+  remove
+} from './sysUtils';
+import {
+  ExitStatus,
+  Json
+} from './types';
+
+const restartDelay = 1000;
 
 /**
  * Cleans the API output data from the specified output directory.
@@ -31,8 +46,7 @@ import { Json } from './types';
  * @param outputDirectory the output directory to be cleaned
  */
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
-  // TODO
-  console.log(outputDirectory);
+  remove(join(outputDirectory, 'opt', config.name as string, 'api'));
 }
 
 /**
@@ -42,8 +56,17 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  // TODO
-  console.log(workingDirectory);
+  const apiTsConfig = join(workingDirectory, 'backend', 'api', 'tsconfig.json');
+  const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
+
+  if (!exists(apiTsConfig)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${apiTsConfig}'.`);
+    return process.exit(ExitStatus.ProjectInvalid);
+  }
+  if (!exists(glideliteApiJs)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid GlideLite dependency found at: '${workingDirectory}', missing file '${glideliteApiJs}'.`);
+    return process.exit(ExitStatus.ProjectInvalid);
+  }
 }
 
 /**
@@ -53,8 +76,45 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  * @param workingDirectory the working directory to be run
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
-  // TODO
-  console.log(workingDirectory);
+  const apiDir = join(workingDirectory, 'backend', 'api');
+  const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
+  let child: ChildProcess | undefined;
+  let restartTimeout: NodeJS.Timeout;
+
+  // Get the port from the config
+  let port = '';
+  if (
+    'ports' in config && typeof config.ports === 'object' && config.ports !== null &&
+    'api' in config.ports && typeof config.ports.api === 'number'
+  ) {
+    port = String(config.ports.api);
+  }
+
+  // Internal function to start running the API server
+  const runApiServer = () => {
+    child = spawn(`npm exec -- ts-node ${glideliteApiJs} ${port}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
+  };
+
+  // Start running the API server
+  runApiServer();
+
+  // Watch for changes in files and restart workers when files changed
+  const watcher = watch(apiDir, { recursive: true });
+  watcher.on('change', () => {
+    // Use a delay to prevent restarting too much
+    clearTimeout(restartTimeout);
+    restartTimeout = setTimeout(() => {
+      if (child !== undefined) {
+        if ('win32' === process.platform) {
+          spawn('taskkill', ['/pid', String(child.pid), '/f', '/t']);
+        }
+        else {
+          spawn('sh', ['-c', `kill -9 ${String(child.pid)}`]);
+        }
+      }
+      runApiServer();
+    }, restartDelay);
+  });
 }
 
 /**
@@ -67,4 +127,9 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   // TODO
   console.log(outputDirectory);
+
+  // TODO: can we add a feature to make workers scalable via GlideLite
+  // TODO: create crontab for each instance that should be running
+  // crontab += `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/api.js {portnumber} >> /var/log/${config.name as string}/api.log &\n`;
+  // crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/api.js {portnumber}" || node /opt/${config.name as string}/node_modules/glidelite/lib/api.js {portnumber} >> /var/log/${config.name as string}/api.log &\n`;
 }

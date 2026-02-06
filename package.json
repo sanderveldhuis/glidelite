@@ -50,8 +50,10 @@
   },
   "dependencies": {
     "@tsconfig/node-lts": "^24.0.0",
+    "@types/express": "^5.0.6",
     "@types/node": "latest",
     "@vitejs/plugin-react": "^5.1.2",
+    "express": "^5.2.1",
     "npm": "^11.8.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",

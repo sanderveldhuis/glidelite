@@ -22,24 +22,156 @@
  * SOFTWARE.
  */
 
+import { expect } from 'chai';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
+import sinon from 'ts-sinon';
 import {
   clean,
   compile,
   run,
   validate
 } from '../../src/compiler/moduleApi';
+import * as sysUtils from '../../src/compiler/sysUtils';
 
 describe('moduleApi.ts', () => {
+  let setTimeout: sinon.SinonStub;
+  let consoleError: sinon.SinonStub;
+  let processExit: sinon.SinonStub;
+  let watch: sinon.SinonStub;
+  let spawn: sinon.SinonStub;
+  let exists: sinon.SinonStub;
+  let remove: sinon.SinonStub;
+
+  beforeEach(() => {
+    setTimeout = sinon.stub(global, 'setTimeout');
+    consoleError = sinon.stub(console, 'error');
+    processExit = sinon.stub(process, 'exit');
+    watch = sinon.stub(fs, 'watch');
+    spawn = sinon.stub(childProcess, 'spawn');
+    exists = sinon.stub(sysUtils, 'exists');
+    remove = sinon.stub(sysUtils, 'remove');
+    // Ensure to call a timeout callback directly without delay
+    setTimeout.callsFake((cb: () => void) => {
+      cb();
+    });
+  });
+
+  afterEach(() => {
+    setTimeout.restore();
+    consoleError.restore();
+    processExit.restore();
+    watch.restore();
+    spawn.restore();
+    exists.restore();
+    remove.restore();
+  });
+
   it('validate checking the API', () => {
-    validate({ name: 'pkg' }, { name: 'cfg' }, 'input');
+    // All required files and directories exist
+    exists.onCall(0).returns(true)
+      .onCall(1).returns(true);
+    validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\backend\\api\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input1\\node_modules\\glidelite\\lib\\api.js');
+    }
+    else {
+      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/backend/api/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input1/node_modules/glidelite/lib/api.js');
+    }
+
+    // Not all required files and directories exist
+    exists.onCall(2).returns(false);
+    validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(exists.getCall(2), 'input2\\backend\\api\\tsconfig.json');
+      sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input2', missing file 'input2\\backend\\api\\tsconfig.json'.");
+    }
+    else {
+      sinon.assert.calledWithExactly(exists.getCall(2), 'input2/backend/api/tsconfig.json');
+      sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input2', missing file 'input2/backend/api/tsconfig.json'.");
+    }
+    sinon.assert.calledWithExactly(processExit.getCall(0), 3001);
+
+    // Not all required files and directories exist
+    exists.onCall(3).returns(true)
+      .onCall(4).returns(false);
+    validate({ name: 'pkg' }, { name: 'cfg' }, 'input3');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(exists.getCall(3), 'input3\\backend\\api\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input3\\node_modules\\glidelite\\lib\\api.js');
+      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3\\node_modules\\glidelite\\lib\\api.js'.");
+    }
+    else {
+      sinon.assert.calledWithExactly(exists.getCall(3), 'input3/backend/api/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input3/node_modules/glidelite/lib/api.js');
+      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/api.js'.");
+    }
+    sinon.assert.calledWithExactly(processExit.getCall(1), 3001);
   });
 
   it('validate cleaning the API', () => {
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
+    if ('win32' === process.platform) {
+      sinon.assert.calledOnceWithExactly(remove, 'output\\opt\\cfg\\api');
+    }
+    else {
+      sinon.assert.calledOnceWithExactly(remove, 'output/opt/cfg/api');
+    }
   });
 
   it('validate running the API', () => {
+    let watchEvent;
+    let watchCallback: (() => void) | undefined;
+    watch.returns({
+      on: (event: string, callback: () => void) => {
+        watchEvent = event;
+        watchCallback = callback;
+      }
+    });
+    spawn.returns({ pid: 1234 });
+
+    // Without API port in GlideLite configuration
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input\\node_modules\\glidelite\\lib\\api.js ', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(watch.getCall(0), 'input\\backend\\api', { recursive: true });
+    }
+    else {
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input/node_modules/glidelite/lib/api.js ', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(watch.getCall(0), 'input/backend/api', { recursive: true });
+    }
+    expect(watchEvent).to.equal('change');
+    expect(watchCallback).to.not.equal(undefined);
+    // Next if statement is for satisfying TypeScript as it should not be reached
+    if (watchCallback === undefined) {
+      return;
+    }
+
+    // With API port in GlideLite configuration
+    run({ name: 'pkg' }, { name: 'cfg', ports: { api: 1234 } }, 'input');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(spawn.getCall(1), 'npm exec -- ts-node input\\node_modules\\glidelite\\lib\\api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(watch.getCall(1), 'input\\backend\\api', { recursive: true });
+    }
+    else {
+      sinon.assert.calledWithExactly(spawn.getCall(1), 'npm exec -- ts-node input/node_modules/glidelite/lib/api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(watch.getCall(1), 'input/backend/api', { recursive: true });
+    }
+    expect(watchEvent).to.equal('change');
+    expect(watchCallback).to.not.equal(undefined);
+
+    // Test the callback function
+    watchCallback();
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(spawn.getCall(2), 'taskkill', ['/pid', '1234', '/f', '/t']);
+      sinon.assert.calledWithExactly(spawn.getCall(3), 'npm exec -- ts-node input\\node_modules\\glidelite\\lib\\api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+    }
+    else {
+      sinon.assert.calledWithExactly(spawn.getCall(2), 'sh', ['-c', `kill -9 1234`]);
+      sinon.assert.calledWithExactly(spawn.getCall(3), 'npm exec -- ts-node input/node_modules/glidelite/lib/api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+    }
   });
 
   it('validate compiling the API', () => {
