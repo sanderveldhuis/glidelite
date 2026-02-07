@@ -153,6 +153,24 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       `    access_log /var/log/${config.name as string}/proxy.access.log;\n` +
       `    error_log /var/log/${config.name as string}/proxy.error.log;\n` +
       '    server_tokens off;\n' +
+      '    location /api {\n' +
+      "        add_header Access-Control-Allow-Credentials 'true' always;\n" +
+      "        add_header Access-Control-Allow-Origin '$scheme://$host' always;\n" +
+      "        add_header Cross-Origin-Resource-Policy 'same-origin' always;\n" +
+      "        add_header Cross-Origin-Opener-Policy 'same-origin' always;\n" +
+      "        add_header Cross-Origin-Embedder-Policy 'require-corp' always;\n" +
+      "        add_header Origin-Agent-Cluster '?0' always;\n" +
+      "        add_header Cache-Control 'private, no-cache, no-store, must-revalidate' always;\n" +
+      "        add_header Pragma 'no-cache' always;\n" +
+      "        add_header Vary 'Origin, Accept-Encoding' always;\n" +
+      "        add_header Expires 'Sat, 01 Jan 2000 00:00:00 GMT' always;\n" +
+      "        add_header X-Content-Type-Options 'nosniff' always;\n" +
+      "        add_header X-Frame-Options 'DENY' always;\n" +
+      "        add_header X-Xss-Protection '0' always;\n" +
+      (config.homepage && (config.homepage as string).startsWith('https://') ? "        add_header Content-Security-Policy 'default-src data: blob: \\'self\\' \\'unsafe-inline\\' \\'unsafe-eval\\'; script-src \\'unsafe-inline\\' blob: data: \\'self\\' \\'unsafe-eval\\' https://*.google-analytics.com; style-src \\'self\\' \\'unsafe-inline\\'; connect-src blob: \\'self\\' https://*.google-analytics.com; font-src \\'self\\' data:; img-src \\'self\\' data: blob:; media-src \\'self\\'; frame-src \\'self\\' data:; worker-src blob: \\'self\\' data:; block-all-mixed-content; upgrade-insecure-requests;' always;\n" : '') +
+      '        rewrite ^/api/?(.*) /$1 break;\n' +
+      `        proxy_pass http://127.0.0.1:${ports.api ? String(ports.api) : '9002'};\n` +
+      '    }\n' +
       '    location /assets {\n' +
       "        add_header Access-Control-Allow-Origin '*' always;\n" +
       "        add_header Cross-Origin-Resource-Policy 'cross-origin' always;\n" +
@@ -214,10 +232,12 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       'fi\n\n' +
       '# Cleanup old project\n' +
       `rm -rf /var/www/${config.name as string}\n` +
+      `rm -rf /etc/cron.d/${config.name as string}_api\n` +
       `rm -rf /etc/cron.d/${config.name as string}_workers\n` +
       `rm -rf /etc/nginx/sites-available/${config.name as string}.*.conf\n` +
       `rm -rf /etc/nginx/sites-enabled/${config.name as string}.*.conf\n` +
       `rm -rf /opt/${config.name as string}\n` +
+      `pkill -f "node /opt/${config.name as string}/node_modules"\n` +
       `pkill -f "node /opt/${config.name as string}/workers"\n\n` +
       '# Copy new project\n' +
       `mkdir -p /var/log/${config.name as string}\n` +

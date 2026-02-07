@@ -75,3 +75,17 @@ Specifies the port for the proxy server which passes requests towards the dedica
   }
 }
 ```
+
+### API server - `api`
+
+**Default:** `9002`
+
+Specifies the port for the API server which is responsible for all custom designed actions.
+
+```json
+{
+  "ports": {
+    "api": 9002
+  }
+}
+```
