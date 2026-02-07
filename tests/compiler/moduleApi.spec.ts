@@ -41,7 +41,10 @@ describe('moduleApi.ts', () => {
   let watch: sinon.SinonStub;
   let spawn: sinon.SinonStub;
   let exists: sinon.SinonStub;
+  let makeFile: sinon.SinonStub;
+  let makeDir: sinon.SinonStub;
   let remove: sinon.SinonStub;
+  let execute: sinon.SinonStub;
 
   beforeEach(() => {
     setTimeout = sinon.stub(global, 'setTimeout');
@@ -50,7 +53,10 @@ describe('moduleApi.ts', () => {
     watch = sinon.stub(fs, 'watch');
     spawn = sinon.stub(childProcess, 'spawn');
     exists = sinon.stub(sysUtils, 'exists');
+    makeFile = sinon.stub(sysUtils, 'makeFile');
+    makeDir = sinon.stub(sysUtils, 'makeDir');
     remove = sinon.stub(sysUtils, 'remove');
+    execute = sinon.stub(sysUtils, 'execute');
     // Ensure to call a timeout callback directly without delay
     setTimeout.callsFake((cb: () => void) => {
       cb();
@@ -64,7 +70,10 @@ describe('moduleApi.ts', () => {
     watch.restore();
     spawn.restore();
     exists.restore();
+    makeFile.restore();
+    makeDir.restore();
     remove.restore();
+    execute.restore();
   });
 
   it('validate checking the API', () => {
@@ -135,11 +144,11 @@ describe('moduleApi.ts', () => {
     // Without API port in GlideLite configuration
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input\\node_modules\\glidelite\\lib\\api.js ', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input\\node_modules\\glidelite\\lib\\api.js', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(0), 'input\\backend\\api', { recursive: true });
     }
     else {
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input/node_modules/glidelite/lib/api.js ', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input/node_modules/glidelite/lib/api.js', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(0), 'input/backend/api', { recursive: true });
     }
     expect(watchEvent).to.equal('change');
@@ -175,6 +184,29 @@ describe('moduleApi.ts', () => {
   });
 
   it('validate compiling the API', () => {
-    compile({ name: 'pkg' }, { name: 'cfg' }, 'input', 'output');
+    // Execution failed
+    execute.onCall(0).returns(false);
+    compile({ name: 'pkg' }, { name: 'cfg' }, 'input1', 'output1');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input1\\backend\\api --rootDir input1\\backend\\api --outDir output1\\opt\\cfg\\api', 'input1');
+    }
+    else {
+      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input1/backend/api --rootDir input1/backend/api --outDir output1/opt/cfg/api', 'input1');
+    }
+    sinon.assert.calledOnceWithExactly(processExit, 3002);
+
+    // Execution succeeded
+    execute.onCall(1).returns(true);
+    compile({ name: 'pkg' }, { name: 'cfg' }, 'input2', 'output2');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input2\\backend\\api --rootDir input2\\backend\\api --outDir output2\\opt\\cfg\\api', 'input2');
+      sinon.assert.calledOnceWithExactly(makeDir, 'output2\\etc\\cron.d');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output2\\etc\\cron.d\\cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/api.js" || node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n');
+    }
+    else {
+      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input2/backend/api --rootDir input2/backend/api --outDir output2/opt/cfg/api', 'input2');
+      sinon.assert.calledOnceWithExactly(makeDir, 'output2/etc/cron.d');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output2/etc/cron.d/cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/api.js" || node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n');
+    }
   });
 });

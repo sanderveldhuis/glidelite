@@ -29,7 +29,10 @@ import {
 import { watch } from 'node:fs';
 import { join } from 'node:path';
 import {
+  execute,
   exists,
+  makeDir,
+  makeFile,
   remove
 } from './sysUtils';
 import {
@@ -38,6 +41,21 @@ import {
 } from './types';
 
 const restartDelay = 1000;
+
+/**
+ * Searches for the API port in the GlideLite configuration.
+ * @param config the GlideLite configuration loaded from the glconfig.json file
+ * @returns the `string` representation of the API port
+ */
+function getApiPort(config: Json): string {
+  if (
+    'ports' in config && typeof config.ports === 'object' && config.ports !== null &&
+    'api' in config.ports && typeof config.ports.api === 'number'
+  ) {
+    return ` ${String(config.ports.api)}`;
+  }
+  return '';
+}
 
 /**
  * Cleans the API output data from the specified output directory.
@@ -78,21 +96,13 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const apiDir = join(workingDirectory, 'backend', 'api');
   const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
+  const port = getApiPort(config);
   let child: ChildProcess | undefined;
   let restartTimeout: NodeJS.Timeout;
 
-  // Get the port from the config
-  let port = '';
-  if (
-    'ports' in config && typeof config.ports === 'object' && config.ports !== null &&
-    'api' in config.ports && typeof config.ports.api === 'number'
-  ) {
-    port = String(config.ports.api);
-  }
-
   // Internal function to start running the API server
   const runApiServer = () => {
-    child = spawn(`npm exec -- ts-node ${glideliteApiJs} ${port}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
+    child = spawn(`npm exec -- ts-node ${glideliteApiJs}${port}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
   };
 
   // Start running the API server
@@ -125,11 +135,23 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  * @param outputDirectory the output directory where to put the compilation results in
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
-  // TODO
-  console.log(outputDirectory);
+  const apiDir = join(workingDirectory, 'backend', 'api');
+  const outputDir = join(outputDirectory, 'opt', config.name as string, 'api');
+  const port = getApiPort(config);
 
-  // TODO: can we add a feature to make workers scalable via GlideLite
-  // TODO: create crontab for each instance that should be running
-  // crontab += `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/api.js {portnumber} >> /var/log/${config.name as string}/api.log &\n`;
-  // crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/api.js {portnumber}" || node /opt/${config.name as string}/node_modules/glidelite/lib/api.js {portnumber} >> /var/log/${config.name as string}/api.log &\n`;
+  // Compile the TypeScript files
+  if (execute(`npm exec -- tsc -p ${apiDir} --rootDir ${apiDir} --outDir ${outputDir}`, workingDirectory)) {
+    // Write Crontab file
+    const cronDir = join(outputDirectory, 'etc', 'cron.d');
+    const cronFile = join(cronDir, `${config.name as string}_api`);
+    makeDir(cronDir);
+    makeFile(
+      cronFile,
+      `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n` +
+        `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port}" || node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n`
+    );
+  }
+  else {
+    process.exit(ExitStatus.ProjectCompileFailed);
+  }
 }
