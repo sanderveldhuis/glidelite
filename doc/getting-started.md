@@ -1,7 +1,7 @@
 
 # Getting Started
 
-To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, `npm`, and `Vite`.
+To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, `npm`, `Vite`, and `Express`.
 
 ## Installing GlideLite
 
@@ -30,6 +30,8 @@ This will create the filesystem structure with required files for a GlideLite pr
 ```bash
 ├─ backend              # contains all backend modules
 │  ├─ api               # contains code for the API
+│  │  ├─ middleware     # contains Express middleware
+│  │  ├─ routers        # contains Express routers
 │  │  └─ tsconfig.json  # TypeScript configuration for API code
 │  └─ workers           # contains code for workers
 │     └─ tsconfig.json  # TypeScript configuration for workers code
