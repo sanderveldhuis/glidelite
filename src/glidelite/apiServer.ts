@@ -22,32 +22,25 @@
  * SOFTWARE.
  */
 
-import express, { Express } from 'express';
-import { Server } from 'node:http';
+import express from 'express';
+import * as http from 'node:http';
 
 /**
  * An API Server based on Express.
  */
 export class ApiServer {
-  _express: Express = express().disable('x-powered-by');
-  _server: Server | undefined;
+  _express: express.Express = express().disable('x-powered-by');
+  _server: http.Server | undefined;
 
   /**
    * Starts the API Server.
    * @param port the API Server port
-   * @param routers Express routers to use
+   * @param handlers custom request handlers
    */
-  start(port: number, routers: any): void { // eslint-disable-line @typescript-eslint/no-explicit-any
-    // Add all imported Express routers
-    for (const router of routers) {
-      if (typeof router === 'object' && router !== null) {
-        for (const value of Object.values(router as object)) {
-          const obj = value as object;
-          if (typeof obj === 'function' && obj.name === 'router' && 'stack' in value) {
-            this._express.use(value);
-          }
-        }
-      }
+  start(port: number, handlers: express.RequestHandler[]): void {
+    // Add custom request handlers
+    for (const handler of handlers) {
+      this._express.use(handler);
     }
 
     // Not found and error handling
@@ -70,14 +63,13 @@ export class ApiServer {
    */
   stop(): void {
     // Stop the API server if running
-    if (this._server) {
-      this._server.close(() => {
-        console.log(`INF:apiserver:Stopped`);
-      });
-    }
-    else {
+    if (!this._server) {
       console.log(`INF:apiserver:Stopped`);
+      return;
     }
+    this._server.close(() => {
+      console.log(`INF:apiserver:Stopped`);
+    });
   }
 
   /**

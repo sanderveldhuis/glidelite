@@ -22,13 +22,61 @@
  * SOFTWARE.
  */
 
-import { readdirSync } from 'node:fs';
+import { directoryImport } from 'directory-import';
+import { RequestHandler } from 'express';
+import { statSync } from 'node:fs';
 import {
   dirname,
   join
 } from 'node:path';
-import dynamicImportRouters from './apiDynamicImporter';
 import { ApiServer } from './apiServer';
+
+/**
+ * Checks whether the specified object is an Express request handler.
+ * @param obj the object
+ * @returns `true` when the object is an Express request handler, or `false` otherwise
+ */
+function isRequestHandler(obj: unknown): obj is RequestHandler {
+  return typeof obj === 'function' && obj.name === 'router' && 'stack' in obj;
+}
+
+// Search for the API router directory in an upwards lookup
+let apiRouterDir = '';
+for (let dir = __dirname;; dir = dirname(dir)) {
+  // Search for the API router directory
+  apiRouterDir = join(dir, 'api', 'router');
+  let result = statSync(apiRouterDir, { throwIfNoEntry: false });
+  if (result?.isDirectory()) {
+    break;
+  }
+
+  // In development mode we expect the API router directory to be found in the backend directory
+  apiRouterDir = join(dir, 'backend', 'api', 'router');
+  result = statSync(apiRouterDir, { throwIfNoEntry: false });
+  if (result?.isDirectory()) {
+    break;
+  }
+
+  // Stop if the root directory is reached
+  if (dir === dirname(dir)) {
+    throw new Error('No API directory available');
+  }
+}
+
+// Import all files from the API directory
+const dynamicImports = directoryImport(apiRouterDir);
+
+// Search for all custom Express request handlers
+const handlers: RequestHandler[] = [];
+for (const dynamicImport of Object.values(dynamicImports)) {
+  if (typeof dynamicImport === 'object' && dynamicImport !== null) {
+    for (const obj of Object.values(dynamicImport)) {
+      if (isRequestHandler(obj)) {
+        handlers.push(obj);
+      }
+    }
+  }
+}
 
 // Construct API Server
 const apiServer = new ApiServer();
@@ -38,39 +86,6 @@ process.on('SIGINT', () => {
   apiServer.stop();
 });
 
-// Search for the API directory in an upwards lookup
-let apiDir = '';
-for (let dir = __dirname;; dir = dirname(dir)) {
-  const files = readdirSync(dir);
-
-  // Search for the API directory
-  if (files.includes('api')) {
-    apiDir = join(dir, 'api');
-    break;
-  }
-
-  // In development mode we expect the API directory to be found in the backend directory
-  if (files.includes('backend')) {
-    const backendDir = join(dir, 'backend');
-    if (readdirSync(backendDir).includes('api')) {
-      apiDir = join(backendDir, 'api');
-      break;
-    }
-  }
-
-  // Stop if the root directory is reached
-  if (dir === dirname(dir)) {
-    throw new Error('No API directory available');
-  }
-}
-
-// Dynamically import Express routers
-const dynamicImports = dynamicImportRouters(apiDir);
-
-// Start the API Server once all dynamic imports are finished
-Promise.all(dynamicImports).then(routers => {
-  const port = process.argv.length < 3 ? 9002 : Number(process.argv[2]);
-  apiServer.start(port, routers);
-}).catch((err: unknown) => {
-  console.error(`ERR:apiserver:${err instanceof Error ? err.message : 'An unknown error occurred'}`);
-});
+// Start the API Server
+const port = process.argv.length < 3 ? 9002 : Number(process.argv[2]);
+apiServer.start(port, handlers);
