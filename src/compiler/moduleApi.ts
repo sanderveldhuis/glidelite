@@ -33,6 +33,7 @@ import {
   exists,
   makeDir,
   makeFile,
+  readDir,
   remove
 } from './sysUtils';
 import {
@@ -144,6 +145,14 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   const apiDir = join(workingDirectory, 'backend', 'api');
   const outputDir = join(outputDirectory, 'opt', config.name as string, 'api');
   const port = getApiPort(config);
+
+  // Get a list of all TypeScript files
+  const allFiles = readDir(apiDir);
+  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
+  if (tsFiles.length <= 0) {
+    // Nothing to compile
+    return;
+  }
 
   // Compile the TypeScript files
   if (execute(`npm exec -- tsc -p ${apiDir} --rootDir ${apiDir} --outDir ${outputDir}`, workingDirectory)) {

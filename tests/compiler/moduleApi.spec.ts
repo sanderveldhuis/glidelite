@@ -41,6 +41,7 @@ describe('moduleApi.ts', () => {
   let watch: sinon.SinonStub;
   let spawn: sinon.SinonStub;
   let exists: sinon.SinonStub;
+  let readDir: sinon.SinonStub;
   let makeFile: sinon.SinonStub;
   let makeDir: sinon.SinonStub;
   let remove: sinon.SinonStub;
@@ -53,6 +54,7 @@ describe('moduleApi.ts', () => {
     watch = sinon.stub(fs, 'watch');
     spawn = sinon.stub(childProcess, 'spawn');
     exists = sinon.stub(sysUtils, 'exists');
+    readDir = sinon.stub(sysUtils, 'readDir');
     makeFile = sinon.stub(sysUtils, 'makeFile');
     makeDir = sinon.stub(sysUtils, 'makeDir');
     remove = sinon.stub(sysUtils, 'remove');
@@ -70,6 +72,7 @@ describe('moduleApi.ts', () => {
     watch.restore();
     spawn.restore();
     exists.restore();
+    readDir.restore();
     makeFile.restore();
     makeDir.restore();
     remove.restore();
@@ -208,26 +211,52 @@ describe('moduleApi.ts', () => {
   });
 
   it('validate compiling the API', () => {
-    // Execution failed
+    // No files available in API directory
+    readDir.onCall(0).returns([]);
+    compile({ name: 'pkg' }, { name: 'cfg' }, 'input', 'output');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(readDir.getCall(0), 'input\\backend\\api');
+    }
+    else {
+      sinon.assert.calledWithExactly(readDir.getCall(0), 'input/backend/api');
+    }
+
+    // No files with .ts extension available in API directory
+    readDir.onCall(1).returns([{ name: 'test.tsx' }, { name: 'test.js' }]);
+    compile({ name: 'pkg' }, { name: 'cfg' }, 'input', 'output');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(readDir.getCall(1), 'input\\backend\\api');
+    }
+    else {
+      sinon.assert.calledWithExactly(readDir.getCall(1), 'input/backend/api');
+    }
+
+    // Files with .ts extension available in API directory but execution failed
+    readDir.onCall(2).returns([{ name: 'test1.ts', parentPath: 'path1' }]);
     execute.onCall(0).returns(false);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input1', 'output1');
     if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(readDir.getCall(2), 'input1\\backend\\api');
       sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input1\\backend\\api --rootDir input1\\backend\\api --outDir output1\\opt\\cfg\\api', 'input1');
     }
     else {
+      sinon.assert.calledWithExactly(readDir.getCall(2), 'input1/backend/api');
       sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input1/backend/api --rootDir input1/backend/api --outDir output1/opt/cfg/api', 'input1');
     }
     sinon.assert.calledOnceWithExactly(processExit, 3002);
 
-    // Execution succeeded
+    // Files with .ts extension available in API directory and execution succeeded
+    readDir.onCall(3).returns([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     execute.onCall(1).returns(true);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input2', 'output2');
     if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(readDir.getCall(3), 'input2\\backend\\api');
       sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input2\\backend\\api --rootDir input2\\backend\\api --outDir output2\\opt\\cfg\\api', 'input2');
       sinon.assert.calledOnceWithExactly(makeDir, 'output2\\etc\\cron.d');
       sinon.assert.calledOnceWithExactly(makeFile, 'output2\\etc\\cron.d\\cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/api.js" || node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n');
     }
     else {
+      sinon.assert.calledWithExactly(readDir.getCall(3), 'input2/backend/api');
       sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input2/backend/api --rootDir input2/backend/api --outDir output2/opt/cfg/api', 'input2');
       sinon.assert.calledOnceWithExactly(makeDir, 'output2/etc/cron.d');
       sinon.assert.calledOnceWithExactly(makeFile, 'output2/etc/cron.d/cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/api.js" || node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n');
