@@ -54,7 +54,7 @@ export class ApiServer {
     // Start the API server
     this._server = this._express.listen(port);
 
-    console.log('INF:apiserver:Started');
+    console.log(`INF:apiserver:Started API server on port '${String(port)}'`);
   }
 
   /**
