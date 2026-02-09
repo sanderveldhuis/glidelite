@@ -65,6 +65,7 @@ function getApiPort(config: Json): string {
  */
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
   remove(join(outputDirectory, 'opt', config.name as string, 'api'));
+  remove(join(outputDirectory, 'etc', 'cron.d', `${config.name as string}_api`));
 }
 
 /**
@@ -75,10 +76,15 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   const apiTsConfig = join(workingDirectory, 'backend', 'api', 'tsconfig.json');
+  const apiRouters = join(workingDirectory, 'backend', 'api', 'routers');
   const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
 
   if (!exists(apiTsConfig)) {
     console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${apiTsConfig}'.`);
+    return process.exit(ExitStatus.ProjectInvalid);
+  }
+  if (!exists(apiRouters)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${apiRouters}'.`);
     return process.exit(ExitStatus.ProjectInvalid);
   }
   if (!exists(glideliteApiJs)) {
@@ -108,7 +114,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   // Start running the API server
   runApiServer();
 
-  // Watch for changes in files and restart workers when files changed
+  // Watch for changes in files and restart API server when files changed
   const watcher = watch(apiDir, { recursive: true });
   watcher.on('change', () => {
     // Use a delay to prevent restarting too much

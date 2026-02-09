@@ -79,54 +79,78 @@ describe('moduleApi.ts', () => {
   it('validate checking the API', () => {
     // All required files and directories exist
     exists.onCall(0).returns(true)
-      .onCall(1).returns(true);
+      .onCall(1).returns(true)
+      .onCall(2).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input1\\node_modules\\glidelite\\lib\\api.js');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input1\\backend\\api\\routers');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'input1\\node_modules\\glidelite\\lib\\api.js');
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'input1/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input1/node_modules/glidelite/lib/api.js');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input1/backend/api/routers');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'input1/node_modules/glidelite/lib/api.js');
     }
 
     // Not all required files and directories exist
-    exists.onCall(2).returns(false);
+    exists.onCall(3).returns(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input2\\backend\\api\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'input2\\backend\\api\\tsconfig.json');
       sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input2', missing file 'input2\\backend\\api\\tsconfig.json'.");
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input2/backend/api/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'input2/backend/api/tsconfig.json');
       sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input2', missing file 'input2/backend/api/tsconfig.json'.");
     }
     sinon.assert.calledWithExactly(processExit.getCall(0), 3001);
 
     // Not all required files and directories exist
-    exists.onCall(3).returns(true)
-      .onCall(4).returns(false);
+    exists.onCall(4).returns(true)
+      .onCall(5).returns(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input3');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(3), 'input3\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input3\\node_modules\\glidelite\\lib\\api.js');
-      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3\\node_modules\\glidelite\\lib\\api.js'.");
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input3\\backend\\api\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'input3\\backend\\api\\routers');
+      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid project found at: 'input3', missing directory 'input3\\backend\\api\\routers'.");
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(3), 'input3/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input3/node_modules/glidelite/lib/api.js');
-      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/api.js'.");
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input3/backend/api/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'input3/backend/api/routers');
+      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid project found at: 'input3', missing directory 'input3/backend/api/routers'.");
     }
     sinon.assert.calledWithExactly(processExit.getCall(1), 3001);
+
+    // Not all required files and directories exist
+    exists.onCall(6).returns(true)
+      .onCall(7).returns(true)
+      .onCall(8).returns(false);
+    validate({ name: 'pkg' }, { name: 'cfg' }, 'input4');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(exists.getCall(6), 'input4\\backend\\api\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(7), 'input4\\backend\\api\\routers');
+      sinon.assert.calledWithExactly(exists.getCall(8), 'input4\\node_modules\\glidelite\\lib\\api.js');
+      sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL3001:', "No valid GlideLite dependency found at: 'input4', missing file 'input4\\node_modules\\glidelite\\lib\\api.js'.");
+    }
+    else {
+      sinon.assert.calledWithExactly(exists.getCall(6), 'input4/backend/api/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(7), 'input4/backend/api/routers');
+      sinon.assert.calledWithExactly(exists.getCall(8), 'input4/node_modules/glidelite/lib/api.js');
+      sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL3001:', "No valid GlideLite dependency found at: 'input4', missing file 'input4/node_modules/glidelite/lib/api.js'.");
+    }
+    sinon.assert.calledWithExactly(processExit.getCall(2), 3001);
   });
 
   it('validate cleaning the API', () => {
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(remove, 'output\\opt\\cfg\\api');
+      sinon.assert.calledWithExactly(remove.getCall(0), 'output\\opt\\cfg\\api');
+      sinon.assert.calledWithExactly(remove.getCall(1), 'output\\etc\\cron.d\\cfg_api');
     }
     else {
-      sinon.assert.calledOnceWithExactly(remove, 'output/opt/cfg/api');
+      sinon.assert.calledWithExactly(remove.getCall(0), 'output/opt/cfg/api');
+      sinon.assert.calledWithExactly(remove.getCall(1), 'output/etc/cron.d/cfg_api');
     }
   });
 
