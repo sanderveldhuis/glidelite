@@ -39,6 +39,10 @@ export function initProject(workingDirectory: string): void {
   const backendDir = join(workingDirectory, 'backend');
   const apiDir = join(backendDir, 'api');
   const apiTsConfig = join(apiDir, 'tsconfig.json');
+  const apiMiddlewareDir = join(apiDir, 'middleware');
+  const apiMiddlewareKeep = join(apiMiddlewareDir, '.gitkeep');
+  const apiRoutersDir = join(apiDir, 'routers');
+  const apiRoutersKeep = join(apiRoutersDir, '.gitkeep');
   const workersDir = join(backendDir, 'workers');
   const workersTsConfig = join(workersDir, 'tsconfig.json');
   const frontendDir = join(workingDirectory, 'frontend');
@@ -84,9 +88,13 @@ export function initProject(workingDirectory: string): void {
   }
 
   // Create the file system structure if not exists, and create all required files
-  makeFile(glConfig, '{}\n');
+  makeFile(glConfig, '{\n}\n');
   makeDir(apiDir);
   makeFile(apiTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+  makeDir(apiMiddlewareDir);
+  makeFile(apiMiddlewareKeep, '');
+  makeDir(apiRoutersDir);
+  makeFile(apiRoutersKeep, '');
   makeDir(workersDir);
   makeFile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
   makeDir(frontendDir);

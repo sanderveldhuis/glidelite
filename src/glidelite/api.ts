@@ -41,18 +41,18 @@ function isRequestHandler(obj: unknown): obj is RequestHandler {
 }
 
 // Search for the API router directory in an upwards lookup
-let apiRouterDir = '';
+let routersDir = '';
 for (let dir = __dirname;; dir = dirname(dir)) {
   // Search for the API router directory
-  apiRouterDir = join(dir, 'api', 'router');
-  let result = statSync(apiRouterDir, { throwIfNoEntry: false });
+  routersDir = join(dir, 'api', 'routers');
+  let result = statSync(routersDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
     break;
   }
 
   // In development mode we expect the API router directory to be found in the backend directory
-  apiRouterDir = join(dir, 'backend', 'api', 'router');
-  result = statSync(apiRouterDir, { throwIfNoEntry: false });
+  routersDir = join(dir, 'backend', 'api', 'routers');
+  result = statSync(routersDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
     break;
   }
@@ -64,7 +64,7 @@ for (let dir = __dirname;; dir = dirname(dir)) {
 }
 
 // Import all files from the API directory
-const dynamicImports = directoryImport(apiRouterDir);
+const dynamicImports = directoryImport(routersDir);
 
 // Search for all custom Express request handlers
 const handlers: RequestHandler[] = [];
