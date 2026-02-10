@@ -120,7 +120,9 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
     if (tsFiles.length > 0) {
       // Compile the TypeScript files
-      execute(`npm exec -- tsc -p ${apiDir} --rootDir ${apiDir} --outDir ${tmpDir}`, workingDirectory);
+      if (!execute(`npm exec -- tsc -p ${apiDir} --rootDir ${apiDir} --outDir ${tmpDir}`, workingDirectory)) {
+        return;
+      }
     }
 
     // Run the API server
