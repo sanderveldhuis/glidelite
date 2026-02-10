@@ -50,8 +50,8 @@ for (let dir = __dirname;; dir = dirname(dir)) {
     break;
   }
 
-  // In development mode we expect the API router directory to be found in the backend directory
-  routersDir = join(dir, 'backend', 'api', 'routers');
+  // Search for the temporary development directory
+  routersDir = join(dir, 'node_modules', '.tmp', 'glc', 'routers');
   result = statSync(routersDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
     break;

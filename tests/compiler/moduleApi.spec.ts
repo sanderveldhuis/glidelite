@@ -168,14 +168,19 @@ describe('moduleApi.ts', () => {
     });
     spawn.returns({ pid: 1234 });
 
-    // Without API port in GlideLite configuration
+    // Without API port in GlideLite configuration and no TypeScript files available
+    readDir.onCall(0).returns([]);
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input\\node_modules\\glidelite\\lib\\api.js', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(remove.getCall(0), 'input\\node_modules\\.tmp\\glc');
+      sinon.assert.calledWithExactly(readDir.getCall(0), 'input\\backend\\api');
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'node input\\node_modules\\glidelite\\lib\\api.js', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(0), 'input\\backend\\api', { recursive: true });
     }
     else {
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'npm exec -- ts-node input/node_modules/glidelite/lib/api.js', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(remove.getCall(0), 'input/node_modules/.tmp/glc');
+      sinon.assert.calledWithExactly(readDir.getCall(0), 'input/backend/api');
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'node input/node_modules/glidelite/lib/api.js', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(0), 'input/backend/api', { recursive: true });
     }
     expect(watchEvent).to.equal('change');
@@ -185,28 +190,40 @@ describe('moduleApi.ts', () => {
       return;
     }
 
-    // With API port in GlideLite configuration
+    // With API port in GlideLite configuration and TypeScript files available
+    readDir.onCall(1).returns([{ name: 'test.ts' }, { name: 'test.js' }]);
     run({ name: 'pkg' }, { name: 'cfg', ports: { api: 1234 } }, 'input');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(spawn.getCall(1), 'npm exec -- ts-node input\\node_modules\\glidelite\\lib\\api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(remove.getCall(1), 'input\\node_modules\\.tmp\\glc');
+      sinon.assert.calledWithExactly(readDir.getCall(1), 'input\\backend\\api');
+      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input\\backend\\api --rootDir input\\backend\\api --outDir input\\node_modules\\.tmp\\glc', 'input');
+      sinon.assert.calledWithExactly(spawn.getCall(1), 'node input\\node_modules\\glidelite\\lib\\api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(1), 'input\\backend\\api', { recursive: true });
     }
     else {
-      sinon.assert.calledWithExactly(spawn.getCall(1), 'npm exec -- ts-node input/node_modules/glidelite/lib/api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(remove.getCall(1), 'input/node_modules/.tmp/glc');
+      sinon.assert.calledWithExactly(readDir.getCall(1), 'input/backend/api');
+      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input/backend/api --rootDir input/backend/api --outDir input/node_modules/.tmp/glc', 'input');
+      sinon.assert.calledWithExactly(spawn.getCall(1), 'node input/node_modules/glidelite/lib/api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(1), 'input/backend/api', { recursive: true });
     }
     expect(watchEvent).to.equal('change');
     expect(watchCallback).to.not.equal(undefined);
 
-    // Test the callback function
+    // Test the callback function without TypeScript files available
+    readDir.onCall(2).returns([{ name: 'test.tsx' }, { name: 'test.js' }]);
     watchCallback();
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(spawn.getCall(2), 'taskkill', ['/pid', '1234', '/f', '/t']);
-      sinon.assert.calledWithExactly(spawn.getCall(3), 'npm exec -- ts-node input\\node_modules\\glidelite\\lib\\api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(remove.getCall(2), 'input\\node_modules\\.tmp\\glc');
+      sinon.assert.calledWithExactly(readDir.getCall(2), 'input\\backend\\api');
+      sinon.assert.calledWithExactly(spawn.getCall(3), 'node input\\node_modules\\glidelite\\lib\\api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
     }
     else {
       sinon.assert.calledWithExactly(spawn.getCall(2), 'sh', ['-c', `kill -9 1234`]);
-      sinon.assert.calledWithExactly(spawn.getCall(3), 'npm exec -- ts-node input/node_modules/glidelite/lib/api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(remove.getCall(2), 'input/node_modules/.tmp/glc');
+      sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/api');
+      sinon.assert.calledWithExactly(spawn.getCall(3), 'node input/node_modules/glidelite/lib/api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
     }
   });
 

@@ -101,6 +101,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  * @param workingDirectory the working directory to be run
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
+  const tmpDir = join(workingDirectory, 'node_modules', '.tmp', 'glc');
   const apiDir = join(workingDirectory, 'backend', 'api');
   const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
   const port = getApiPort(config);
@@ -109,7 +110,21 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
 
   // Internal function to start running the API server
   const runApiServer = () => {
-    child = spawn(`npm exec -- ts-node ${glideliteApiJs}${port}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
+    // Because dynamic imports are used the TypeScript files first have to be compiled
+
+    // Cleanup to prevent running old files
+    remove(tmpDir);
+
+    // Get a list of all TypeScript files
+    const allFiles = readDir(apiDir);
+    const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
+    if (tsFiles.length > 0) {
+      // Compile the TypeScript files
+      execute(`npm exec -- tsc -p ${apiDir} --rootDir ${apiDir} --outDir ${tmpDir}`, workingDirectory);
+    }
+
+    // Run the API server
+    child = spawn(`node ${glideliteApiJs}${port}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
   };
 
   // Start running the API server

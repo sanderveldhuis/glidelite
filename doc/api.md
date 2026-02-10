@@ -117,7 +117,7 @@ log.[name].warn('message');
 log.[name].error('message');
 ```
 
-Let's name your middleware `checker` and update `backend/api/middleware/checker.ts` with the following TypeScript code:
+Update `backend/api/middleware/checker.ts` with the following TypeScript code:
 
 ```typescript
 import { glconfig, log } from 'glidelite';
