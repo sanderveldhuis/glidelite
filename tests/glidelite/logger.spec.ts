@@ -32,15 +32,18 @@ import {
 describe('logger.ts', () => {
   let consoleLog: sinon.SinonStub;
   let consoleError: sinon.SinonStub;
+  let fakeTimer: sinon.SinonFakeTimers;
 
   beforeEach(() => {
     consoleLog = sinon.stub(console, 'log');
     consoleError = sinon.stub(console, 'error');
+    fakeTimer = sinon.useFakeTimers(1234567890);
   });
 
   afterEach(() => {
     consoleLog.restore();
     consoleError.restore();
+    fakeTimer.restore();
   });
 
   it('validate creating singleton instance loggers', () => {
@@ -62,9 +65,9 @@ describe('logger.ts', () => {
     log.deviceman.info('%s %d', 'Test', 2);
     log.healthman.warn(msg);
     log.deviceman.error(['Test', '4']);
-    sinon.assert.calledWithExactly(consoleLog.getCall(0), 'DBG:healthman:Test 1');
-    sinon.assert.calledWithExactly(consoleLog.getCall(1), 'INF:deviceman:%s %d', 'Test', 2);
-    sinon.assert.calledWithExactly(consoleLog.getCall(2), 'WRN:healthman:Test 3');
-    sinon.assert.calledOnceWithExactly(consoleError, 'ERR:deviceman:Test,4');
+    sinon.assert.calledWithExactly(consoleLog.getCall(0), '1234567890:DBG:healthman:Test 1');
+    sinon.assert.calledWithExactly(consoleLog.getCall(1), '1234567890:INF:deviceman:%s %d', 'Test', 2);
+    sinon.assert.calledWithExactly(consoleLog.getCall(2), '1234567890:WRN:healthman:Test 3');
+    sinon.assert.calledOnceWithExactly(consoleError, '1234567890:ERR:deviceman:Test,4');
   });
 });

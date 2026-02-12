@@ -48,7 +48,7 @@ export class Logger {
    * @param optionalParams additional parameters
    */
   error(message: any, ...optionalParams: any[]): void /* eslint-disable-line @typescript-eslint/no-explicit-any */ {
-    console.error(`ERR:${this.name}:${message}`, ...optionalParams); /* eslint-disable-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/restrict-template-expressions */
+    console.error(`${String(Date.now())}:ERR:${this.name}:${message}`, ...optionalParams); /* eslint-disable-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/restrict-template-expressions */
   }
 
   /**
@@ -63,7 +63,7 @@ export class Logger {
    * @param optionalParams additional parameters
    */
   warn(message: any, ...optionalParams: any[]): void /* eslint-disable-line @typescript-eslint/no-explicit-any */ {
-    console.log(`WRN:${this.name}:${message}`, ...optionalParams); /* eslint-disable-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/restrict-template-expressions */
+    console.log(`${String(Date.now())}:WRN:${this.name}:${message}`, ...optionalParams); /* eslint-disable-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/restrict-template-expressions */
   }
 
   /**
@@ -78,7 +78,7 @@ export class Logger {
    * @param optionalParams additional parameters
    */
   info(message: any, ...optionalParams: any[]): void /* eslint-disable-line @typescript-eslint/no-explicit-any */ {
-    console.log(`INF:${this.name}:${message}`, ...optionalParams); /* eslint-disable-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/restrict-template-expressions */
+    console.log(`${String(Date.now())}:INF:${this.name}:${message}`, ...optionalParams); /* eslint-disable-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/restrict-template-expressions */
   }
 
   /**
@@ -93,7 +93,7 @@ export class Logger {
    * @param optionalParams additional parameters
    */
   debug(message: any, ...optionalParams: any[]): void /* eslint-disable-line @typescript-eslint/no-explicit-any */ {
-    console.log(`DBG:${this.name}:${message}`, ...optionalParams); /* eslint-disable-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/restrict-template-expressions */
+    console.log(`${String(Date.now())}:DBG:${this.name}:${message}`, ...optionalParams); /* eslint-disable-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/restrict-template-expressions */
   }
 }
 

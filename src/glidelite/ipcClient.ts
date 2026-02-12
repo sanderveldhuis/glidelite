@@ -118,7 +118,7 @@ export class IpcClient {
    * @param error the error
    */
   _onError(error: Error): void {
-    console.error(`ERR:ipc:client:${error.message}`);
+    console.error(`${String(Date.now())}:ERR:ipc:client:${error.message}`);
     this._socket.destroy();
   }
 
