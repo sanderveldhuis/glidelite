@@ -257,7 +257,7 @@ export class IpcEndpointImpl {
    */
   _onError(error: Error): void {
     if (!error.message.includes('ENOENT')) {
-      console.error(`ERR:ipc:endpoint:${this._name}:${error.message}`);
+      console.error(`${String(Date.now())}:ERR:ipc:endpoint:${this._name}:${error.message}`);
     }
     this._socket.destroy();
   }

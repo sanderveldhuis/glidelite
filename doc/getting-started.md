@@ -1,7 +1,7 @@
 
 # Getting Started
 
-To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, `npm`, and `Vite`.
+To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, `npm`, `Vite`, and `Express`.
 
 ## Installing GlideLite
 
@@ -29,11 +29,19 @@ This will create the filesystem structure with required files for a GlideLite pr
 
 ```bash
 ├─ backend              # contains all backend modules
+│  ├─ api               # contains code for the API
+│  │  ├─ middleware     # contains Express middleware
+│  │  ├─ routers        # contains Express routers
+│  │  └─ tsconfig.json  # TypeScript configuration for API code
 │  └─ workers           # contains code for workers
 │     └─ tsconfig.json  # TypeScript configuration for workers code
 ├─ frontend             # contains all frontend modules
+│  ├─ public            # contains public assets
+│  │  ├─ 404.html       # Example 404 page
+│  │  ├─ 429.html       # Example 429 page
+│  │  └─ 500.html       # Example 500 page
 │  ├─ vite.config.ts    # Vite configuration for frontend code
-│  └─ index.html        # Example frontend code
+│  └─ index.html        # Example index page
 └─ glconfig.json        # GlideLite configuration for the project
 ```
 
@@ -67,6 +75,7 @@ To dive deeper into GlideLite it is time to start coding your project:
 
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
+* [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
 * [Frontend](https://github.com/sanderveldhuis/glidelite/blob/main/doc/frontend.md)
 * [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)

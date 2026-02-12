@@ -3,7 +3,8 @@
   "includeEntryExports": true,
   "entry": [
     "src/compiler/glc.ts",
-    "src/glidelite/glidelite.ts"
+    "src/glidelite/glidelite.ts",
+    "src/glidelite/api.ts"
   ],
   "project": ["src/**"],
   "ignoreExportsUsedInFile": {

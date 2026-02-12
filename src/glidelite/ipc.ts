@@ -240,7 +240,7 @@ export class IpcImpl {
    * @param error the error
    */
   _onError(error: Error): void {
-    console.error(`ERR:ipc:server:${this._name}:${error.message}`);
+    console.error(`${String(Date.now())}:ERR:ipc:server:${this._name}:${error.message}`);
 
     // Stop running retry timer
     clearTimeout(this._retryTimer);

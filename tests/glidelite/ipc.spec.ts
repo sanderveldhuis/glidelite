@@ -55,6 +55,7 @@ describe('ipc.ts', () => {
   let client2Mock: sinon.SinonMock;
   let consoleError: sinon.SinonStub;
   let rmSync: sinon.SinonStub;
+  let fakeTimer: sinon.SinonFakeTimers;
 
   beforeEach(() => {
     ipc = new IpcImpl();
@@ -65,6 +66,7 @@ describe('ipc.ts', () => {
     client2Mock = sinon.mock(client2);
     consoleError = sinon.stub(console, 'error');
     rmSync = sinon.stub(fs, 'rmSync');
+    fakeTimer = sinon.useFakeTimers(1234567890);
   });
 
   afterEach(() => {
@@ -75,6 +77,7 @@ describe('ipc.ts', () => {
     client2Mock.verify();
     consoleError.restore();
     rmSync.restore();
+    fakeTimer.restore();
   });
 
   it('validate starting IPC', () => {
@@ -255,12 +258,12 @@ describe('ipc.ts', () => {
 
     // No error message, clients available
     ipc._onError(new Error());
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'ERR:ipc:server:test:');
+    sinon.assert.calledWithExactly(consoleError.getCall(0), '1234567890:ERR:ipc:server:test:');
     expect(ipc._clients.length).to.equal(0);
 
     // With error message, no clients available
     ipc._onError(new Error('Unknown error'));
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'ERR:ipc:server:test:Unknown error');
+    sinon.assert.calledWithExactly(consoleError.getCall(1), '1234567890:ERR:ipc:server:test:Unknown error');
 
     // Cleanup
     clearTimeout(ipc._retryTimer);

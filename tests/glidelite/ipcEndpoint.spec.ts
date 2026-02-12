@@ -34,16 +34,19 @@ describe('ipcEndpoint.ts', () => {
   let endpoint: IpcEndpointImpl;
   let socketMock: sinon.SinonMock;
   let consoleError: sinon.SinonStub;
+  let fakeTimer: sinon.SinonFakeTimers;
 
   beforeEach(() => {
     endpoint = new IpcEndpointImpl('test');
     socketMock = sinon.mock(endpoint._socket);
     consoleError = sinon.stub(console, 'error');
+    fakeTimer = sinon.useFakeTimers(1234567890);
   });
 
   afterEach(() => {
     socketMock.verify();
     consoleError.restore();
+    fakeTimer.restore();
   });
 
   it('validate starting an IPC endpoint', () => {
@@ -206,14 +209,14 @@ describe('ipcEndpoint.ts', () => {
 
     // No error message
     endpoint._onError(new Error());
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'ERR:ipc:endpoint:test:');
+    sinon.assert.calledWithExactly(consoleError.getCall(0), '1234567890:ERR:ipc:endpoint:test:');
 
     // With ignored error message
     endpoint._onError(new Error('Unknown ENOENT error'));
 
     // With error message
     endpoint._onError(new Error('Unknown error'));
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'ERR:ipc:endpoint:test:Unknown error');
+    sinon.assert.calledWithExactly(consoleError.getCall(1), '1234567890:ERR:ipc:endpoint:test:Unknown error');
   });
 
   it('validate handling a close event', () => {

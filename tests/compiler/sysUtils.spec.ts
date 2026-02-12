@@ -27,6 +27,7 @@ import * as child_process from 'node:child_process';
 import * as fs from 'node:fs';
 import sinon from 'ts-sinon';
 import {
+  copyFile,
   execute,
   exists,
   makeDir,
@@ -46,6 +47,7 @@ describe('sysUtils.ts', () => {
   let readdirSync: sinon.SinonStub;
   let readFileSync: sinon.SinonStub;
   let writeFileSync: sinon.SinonStub;
+  let copyFileSync: sinon.SinonStub;
   let execSync: sinon.SinonStub;
 
   beforeEach(() => {
@@ -57,6 +59,7 @@ describe('sysUtils.ts', () => {
     readdirSync = sinon.stub(fs, 'readdirSync');
     readFileSync = sinon.stub(fs, 'readFileSync');
     writeFileSync = sinon.stub(fs, 'writeFileSync');
+    copyFileSync = sinon.stub(fs, 'copyFileSync');
     execSync = sinon.stub(child_process, 'execSync');
   });
 
@@ -69,6 +72,7 @@ describe('sysUtils.ts', () => {
     readdirSync.restore();
     readFileSync.restore();
     writeFileSync.restore();
+    copyFileSync.restore();
     execSync.restore();
   });
 
@@ -121,6 +125,23 @@ describe('sysUtils.ts', () => {
     sinon.assert.calledWithExactly(writeFileSync.getCall(2), 'test', 'content');
     sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2011:', "Failed creating file at: 'test'.");
     sinon.assert.calledWithExactly(processExit.getCall(1), 2011);
+  });
+
+  it('validate copying a file', () => {
+    copyFile('source', 'dest');
+    sinon.assert.calledWithExactly(copyFileSync.getCall(0), 'source', 'dest');
+
+    copyFileSync.throws(new Error('unknown'));
+    copyFile('source', 'dest');
+    sinon.assert.calledWithExactly(copyFileSync.getCall(1), 'source', 'dest');
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2013:', "Failed copying file from: 'source', to: 'dest', unknown.");
+    sinon.assert.calledWithExactly(processExit.getCall(0), 2013);
+
+    copyFileSync.throws(new Number());
+    copyFile('source', 'dest');
+    sinon.assert.calledWithExactly(copyFileSync.getCall(2), 'source', 'dest');
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2013:', "Failed copying file from: 'source', to: 'dest'.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 2013);
   });
 
   it('validate reading a directory', () => {

@@ -46,16 +46,19 @@ describe('ipcClient.ts', () => {
   let client: IpcClient;
   let socketMock: sinon.SinonMock;
   let consoleError: sinon.SinonStub;
+  let fakeTimer: sinon.SinonFakeTimers;
 
   beforeEach(() => {
     client = new IpcClient(socket, {}, onIndication, onRequest);
     socketMock = sinon.mock(socket);
     consoleError = sinon.stub(console, 'error');
+    fakeTimer = sinon.useFakeTimers(1234567890);
   });
 
   afterEach(() => {
     socketMock.verify();
     consoleError.restore();
+    fakeTimer.restore();
   });
 
   it('validate starting an IPC client', () => {
@@ -141,11 +144,11 @@ describe('ipcClient.ts', () => {
 
     // No error message
     client._onError(new Error());
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'ERR:ipc:client:');
+    sinon.assert.calledWithExactly(consoleError.getCall(0), '1234567890:ERR:ipc:client:');
 
     // With error message
     client._onError(new Error('Unknown error'));
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'ERR:ipc:client:Unknown error');
+    sinon.assert.calledWithExactly(consoleError.getCall(1), '1234567890:ERR:ipc:client:Unknown error');
   });
 
   it('validate handling a data event', () => {

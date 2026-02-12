@@ -41,6 +41,30 @@ Specifies an array of additional Linux APT packages which are required to run th
 }
 ```
 
+## Pre-install script - `preinstall`
+
+**Default:** none
+
+Specifies a `/bin/bash` script which will be executed at the start of the installation on your deployment system. This should be a relative path from the root directory in the project.
+
+```json
+{
+  "preinstall": "./scripts/preinstall.sh"
+}
+```
+
+## Post-install script - `postinstall`
+
+**Default:** none
+
+Specifies a `/bin/bash` script which will be executed at the end of the installation on your deployment system. This should be a relative path from the root directory in the project.
+
+```json
+{
+  "postinstall": "./scripts/postinstall.sh"
+}
+```
+
 ## Ports - `ports`
 
 Specifies the ports used for running the project on your deployment system. These ports should be set in case multiple GlideLite projects are running on the deployment system or if the ports are reserved by other applications.
@@ -72,6 +96,20 @@ Specifies the port for the proxy server which passes requests towards the dedica
 {
   "ports": {
     "proxy": 9001
+  }
+}
+```
+
+### API server - `api`
+
+**Default:** `9002`
+
+Specifies the port for the API server which is responsible for all custom designed actions.
+
+```json
+{
+  "ports": {
+    "api": 9002
   }
 }
 ```

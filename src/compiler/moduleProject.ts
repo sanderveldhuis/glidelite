@@ -22,10 +22,14 @@
  * SOFTWARE.
  */
 
-import { join } from 'node:path';
+import {
+  dirname,
+  join
+} from 'node:path';
 import * as moduleBackend from './moduleBackend';
 import * as moduleFrontend from './moduleFrontend';
 import {
+  copyFile,
   makeDir,
   makeFile,
   remove
@@ -153,6 +157,24 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       `    access_log /var/log/${config.name as string}/proxy.access.log;\n` +
       `    error_log /var/log/${config.name as string}/proxy.error.log;\n` +
       '    server_tokens off;\n' +
+      '    location /api {\n' +
+      "        add_header Access-Control-Allow-Credentials 'true' always;\n" +
+      "        add_header Access-Control-Allow-Origin '$scheme://$host' always;\n" +
+      "        add_header Cross-Origin-Resource-Policy 'same-origin' always;\n" +
+      "        add_header Cross-Origin-Opener-Policy 'same-origin' always;\n" +
+      "        add_header Cross-Origin-Embedder-Policy 'require-corp' always;\n" +
+      "        add_header Origin-Agent-Cluster '?0' always;\n" +
+      "        add_header Cache-Control 'private, no-cache, no-store, must-revalidate' always;\n" +
+      "        add_header Pragma 'no-cache' always;\n" +
+      "        add_header Vary 'Origin, Accept-Encoding' always;\n" +
+      "        add_header Expires 'Sat, 01 Jan 2000 00:00:00 GMT' always;\n" +
+      "        add_header X-Content-Type-Options 'nosniff' always;\n" +
+      "        add_header X-Frame-Options 'DENY' always;\n" +
+      "        add_header X-Xss-Protection '0' always;\n" +
+      (config.homepage && (config.homepage as string).startsWith('https://') ? "        add_header Content-Security-Policy 'default-src data: blob: \\'self\\' \\'unsafe-inline\\' \\'unsafe-eval\\'; script-src \\'unsafe-inline\\' blob: data: \\'self\\' \\'unsafe-eval\\' https://*.google-analytics.com; style-src \\'self\\' \\'unsafe-inline\\'; connect-src blob: \\'self\\' https://*.google-analytics.com; font-src \\'self\\' data:; img-src \\'self\\' data: blob:; media-src \\'self\\'; frame-src \\'self\\' data:; worker-src blob: \\'self\\' data:; block-all-mixed-content; upgrade-insecure-requests;' always;\n" : '') +
+      '        rewrite ^/api/?(.*) /$1 break;\n' +
+      `        proxy_pass http://127.0.0.1:${ports.api ? String(ports.api) : '9002'};\n` +
+      '    }\n' +
       '    location /assets {\n' +
       "        add_header Access-Control-Allow-Origin '*' always;\n" +
       "        add_header Cross-Origin-Resource-Policy 'cross-origin' always;\n" +
@@ -202,6 +224,9 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '  echo "This install script should be run as root"\n' +
       '  exit 1\n' +
       'fi\n\n' +
+      (config.preinstall ? '# Run pre-install script\n' : '') +
+      (config.preinstall ? `chmod +x ${config.preinstall as string}\n` : '') +
+      (config.preinstall ? `${config.preinstall as string}\n\n` : '') +
       '# Install required packages\n' +
       `dpkg -s ${filteredPackages.join(' ')} > /dev/null 2>&1\n` +
       'if [ $? -ne 0 ]; then\n' +
@@ -214,10 +239,12 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       'fi\n\n' +
       '# Cleanup old project\n' +
       `rm -rf /var/www/${config.name as string}\n` +
+      `rm -rf /etc/cron.d/${config.name as string}_api\n` +
       `rm -rf /etc/cron.d/${config.name as string}_workers\n` +
       `rm -rf /etc/nginx/sites-available/${config.name as string}.*.conf\n` +
       `rm -rf /etc/nginx/sites-enabled/${config.name as string}.*.conf\n` +
       `rm -rf /opt/${config.name as string}\n` +
+      `pkill -f "node /opt/${config.name as string}/node_modules"\n` +
       `pkill -f "node /opt/${config.name as string}/workers"\n\n` +
       '# Copy new project\n' +
       `mkdir -p /var/log/${config.name as string}\n` +
@@ -237,9 +264,24 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       (config.homepage && (config.homepage as string).startsWith('https://') ?
         '# Obtain the SSL/TLS certificate\n' +
         `certbot --nginx -d ${(config.homepage as string).replace('https://', '').replace(/\/$/, '')}${(config.homepage as string).split('.').length > 2 ? '' : ` -d www.${(config.homepage as string).replace('https://', '').replace(/\/$/, '')}`}\n\n` : '') +
+      (config.postinstall ? '# Run post-install script\n' : '') +
+      (config.postinstall ? `chmod +x ${config.postinstall as string}\n` : '') +
+      (config.postinstall ? `${config.postinstall as string}\n\n` : '') +
       '# Finish message\n' +
       'SECONDS=$(($(date +%s -d "$(date +%H:%M) + next minute") - $(date +%s) + 10))\n' +
       'echo "Installation finished!"\n' +
       'echo "Your project should be up and running after ${SECONDS} seconds from now"\n'
   );
+
+  // Copy pre-install and post-install scripts
+  if (config.preinstall && typeof config.preinstall === 'string') {
+    const script = join(outputDirectory, config.preinstall);
+    makeDir(dirname(script));
+    copyFile(config.preinstall, script);
+  }
+  if (config.postinstall && typeof config.postinstall === 'string') {
+    const script = join(outputDirectory, config.postinstall);
+    makeDir(dirname(script));
+    copyFile(config.postinstall, script);
+  }
 }

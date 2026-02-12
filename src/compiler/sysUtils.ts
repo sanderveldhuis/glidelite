@@ -24,6 +24,7 @@
 
 import { execSync } from 'node:child_process';
 import {
+  copyFileSync,
   Dirent,
   existsSync,
   mkdirSync,
@@ -83,6 +84,22 @@ export function makeFile(path: string, content: string): void {
   catch (error) {
     console.error(`error GL${String(ExitStatus.FileCreationFailed)}:`, `Failed creating file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
     process.exit(ExitStatus.FileCreationFailed);
+  }
+}
+
+/**
+ * Copy the specified file to the destination.
+ * @details catches any errors by logging to the console and stopping the process
+ * @param src the source path of the file
+ * @param dst the destination path of the file
+ */
+export function copyFile(src: string, dst: string): void {
+  try {
+    copyFileSync(src, dst);
+  }
+  catch (error) {
+    console.error(`error GL${String(ExitStatus.FileCopyFailed)}:`, `Failed copying file from: '${src}', to: '${dst}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    process.exit(ExitStatus.FileCopyFailed);
   }
 }
 

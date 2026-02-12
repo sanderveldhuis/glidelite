@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import * as moduleApi from './moduleApi';
 import * as moduleWorkers from './moduleWorkers';
 import { Json } from './types';
 
@@ -33,6 +34,7 @@ import { Json } from './types';
  */
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
   moduleWorkers.clean(pkg, config, outputDirectory);
+  moduleApi.clean(pkg, config, outputDirectory);
 }
 
 /**
@@ -43,6 +45,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   moduleWorkers.validate(pkg, config, workingDirectory);
+  moduleApi.validate(pkg, config, workingDirectory);
 }
 
 /**
@@ -53,6 +56,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
   moduleWorkers.run(pkg, config, workingDirectory);
+  moduleApi.run(pkg, config, workingDirectory);
 }
 
 /**
@@ -64,4 +68,5 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
+  moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
 }
