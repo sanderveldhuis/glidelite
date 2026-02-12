@@ -54,7 +54,7 @@ export class ApiServer {
     // Start the API server
     this._server = this._express.listen(port);
 
-    console.log(`INF:apiserver:Started API server on port '${String(port)}'`);
+    console.log(`${String(Date.now())}:INF:apiserver:Started API server on port '${String(port)}'`);
   }
 
   /**
@@ -64,11 +64,11 @@ export class ApiServer {
   stop(): void {
     // Stop the API server if running
     if (!this._server) {
-      console.log(`INF:apiserver:Stopped`);
+      console.log(`${String(Date.now())}:INF:apiserver:Stopped`);
       return;
     }
     this._server.close(() => {
-      console.log(`INF:apiserver:Stopped`);
+      console.log(`${String(Date.now())}:INF:apiserver:Stopped`);
     });
   }
 
@@ -87,7 +87,7 @@ export class ApiServer {
    * @param res the HTTP response
    */
   _internalServerError(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): void { // eslint-disable-line @typescript-eslint/no-unused-vars
-    console.error(`ERR:apiserver:${err instanceof Error ? err.message : 'An unknown error occurred'}`);
+    console.error(`${String(Date.now())}:ERR:apiserver:${err instanceof Error ? err.message : 'An unknown error occurred'}`);
     res.status(500).end();
   }
 }
