@@ -39,6 +39,7 @@ export enum ExitStatus {
   FileAlreadyExists = 2010,
   FileCreationFailed = 2011,
   FileReadFailed = 2012,
+  FileCopyFailed = 2013,
   ProjectInvalid = 3001,
   ProjectCompileFailed = 3002
 }
