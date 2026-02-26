@@ -90,22 +90,22 @@ describe('moduleWorkers.ts', () => {
     exists.onCall(0).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\backend\\workers\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\backend\\workers');
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/backend/workers/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/backend/workers');
     }
 
     // Not all required files and directories exist
     exists.onCall(1).returns(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input2\\backend\\workers\\tsconfig.json');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3001:', "No valid project found at: 'input2', missing file 'input2\\backend\\workers\\tsconfig.json'.");
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input2\\backend\\workers');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3001:', "No valid project found at: 'input2', missing directory 'input2\\backend\\workers'.");
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input2/backend/workers/tsconfig.json');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3001:', "No valid project found at: 'input2', missing file 'input2/backend/workers/tsconfig.json'.");
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input2/backend/workers');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3001:', "No valid project found at: 'input2', missing directory 'input2/backend/workers'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 3001);
   });
@@ -289,13 +289,13 @@ describe('moduleWorkers.ts', () => {
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input\\backend\\workers');
-      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
+      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- tsc -p input\\backend --rootDir input\\backend --outDir output\\opt\\cfg', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
-      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
+      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- tsc -p input/backend --rootDir input/backend --outDir output/opt/cfg', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
     }
@@ -314,7 +314,7 @@ describe('moduleWorkers.ts', () => {
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(5), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input\\backend\\workers --rootDir input\\backend\\workers --outDir output\\opt\\cfg\\workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input\\backend --rootDir input\\backend --outDir output\\opt\\cfg', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(5), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(6), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output\\etc\\cron.d');
@@ -322,7 +322,7 @@ describe('moduleWorkers.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(5), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input/backend/workers --rootDir input/backend/workers --outDir output/opt/cfg/workers', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input/backend --rootDir input/backend --outDir output/opt/cfg', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(5), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(6), 'input/backend/workers/sub2/sub3/test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output/etc/cron.d');

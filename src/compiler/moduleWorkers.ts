@@ -122,10 +122,10 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  const workersTsConfig = join(workingDirectory, 'backend', 'workers', 'tsconfig.json');
+  const workersDir = join(workingDirectory, 'backend', 'workers');
 
-  if (!exists(workersTsConfig)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${workersTsConfig}'.`);
+  if (!exists(workersDir)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${workersDir}'.`);
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }
@@ -198,8 +198,9 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  * @param outputDirectory the output directory where to put the compilation results in
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
-  const workersDir = join(workingDirectory, 'backend', 'workers');
-  const outputDir = join(outputDirectory, 'opt', config.name as string, 'workers');
+  const backendDir = join(workingDirectory, 'backend');
+  const workersDir = join(backendDir, 'workers');
+  const outputDir = join(outputDirectory, 'opt', config.name as string);
 
   // Get a list of all worker files
   const workerFiles = getWorkerFiles(workersDir);
@@ -209,7 +210,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Compile the TypeScript files
-  if (execute(`npm exec -- tsc -p ${workersDir} --rootDir ${workersDir} --outDir ${outputDir}`, workingDirectory)) {
+  if (execute(`npm exec -- tsc -p ${backendDir} --rootDir ${backendDir} --outDir ${outputDir}`, workingDirectory)) {
     // Construct Crontab content based on compiler instructions in the TypeScript files
     let crontab = '';
     for (const [filePath, instruction] of Object.entries(workerFiles)) {

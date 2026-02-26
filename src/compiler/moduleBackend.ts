@@ -22,9 +22,14 @@
  * SOFTWARE.
  */
 
+import { join } from 'node:path';
 import * as moduleApi from './moduleApi';
 import * as moduleWorkers from './moduleWorkers';
-import { Json } from './types';
+import { exists } from './sysUtils';
+import {
+  ExitStatus,
+  Json
+} from './types';
 
 /**
  * Cleans the backend output data from the specified output directory.
@@ -44,6 +49,13 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
+  const backendTsConfig = join(workingDirectory, 'backend', 'tsconfig.json');
+
+  if (!exists(backendTsConfig)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${backendTsConfig}'.`);
+    return process.exit(ExitStatus.ProjectInvalid);
+  }
+
   moduleWorkers.validate(pkg, config, workingDirectory);
   moduleApi.validate(pkg, config, workingDirectory);
 }
