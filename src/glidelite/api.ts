@@ -41,6 +41,7 @@ function isRequestHandler(obj: unknown): obj is RequestHandler {
 }
 
 // Search for the API router directory in an upwards lookup
+let isDevelopment = false;
 let routersDir = '';
 for (let dir = __dirname;; dir = dirname(dir)) {
   // Search for the API router directory
@@ -51,9 +52,10 @@ for (let dir = __dirname;; dir = dirname(dir)) {
   }
 
   // Search for the temporary development directory
-  routersDir = join(dir, 'node_modules', '.tmp', 'glc', 'routers');
+  routersDir = join(dir, 'node_modules', '.tmp', 'glc', 'api', 'routers');
   result = statSync(routersDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
+    isDevelopment = true;
     break;
   }
 
@@ -88,4 +90,4 @@ process.on('SIGINT', () => {
 
 // Start the API Server
 const port = process.argv.length < 3 ? 9002 : Number(process.argv[2]);
-apiServer.start(port, handlers);
+apiServer.start(port, handlers, isDevelopment);

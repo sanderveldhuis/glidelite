@@ -159,7 +159,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '    server_tokens off;\n' +
       '    location /api {\n' +
       "        add_header Access-Control-Allow-Credentials 'true' always;\n" +
-      "        add_header Access-Control-Allow-Origin '$scheme://$host' always;\n" +
+      (config.homepage ? `        add_header Access-Control-Allow-Origin '${(config.homepage as string).replace(/\/$/, '')}' always;\n` : '') +
       "        add_header Cross-Origin-Resource-Policy 'same-origin' always;\n" +
       "        add_header Cross-Origin-Opener-Policy 'same-origin' always;\n" +
       "        add_header Cross-Origin-Embedder-Policy 'require-corp' always;\n" +
@@ -188,7 +188,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '        error_page 500 /500.html;\n' +
       '    }\n' +
       '    location / {\n' +
-      "        add_header Access-Control-Allow-Origin '$scheme://$host' always;\n" +
+      (config.homepage ? `        add_header Access-Control-Allow-Origin '${(config.homepage as string).replace(/\/$/, '')}' always;\n` : '') +
       "        add_header Cross-Origin-Resource-Policy 'same-origin' always;\n" +
       "        add_header Cross-Origin-Opener-Policy 'same-origin' always;\n" +
       "        add_header Cross-Origin-Embedder-Policy 'require-corp' always;\n" +

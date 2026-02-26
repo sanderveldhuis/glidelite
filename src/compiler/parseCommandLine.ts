@@ -60,7 +60,7 @@ const optionNameMap: OptionsNameMap = new Map<string, CommandLineOption>([
   ['init', { name: 'init', type: 'boolean' }],
   ['run', { name: 'run', type: 'boolean' }],
   ['clean', { name: 'clean', type: 'boolean' }],
-  ['module', { name: 'module', type: 'string', values: ['workers', 'api', 'backend', 'frontend'] }],
+  ['module', { name: 'module', type: 'string', values: ['backend', 'frontend'] }],
   ['outdir', { name: 'outdir', type: 'string' }]
 ]);
 

@@ -178,52 +178,52 @@ describe('parseCommandLine.ts', () => {
     const command1 = parseCommandLine(['--module', 'backen']);
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'.");
+    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
     sinon.assert.calledWithExactly(processExit.getCall(0), 1003);
 
     const command2 = parseCommandLine(['-module', 'backendd']);
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'.");
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
     sinon.assert.calledWithExactly(processExit.getCall(1), 1003);
 
-    const command3 = parseCommandLine(['--m', 'worker']);
+    const command3 = parseCommandLine(['--m', 'fronten']);
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'.");
+    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
     sinon.assert.calledWithExactly(processExit.getCall(2), 1003);
 
     const command4 = parseCommandLine(['-m', 'frontendd']);
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1003:', "Argument for 'module' option must be: 'workers', 'api', 'backend', 'frontend'.");
+    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
     sinon.assert.calledWithExactly(processExit.getCall(3), 1003);
   });
 
   it('validate when a string option with valid value is given', () => {
-    const command1 = parseCommandLine(['--module', 'workers']);
+    const command1 = parseCommandLine(['--module', 'frontend']);
     expect(Object.keys(command1.options).length).to.equal(1);
-    expect(command1.options.module).to.equal('workers');
+    expect(command1.options.module).to.equal('frontend');
     expect(command1.paths.length).to.equal(0);
 
-    const command2 = parseCommandLine(['-module', 'workers']);
+    const command2 = parseCommandLine(['-module', 'frontend']);
     expect(Object.keys(command2.options).length).to.equal(1);
-    expect(command2.options.module).to.equal('workers');
+    expect(command2.options.module).to.equal('frontend');
     expect(command2.paths.length).to.equal(0);
 
-    const command3 = parseCommandLine(['--m', 'workers']);
+    const command3 = parseCommandLine(['--m', 'frontend']);
     expect(Object.keys(command3.options).length).to.equal(1);
-    expect(command3.options.module).to.equal('workers');
+    expect(command3.options.module).to.equal('frontend');
     expect(command3.paths.length).to.equal(0);
 
-    const command4 = parseCommandLine(['-m', 'workers']);
+    const command4 = parseCommandLine(['-m', 'frontend']);
     expect(Object.keys(command4.options).length).to.equal(1);
-    expect(command4.options.module).to.equal('workers');
+    expect(command4.options.module).to.equal('frontend');
     expect(command4.paths.length).to.equal(0);
   });
 
   it('validate when all options are given', () => {
-    const command1 = parseCommandLine(['--help', '--version', '--init', '--clean', '--run', '--module', 'workers', '--outDir', 'output', 'world', 'universe']);
+    const command1 = parseCommandLine(['--help', '--version', '--init', '--clean', '--run', '--module', 'backend', '--outDir', 'output', 'world', 'universe']);
     expect(Object.keys(command1.options).length).to.equal(7);
     expect(command1.options.help).to.equal(true);
     expect(command1.options.version).to.equal(true);
@@ -231,12 +231,12 @@ describe('parseCommandLine.ts', () => {
     expect(command1.options.clean).to.equal(true);
     expect(command1.options.run).to.equal(true);
     expect(command1.options.outdir).to.equal('output');
-    expect(command1.options.module).to.equal('workers');
+    expect(command1.options.module).to.equal('backend');
     expect(command1.paths.length).to.equal(2);
     expect(command1.paths[0]).to.equal('world');
     expect(command1.paths[1]).to.equal('universe');
 
-    const command2 = parseCommandLine(['world', '--help', 'universe', '--version', '--init', 'false', '--clean', '--run', 'false', '--module', 'workers', '--outDir', 'output', 'multiverse']);
+    const command2 = parseCommandLine(['world', '--help', 'universe', '--version', '--init', 'false', '--clean', '--run', 'false', '--module', 'backend', '--outDir', 'output', 'multiverse']);
     expect(Object.keys(command1.options).length).to.equal(7);
     expect(command2.options.help).to.equal(true);
     expect(command2.options.version).to.equal(true);
@@ -244,13 +244,13 @@ describe('parseCommandLine.ts', () => {
     expect(command2.options.clean).to.equal(true);
     expect(command2.options.run).to.equal(false);
     expect(command2.options.outdir).to.equal('output');
-    expect(command2.options.module).to.equal('workers');
+    expect(command2.options.module).to.equal('backend');
     expect(command2.paths.length).to.equal(3);
     expect(command2.paths[0]).to.equal('world');
     expect(command2.paths[1]).to.equal('universe');
     expect(command2.paths[2]).to.equal('multiverse');
 
-    const command3 = parseCommandLine(['world', '-h', 'universe', '-v', '-i', 'false', '-c', '-r', 'false', '-m', 'workers', '-o', 'output', 'multiverse']);
+    const command3 = parseCommandLine(['world', '-h', 'universe', '-v', '-i', 'false', '-c', '-r', 'false', '-m', 'backend', '-o', 'output', 'multiverse']);
     expect(Object.keys(command1.options).length).to.equal(7);
     expect(command3.options.help).to.equal(true);
     expect(command3.options.version).to.equal(true);
@@ -258,7 +258,7 @@ describe('parseCommandLine.ts', () => {
     expect(command3.options.clean).to.equal(true);
     expect(command3.options.run).to.equal(false);
     expect(command3.options.outdir).to.equal('output');
-    expect(command3.options.module).to.equal('workers');
+    expect(command3.options.module).to.equal('backend');
     expect(command3.paths.length).to.equal(3);
     expect(command3.paths[0]).to.equal('world');
     expect(command3.paths[1]).to.equal('universe');

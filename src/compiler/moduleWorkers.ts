@@ -30,7 +30,6 @@ import { watch } from 'node:fs';
 import { join } from 'node:path';
 import { yellow } from './color';
 import {
-  execute,
   exists,
   makeDir,
   makeFile,
@@ -122,10 +121,10 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  const workersTsConfig = join(workingDirectory, 'backend', 'workers', 'tsconfig.json');
+  const workersDir = join(workingDirectory, 'backend', 'workers');
 
-  if (!exists(workersTsConfig)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${workersTsConfig}'.`);
+  if (!exists(workersDir)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${workersDir}'.`);
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }
@@ -199,38 +198,31 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
   const workersDir = join(workingDirectory, 'backend', 'workers');
-  const outputDir = join(outputDirectory, 'opt', config.name as string, 'workers');
 
   // Get a list of all worker files
   const workerFiles = getWorkerFiles(workersDir);
   if (workerFiles === undefined || Object.keys(workerFiles).length <= 0) {
-    // Nothing to compile
+    // No worker files found
     return;
   }
 
-  // Compile the TypeScript files
-  if (execute(`npm exec -- tsc -p ${workersDir} --rootDir ${workersDir} --outDir ${outputDir}`, workingDirectory)) {
-    // Construct Crontab content based on compiler instructions in the TypeScript files
-    let crontab = '';
-    for (const [filePath, instruction] of Object.entries(workerFiles)) {
-      // Construct Crontab content for either a task or a service
-      const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
-      if (instruction[1] === 'service') {
-        crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
-        crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
-      }
-      else {
-        crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
-      }
+  // Construct Crontab content based on compiler instructions in the TypeScript files
+  let crontab = '';
+  for (const [filePath, instruction] of Object.entries(workerFiles)) {
+    // Construct Crontab content for either a task or a service
+    const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
+    if (instruction[1] === 'service') {
+      crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
     }
+    else {
+      crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+    }
+  }
 
-    // Write Crontab file
-    const cronDir = join(outputDirectory, 'etc', 'cron.d');
-    const cronFile = join(cronDir, `${config.name as string}_workers`);
-    makeDir(cronDir);
-    makeFile(cronFile, crontab);
-  }
-  else {
-    process.exit(ExitStatus.ProjectCompileFailed);
-  }
+  // Write Crontab file
+  const cronDir = join(outputDirectory, 'etc', 'cron.d');
+  const cronFile = join(cronDir, `${config.name as string}_workers`);
+  makeDir(cronDir);
+  makeFile(cronFile, crontab);
 }

@@ -76,14 +76,9 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  const apiTsConfig = join(workingDirectory, 'backend', 'api', 'tsconfig.json');
   const apiRouters = join(workingDirectory, 'backend', 'api', 'routers');
   const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
 
-  if (!exists(apiTsConfig)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${apiTsConfig}'.`);
-    return process.exit(ExitStatus.ProjectInvalid);
-  }
   if (!exists(apiRouters)) {
     console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${apiRouters}'.`);
     return process.exit(ExitStatus.ProjectInvalid);
@@ -102,7 +97,8 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const tmpDir = join(workingDirectory, 'node_modules', '.tmp', 'glc');
-  const apiDir = join(workingDirectory, 'backend', 'api');
+  const backendDir = join(workingDirectory, 'backend');
+  const apiDir = join(backendDir, 'api');
   const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
   const port = getApiPort(config);
   let child: ChildProcess | undefined;
@@ -120,7 +116,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
     if (tsFiles.length > 0) {
       // Compile the TypeScript files
-      if (!execute(`npm exec -- tsc -p ${apiDir} --rootDir ${apiDir} --outDir ${tmpDir}`, workingDirectory)) {
+      if (!execute(`npm exec -- tsc -p ${backendDir} --rootDir ${backendDir} --outDir ${tmpDir}`, workingDirectory)) {
         return;
       }
     }
@@ -159,31 +155,14 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  * @param outputDirectory the output directory where to put the compilation results in
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
-  const apiDir = join(workingDirectory, 'backend', 'api');
-  const outputDir = join(outputDirectory, 'opt', config.name as string, 'api');
+  // Write Crontab file
   const port = getApiPort(config);
-
-  // Get a list of all TypeScript files
-  const allFiles = readDir(apiDir);
-  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
-  if (tsFiles.length <= 0) {
-    // Nothing to compile
-    return;
-  }
-
-  // Compile the TypeScript files
-  if (execute(`npm exec -- tsc -p ${apiDir} --rootDir ${apiDir} --outDir ${outputDir}`, workingDirectory)) {
-    // Write Crontab file
-    const cronDir = join(outputDirectory, 'etc', 'cron.d');
-    const cronFile = join(cronDir, `${config.name as string}_api`);
-    makeDir(cronDir);
-    makeFile(
-      cronFile,
-      `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n` +
-        `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port}" || node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n`
-    );
-  }
-  else {
-    process.exit(ExitStatus.ProjectCompileFailed);
-  }
+  const cronDir = join(outputDirectory, 'etc', 'cron.d');
+  const cronFile = join(cronDir, `${config.name as string}_api`);
+  makeDir(cronDir);
+  makeFile(
+    cronFile,
+    `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n` +
+      `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port}" || node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n`
+  );
 }

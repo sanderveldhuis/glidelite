@@ -22,9 +22,18 @@
  * SOFTWARE.
  */
 
+import { join } from 'node:path';
 import * as moduleApi from './moduleApi';
 import * as moduleWorkers from './moduleWorkers';
-import { Json } from './types';
+import {
+  execute,
+  exists,
+  readDir
+} from './sysUtils';
+import {
+  ExitStatus,
+  Json
+} from './types';
 
 /**
  * Cleans the backend output data from the specified output directory.
@@ -44,6 +53,13 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
+  const backendTsConfig = join(workingDirectory, 'backend', 'tsconfig.json');
+
+  if (!exists(backendTsConfig)) {
+    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${backendTsConfig}'.`);
+    return process.exit(ExitStatus.ProjectInvalid);
+  }
+
   moduleWorkers.validate(pkg, config, workingDirectory);
   moduleApi.validate(pkg, config, workingDirectory);
 }
@@ -67,6 +83,23 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  * @param outputDirectory the output directory where to put the compilation results in
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
-  moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
-  moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
+  const backendDir = join(workingDirectory, 'backend');
+  const outputDir = join(outputDirectory, 'opt', config.name as string);
+
+  // Get a list of all TypeScript files
+  const allFiles = readDir(backendDir);
+  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
+  if (tsFiles.length <= 0) {
+    // Nothing to compile
+    return;
+  }
+
+  // Compile the TypeScript files and modules afterwards
+  if (execute(`npm exec -- tsc -p ${backendDir} --rootDir ${backendDir} --outDir ${outputDir}`, workingDirectory)) {
+    moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
+    moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
+  }
+  else {
+    process.exit(ExitStatus.ProjectCompileFailed);
+  }
 }
