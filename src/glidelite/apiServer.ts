@@ -23,6 +23,7 @@
  */
 
 import express from 'express';
+import GracefulShutdown from 'http-graceful-shutdown';
 import * as http from 'node:http';
 
 /**
@@ -53,6 +54,7 @@ export class ApiServer {
 
     // Start the API server
     this._server = this._express.listen(port);
+    GracefulShutdown(this._server);
 
     console.log(`${String(Date.now())}:INF:apiserver:Started API server on port '${String(port)}'`);
   }

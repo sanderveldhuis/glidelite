@@ -55,6 +55,7 @@
     "@vitejs/plugin-react": "^5.1.4",
     "directory-import": "^3.3.2",
     "express": "^5.2.1",
+    "http-graceful-shutdown": "^3.1.15",
     "npm": "^11.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
