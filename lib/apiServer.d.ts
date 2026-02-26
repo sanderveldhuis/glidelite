@@ -33,13 +33,21 @@ export declare class ApiServer {
      * Starts the API Server.
      * @param port the API Server port
      * @param handlers custom request handlers
+     * @param development indicates whether to run the API Server in development mode
      */
-    start(port: number, handlers: express.RequestHandler[]): void;
+    start(port: number, handlers: express.RequestHandler[], development: boolean): void;
     /**
      * Stops the API Server.
      * @details the API Server should not be used anymore after being stopped
      */
     stop(): void;
+    /**
+     * Enables HTTP headers required for development.
+     * @param req the HTTP request
+     * @param res the HTTP response
+     * @param next the next function
+     */
+    _developmentHeaders(req: express.Request, res: express.Response, next: express.NextFunction): void;
     /**
      * Handles a 404 Not Found.
      * @param req the HTTP request
@@ -48,8 +56,10 @@ export declare class ApiServer {
     _notFound(req: express.Request, res: express.Response): void;
     /**
      * Handles a 500 Internal Server Error.
+     * @param err the internal server error
      * @param req the HTTP request
      * @param res the HTTP response
+     * @param next the next function
      */
     _internalServerError(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): void;
 }
