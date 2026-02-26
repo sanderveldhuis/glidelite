@@ -68,7 +68,7 @@ describe('initProject.ts', () => {
     sinon.assert.calledOnceWithExactly(processExit, 2010);
   });
 
-  it('validate when the API TypeScript config already exists', () => {
+  it('validate when the backend TypeScript config already exists', () => {
     exists.onCall(0).returns(false)
       .onCall(1).returns(true);
 
@@ -76,18 +76,18 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\api\\tsconfig.json');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test\\backend\\api\\tsconfig.json'.");
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test\\backend\\tsconfig.json'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/api/tsconfig.json');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test/backend/api/tsconfig.json'.");
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test/backend/tsconfig.json'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 2010);
   });
 
-  it('validate when the workers TypeScript config already exists', () => {
+  it('validate when the Vite config already exists', () => {
     exists.onCall(0).returns(false)
       .onCall(1).returns(false)
       .onCall(2).returns(true);
@@ -96,39 +96,14 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\backend\\workers\\tsconfig.json');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test\\backend\\workers\\tsconfig.json'.");
-    }
-    else {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test/backend/workers/tsconfig.json');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test/backend/workers/tsconfig.json'.");
-    }
-    sinon.assert.calledOnceWithExactly(processExit, 2010);
-  });
-
-  it('validate when the Vite config already exists', () => {
-    exists.onCall(0).returns(false)
-      .onCall(1).returns(false)
-      .onCall(2).returns(false)
-      .onCall(3).returns(true);
-
-    initProject('test');
-
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\backend\\workers\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'vite.config.ts' file already defined at: 'test\\frontend\\vite.config.ts'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test/backend/workers/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'vite.config.ts' file already defined at: 'test/frontend/vite.config.ts'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 2010);
@@ -138,25 +113,22 @@ describe('initProject.ts', () => {
     exists.onCall(0).returns(false)
       .onCall(1).returns(false)
       .onCall(2).returns(false)
-      .onCall(3).returns(false)
-      .onCall(4).returns(true);
+      .onCall(3).returns(true);
 
     initProject('test');
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\backend\\workers\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\index.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'index.html' file already defined at: 'test\\frontend\\index.html'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test/backend/workers/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/index.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'index.html' file already defined at: 'test/frontend/index.html'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 2010);
@@ -167,27 +139,24 @@ describe('initProject.ts', () => {
       .onCall(1).returns(false)
       .onCall(2).returns(false)
       .onCall(3).returns(false)
-      .onCall(4).returns(false)
-      .onCall(5).returns(true);
+      .onCall(4).returns(true);
 
     initProject('test');
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\backend\\workers\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\index.html');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'test\\frontend\\public\\404.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\public\\404.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A '404.html' file already defined at: 'test\\frontend\\public\\404.html'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test/backend/workers/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/index.html');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'test/frontend/public/404.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/public/404.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A '404.html' file already defined at: 'test/frontend/public/404.html'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 2010);
@@ -199,29 +168,26 @@ describe('initProject.ts', () => {
       .onCall(2).returns(false)
       .onCall(3).returns(false)
       .onCall(4).returns(false)
-      .onCall(5).returns(false)
-      .onCall(6).returns(true);
+      .onCall(5).returns(true);
 
     initProject('test');
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\backend\\workers\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\index.html');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'test\\frontend\\public\\404.html');
-      sinon.assert.calledWithExactly(exists.getCall(6), 'test\\frontend\\public\\429.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\public\\404.html');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'test\\frontend\\public\\429.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A '429.html' file already defined at: 'test\\frontend\\public\\429.html'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test/backend/workers/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/index.html');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'test/frontend/public/404.html');
-      sinon.assert.calledWithExactly(exists.getCall(6), 'test/frontend/public/429.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/public/404.html');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'test/frontend/public/429.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A '429.html' file already defined at: 'test/frontend/public/429.html'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 2010);
@@ -234,31 +200,28 @@ describe('initProject.ts', () => {
       .onCall(3).returns(false)
       .onCall(4).returns(false)
       .onCall(5).returns(false)
-      .onCall(6).returns(false)
-      .onCall(7).returns(true);
+      .onCall(6).returns(true);
 
     initProject('test');
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\backend\\workers\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\index.html');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'test\\frontend\\public\\404.html');
-      sinon.assert.calledWithExactly(exists.getCall(6), 'test\\frontend\\public\\429.html');
-      sinon.assert.calledWithExactly(exists.getCall(7), 'test\\frontend\\public\\500.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\public\\404.html');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'test\\frontend\\public\\429.html');
+      sinon.assert.calledWithExactly(exists.getCall(6), 'test\\frontend\\public\\500.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A '500.html' file already defined at: 'test\\frontend\\public\\500.html'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test/backend/workers/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/index.html');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'test/frontend/public/404.html');
-      sinon.assert.calledWithExactly(exists.getCall(6), 'test/frontend/public/429.html');
-      sinon.assert.calledWithExactly(exists.getCall(7), 'test/frontend/public/500.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/public/404.html');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'test/frontend/public/429.html');
+      sinon.assert.calledWithExactly(exists.getCall(6), 'test/frontend/public/500.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A '500.html' file already defined at: 'test/frontend/public/500.html'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 2010);
@@ -269,22 +232,21 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\api\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\backend\\workers\\tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\index.html');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'test\\frontend\\public\\404.html');
-      sinon.assert.calledWithExactly(exists.getCall(6), 'test\\frontend\\public\\429.html');
-      sinon.assert.calledWithExactly(exists.getCall(7), 'test\\frontend\\public\\500.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\public\\404.html');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'test\\frontend\\public\\429.html');
+      sinon.assert.calledWithExactly(exists.getCall(6), 'test\\frontend\\public\\500.html');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'test\\glconfig.json', '{\n}\n');
-      sinon.assert.calledWithExactly(makeDir.getCall(0), 'test\\backend\\api');
-      sinon.assert.calledWithExactly(makeFile.getCall(1), 'test\\backend\\api\\tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+      sinon.assert.calledWithExactly(makeDir.getCall(0), 'test\\backend');
+      sinon.assert.calledWithExactly(makeFile.getCall(1), 'test\\backend\\tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
       sinon.assert.calledWithExactly(makeDir.getCall(1), 'test\\backend\\api\\middleware');
       sinon.assert.calledWithExactly(makeFile.getCall(2), 'test\\backend\\api\\middleware\\.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(2), 'test\\backend\\api\\routers');
       sinon.assert.calledWithExactly(makeFile.getCall(3), 'test\\backend\\api\\routers\\.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(3), 'test\\backend\\workers');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'test\\backend\\workers\\tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+      sinon.assert.calledWithExactly(makeFile.getCall(4), 'test\\backend\\workers\\.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(4), 'test\\frontend');
       sinon.assert.calledWithExactly(makeFile.getCall(5), 'test\\frontend\\vite.config.ts', "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
       sinon.assert.calledWithExactly(makeFile.getCall(6), 'test\\frontend\\index.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
@@ -295,22 +257,21 @@ describe('initProject.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/api/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'test/backend/workers/tsconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/index.html');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'test/frontend/public/404.html');
-      sinon.assert.calledWithExactly(exists.getCall(6), 'test/frontend/public/429.html');
-      sinon.assert.calledWithExactly(exists.getCall(7), 'test/frontend/public/500.html');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
+      sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
+      sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/public/404.html');
+      sinon.assert.calledWithExactly(exists.getCall(5), 'test/frontend/public/429.html');
+      sinon.assert.calledWithExactly(exists.getCall(6), 'test/frontend/public/500.html');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'test/glconfig.json', '{\n}\n');
-      sinon.assert.calledWithExactly(makeDir.getCall(0), 'test/backend/api');
-      sinon.assert.calledWithExactly(makeFile.getCall(1), 'test/backend/api/tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+      sinon.assert.calledWithExactly(makeDir.getCall(0), 'test/backend');
+      sinon.assert.calledWithExactly(makeFile.getCall(1), 'test/backend/tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
       sinon.assert.calledWithExactly(makeDir.getCall(1), 'test/backend/api/middleware');
       sinon.assert.calledWithExactly(makeFile.getCall(2), 'test/backend/api/middleware/.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(2), 'test/backend/api/routers');
       sinon.assert.calledWithExactly(makeFile.getCall(3), 'test/backend/api/routers/.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(3), 'test/backend/workers');
-      sinon.assert.calledWithExactly(makeFile.getCall(4), 'test/backend/workers/tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+      sinon.assert.calledWithExactly(makeFile.getCall(4), 'test/backend/workers/.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(4), 'test/frontend');
       sinon.assert.calledWithExactly(makeFile.getCall(5), 'test/frontend/vite.config.ts', "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
       sinon.assert.calledWithExactly(makeFile.getCall(6), 'test/frontend/index.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');

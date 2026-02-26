@@ -31,10 +31,9 @@ This will create the filesystem structure with required files for a GlideLite pr
 ├─ backend              # contains all backend modules
 │  ├─ api               # contains code for the API
 │  │  ├─ middleware     # contains Express middleware
-│  │  ├─ routers        # contains Express routers
-│  │  └─ tsconfig.json  # TypeScript configuration for API code
-│  └─ workers           # contains code for workers
-│     └─ tsconfig.json  # TypeScript configuration for workers code
+│  │  └─ routers        # contains Express routers
+│  ├─ workers           # contains code for workers
+│  └─ tsconfig.json     # TypeScript configuration for backend modules
 ├─ frontend             # contains all frontend modules
 │  ├─ public            # contains public assets
 │  │  ├─ 404.html       # Example 404 page

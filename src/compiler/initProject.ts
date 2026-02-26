@@ -37,14 +37,14 @@ import { ExitStatus } from './types';
 export function initProject(workingDirectory: string): void {
   const glConfig = join(workingDirectory, 'glconfig.json');
   const backendDir = join(workingDirectory, 'backend');
+  const backendTsConfig = join(backendDir, 'tsconfig.json');
   const apiDir = join(backendDir, 'api');
-  const apiTsConfig = join(apiDir, 'tsconfig.json');
   const apiMiddlewareDir = join(apiDir, 'middleware');
   const apiMiddlewareKeep = join(apiMiddlewareDir, '.gitkeep');
   const apiRoutersDir = join(apiDir, 'routers');
   const apiRoutersKeep = join(apiRoutersDir, '.gitkeep');
   const workersDir = join(backendDir, 'workers');
-  const workersTsConfig = join(workersDir, 'tsconfig.json');
+  const workersKeep = join(workersDir, '.gitkeep');
   const frontendDir = join(workingDirectory, 'frontend');
   const frontendViteConfig = join(frontendDir, 'vite.config.ts');
   const frontendIndex = join(frontendDir, 'index.html');
@@ -58,12 +58,8 @@ export function initProject(workingDirectory: string): void {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${glConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
-  if (exists(apiTsConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${apiTsConfig}'.`);
-    return process.exit(ExitStatus.FileAlreadyExists);
-  }
-  if (exists(workersTsConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${workersTsConfig}'.`);
+  if (exists(backendTsConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${backendTsConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendViteConfig)) {
@@ -89,14 +85,14 @@ export function initProject(workingDirectory: string): void {
 
   // Create the file system structure if not exists, and create all required files
   makeFile(glConfig, '{\n}\n');
-  makeDir(apiDir);
-  makeFile(apiTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+  makeDir(backendDir);
+  makeFile(backendTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
   makeDir(apiMiddlewareDir);
   makeFile(apiMiddlewareKeep, '');
   makeDir(apiRoutersDir);
   makeFile(apiRoutersKeep, '');
   makeDir(workersDir);
-  makeFile(workersTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
+  makeFile(workersKeep, '');
   makeDir(frontendDir);
   makeFile(frontendViteConfig, "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
   makeFile(frontendIndex, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
