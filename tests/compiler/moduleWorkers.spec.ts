@@ -47,7 +47,6 @@ describe('moduleWorkers.ts', () => {
   let makeFile: sinon.SinonStub;
   let makeDir: sinon.SinonStub;
   let remove: sinon.SinonStub;
-  let execute: sinon.SinonStub;
 
   beforeEach(() => {
     setTimeout = sinon.stub(global, 'setTimeout');
@@ -62,7 +61,6 @@ describe('moduleWorkers.ts', () => {
     makeFile = sinon.stub(sysUtils, 'makeFile');
     makeDir = sinon.stub(sysUtils, 'makeDir');
     remove = sinon.stub(sysUtils, 'remove');
-    execute = sinon.stub(sysUtils, 'execute');
     // Ensure to call a timeout callback directly without delay
     setTimeout.callsFake((cb: () => void) => {
       cb();
@@ -82,7 +80,6 @@ describe('moduleWorkers.ts', () => {
     makeFile.restore();
     makeDir.restore();
     remove.restore();
-    execute.restore();
   });
 
   it('validate checking the workers', () => {
@@ -276,7 +273,7 @@ describe('moduleWorkers.ts', () => {
     }
     sinon.assert.calledOnceWithExactly(processExit, 3002);
 
-    // Files with .ts extension available in workers directory, valid instructions found, but execution failed
+    // Files with .ts extension available in workers directory, valid instructions found, and execution succeeded
     // Validating all regexes are not part of this test, it will be done in another test
     if ('win32' === process.platform) {
       readDir.onCall(4).returns([{ name: 'test1.ts', parentPath: 'input\\backend\\workers\\sub1\\sub2' }, { name: 'test2.ts', parentPath: 'input\\backend\\workers\\sub2\\sub3' }]);
@@ -285,46 +282,18 @@ describe('moduleWorkers.ts', () => {
       readDir.onCall(4).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
     }
     readFile.onCall(3).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(4).returns('"use strict";\n"glc service"\nconsole.log("done")');
-    execute.onCall(0).returns(false);
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input\\backend\\workers');
-      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- tsc -p input\\backend --rootDir input\\backend --outDir output\\opt\\cfg', 'input');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
-    }
-    else {
-      sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
-      sinon.assert.calledOnceWithExactly(execute, 'npm exec -- tsc -p input/backend --rootDir input/backend --outDir output/opt/cfg', 'input');
-      sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
-      sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
-    }
-    sinon.assert.calledWithExactly(processExit.getCall(1), 3002);
-
-    // Files with .ts extension available in workers directory, valid instructions found, and execution succeeded
-    // Validating all regexes are not part of this test, it will be done in another test
-    if ('win32' === process.platform) {
-      readDir.onCall(5).returns([{ name: 'test1.ts', parentPath: 'input\\backend\\workers\\sub1\\sub2' }, { name: 'test2.ts', parentPath: 'input\\backend\\workers\\sub2\\sub3' }]);
-    }
-    else {
-      readDir.onCall(5).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
-    }
-    readFile.onCall(5).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(6).returns('"use strict";\n"glc service"\nconsole.log("done")');
-    execute.onCall(1).returns(true);
-    compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(readDir.getCall(5), 'input\\backend\\workers');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input\\backend --rootDir input\\backend --outDir output\\opt\\cfg', 'input');
-      sinon.assert.calledWithExactly(readFile.getCall(5), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
-      sinon.assert.calledWithExactly(readFile.getCall(6), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output\\etc\\cron.d');
       sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
     }
     else {
-      sinon.assert.calledWithExactly(readDir.getCall(5), 'input/backend/workers');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input/backend --rootDir input/backend --outDir output/opt/cfg', 'input');
-      sinon.assert.calledWithExactly(readFile.getCall(5), 'input/backend/workers/sub1/sub2/test1.ts');
-      sinon.assert.calledWithExactly(readFile.getCall(6), 'input/backend/workers/sub2/sub3/test2.ts');
+      sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
+      sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
+      sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output/etc/cron.d');
       sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
     }

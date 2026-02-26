@@ -25,7 +25,11 @@
 import { join } from 'node:path';
 import * as moduleApi from './moduleApi';
 import * as moduleWorkers from './moduleWorkers';
-import { exists } from './sysUtils';
+import {
+  execute,
+  exists,
+  readDir
+} from './sysUtils';
 import {
   ExitStatus,
   Json
@@ -79,6 +83,23 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  * @param outputDirectory the output directory where to put the compilation results in
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
-  moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
-  moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
+  const backendDir = join(workingDirectory, 'backend');
+  const outputDir = join(outputDirectory, 'opt', config.name as string);
+
+  // Get a list of all TypeScript files
+  const allFiles = readDir(backendDir);
+  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
+  if (tsFiles.length <= 0) {
+    // Nothing to compile
+    return;
+  }
+
+  // Compile the TypeScript files and modules afterwards
+  if (execute(`npm exec -- tsc -p ${backendDir} --rootDir ${backendDir} --outDir ${outputDir}`, workingDirectory)) {
+    moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
+    moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
+  }
+  else {
+    process.exit(ExitStatus.ProjectCompileFailed);
+  }
 }

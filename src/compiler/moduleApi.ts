@@ -155,33 +155,14 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
  * @param outputDirectory the output directory where to put the compilation results in
  */
 export function compile(pkg: Json, config: Json, workingDirectory: string, outputDirectory: string): void {
-  const backendDir = join(workingDirectory, 'backend');
-  const apiDir = join(backendDir, 'api');
-  const outputDir = join(outputDirectory, 'opt', config.name as string);
+  // Write Crontab file
   const port = getApiPort(config);
-
-  // Get a list of all TypeScript files
-  const allFiles = readDir(apiDir);
-  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
-  if (tsFiles.length <= 0) {
-    // Nothing to compile
-    return;
-  }
-
-  // TODO: move the compiling to moduleBackend (maybe all code?) because we cannot separate it anymore
-  // Compile the TypeScript files
-  if (execute(`npm exec -- tsc -p ${backendDir} --rootDir ${backendDir} --outDir ${outputDir}`, workingDirectory)) {
-    // Write Crontab file
-    const cronDir = join(outputDirectory, 'etc', 'cron.d');
-    const cronFile = join(cronDir, `${config.name as string}_api`);
-    makeDir(cronDir);
-    makeFile(
-      cronFile,
-      `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n` +
-        `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port}" || node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n`
-    );
-  }
-  else {
-    process.exit(ExitStatus.ProjectCompileFailed);
-  }
+  const cronDir = join(outputDirectory, 'etc', 'cron.d');
+  const cronFile = join(cronDir, `${config.name as string}_api`);
+  makeDir(cronDir);
+  makeFile(
+    cronFile,
+    `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n` +
+      `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port}" || node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n`
+  );
 }
