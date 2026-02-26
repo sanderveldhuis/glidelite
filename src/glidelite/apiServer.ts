@@ -88,7 +88,7 @@ export class ApiServer {
    * @param res the HTTP response
    * @param next the next function
    */
-  _developmentHeaders(req: express.Request, res: express.Response, next: express.NextFunction): void { // eslint-disable-line @typescript-eslint/no-unused-vars
+  _developmentHeaders(req: express.Request, res: express.Response, next: express.NextFunction): void {
     res.setHeader('Access-Control-Allow-Headers', '*');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173'); // Allow request from React app
