@@ -37,8 +37,16 @@ export class ApiServer {
    * Starts the API Server.
    * @param port the API Server port
    * @param handlers custom request handlers
+   * @param development indicates whether to run the API Server in development mode
    */
-  start(port: number, handlers: express.RequestHandler[]): void {
+  start(port: number, handlers: express.RequestHandler[], development: boolean): void {
+    // Enable headers required for development
+    if (development) {
+      this._express.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+        this._developmentHeaders(req, res, next);
+      });
+    }
+
     // Add custom request handlers
     for (const handler of handlers) {
       this._express.use(handler);
@@ -75,6 +83,26 @@ export class ApiServer {
   }
 
   /**
+   * Enables HTTP headers required for development.
+   * @param req the HTTP request
+   * @param res the HTTP response
+   * @param next the next function
+   */
+  _developmentHeaders(req: express.Request, res: express.Response, next: express.NextFunction): void { // eslint-disable-line @typescript-eslint/no-unused-vars
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173'); // Allow request from React app
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Vary', 'Origin, Accept-Encoding');
+    res.setHeader('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+    next();
+  }
+
+  /**
    * Handles a 404 Not Found.
    * @param req the HTTP request
    * @param res the HTTP response
@@ -85,8 +113,10 @@ export class ApiServer {
 
   /**
    * Handles a 500 Internal Server Error.
+   * @param err the internal server error
    * @param req the HTTP request
    * @param res the HTTP response
+   * @param next the next function
    */
   _internalServerError(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): void { // eslint-disable-line @typescript-eslint/no-unused-vars
     console.error(`${String(Date.now())}:ERR:apiserver:${err instanceof Error ? err.message : 'An unknown error occurred'}`);
