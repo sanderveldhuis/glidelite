@@ -41,7 +41,7 @@ export function printHelp(): void {
   console.log(`      ${blue('--run, -r')}  Runs a GlideLite project locally for development.\n`);
   console.log(`    ${blue('--clean, -c')}  Deletes the output of a project or module before compiling.\n`);
   console.log(`   ${blue('--module, -m')}  Select a module to clean and/or compile.`);
-  console.log(`        one of:  workers, api, backend, frontend\n`);
+  console.log(`        one of:  backend, frontend\n`);
   console.log(`   ${blue('--outDir, -o')}  Specify an output directory.\n`);
 
   console.log(`${bold('COMMON COMMANDS')}\n`);
@@ -49,10 +49,10 @@ export function printHelp(): void {
   console.log('  Compiles the project in the working directory.\n');
   console.log(blue('  glc -c'));
   console.log('  Cleans and compiles the project in the working directory.\n');
-  console.log(blue('  glc -m workers'));
-  console.log('  Compiles the workers module in the working directory.\n');
-  console.log(blue('  glc -c -m workers'));
-  console.log('  Cleans and compiles the workers module in the working directory.\n');
+  console.log(blue('  glc -m backend'));
+  console.log('  Compiles the backend module in the working directory.\n');
+  console.log(blue('  glc -c -m backend'));
+  console.log('  Cleans and compiles the backend module in the working directory.\n');
   console.log(blue('  glc -r'));
   console.log('  Runs the project in the working directory.\n');
   console.log(blue('  glc -i'));

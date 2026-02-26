@@ -27,11 +27,9 @@ import {
   resolve
 } from 'node:path';
 import { initProject } from './initProject';
-import * as moduleApi from './moduleApi';
 import * as moduleBackend from './moduleBackend';
 import * as moduleFrontend from './moduleFrontend';
 import * as moduleProject from './moduleProject';
-import * as moduleWorkers from './moduleWorkers';
 import { printHelp } from './printHelp';
 import { printVersion } from './printVersion';
 import { readJsonFile } from './sysUtils';
@@ -47,8 +45,6 @@ type ModuleNameCompilerMap = Map<string, Compiler>;
  * Mapping of module names to their dedicated compiler.
  */
 const moduleNameMap: ModuleNameCompilerMap = new Map<string, Compiler>([
-  ['workers', moduleWorkers],
-  ['api', moduleApi],
   ['backend', moduleBackend],
   ['frontend', moduleFrontend],
   ['', moduleProject]

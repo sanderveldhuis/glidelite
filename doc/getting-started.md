@@ -62,10 +62,10 @@ It is possible to compile the full project or only specific parts, called module
 npx glc
 ```
 
-Now compile a specific module of the project, in this example the `workers` module which is part of the `backend`:
+Now compile a specific module of the project, in this example the `backend` module:
 
 ```bash
-npx glc -m workers
+npx glc -m backend
 ```
 
 # What's next?
