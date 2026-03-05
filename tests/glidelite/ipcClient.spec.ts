@@ -25,11 +25,11 @@
 import { expect } from 'chai';
 import * as net from 'node:net';
 import sinon from 'ts-sinon';
-import { IpcClient } from '../../src/glidelite/ipcClient';
+import { IpcClient } from '../../src/glidelite/backend/ipcClient';
 import {
   IpcMessage,
   IpcPayload
-} from '../../src/glidelite/ipcMessage';
+} from '../../src/glidelite/backend/ipcMessage';
 
 describe('ipcClient.ts', () => {
   let indicationMsg: IpcMessage | undefined;

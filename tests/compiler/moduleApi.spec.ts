@@ -86,11 +86,11 @@ describe('moduleApi.ts', () => {
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\backend\\api\\routers');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input1\\node_modules\\glidelite\\lib\\api.js');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input1\\node_modules\\glidelite\\lib\\apiserver\\run.js');
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'input1/backend/api/routers');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input1/node_modules/glidelite/lib/api.js');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input1/node_modules/glidelite/lib/apiserver/run.js');
     }
 
     // Not all required files and directories exist
@@ -112,13 +112,13 @@ describe('moduleApi.ts', () => {
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input3');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(3), 'input3\\backend\\api\\routers');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input3\\node_modules\\glidelite\\lib\\api.js');
-      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3\\node_modules\\glidelite\\lib\\api.js'.");
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input3\\node_modules\\glidelite\\lib\\apiserver\\run.js');
+      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3\\node_modules\\glidelite\\lib\\apiserver\\run.js'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(3), 'input3/backend/api/routers');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input3/node_modules/glidelite/lib/api.js');
-      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/api.js'.");
+      sinon.assert.calledWithExactly(exists.getCall(4), 'input3/node_modules/glidelite/lib/apiserver/run.js');
+      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'.");
     }
     sinon.assert.calledWithExactly(processExit.getCall(1), 3001);
   });
@@ -152,13 +152,13 @@ describe('moduleApi.ts', () => {
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(remove.getCall(0), 'input\\node_modules\\.tmp\\glc');
       sinon.assert.calledWithExactly(readDir.getCall(0), 'input\\backend\\api');
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'node input\\node_modules\\glidelite\\lib\\api.js', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'node input\\node_modules\\glidelite\\lib\\apiserver\\run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(0), 'input\\backend\\api', { recursive: true });
     }
     else {
       sinon.assert.calledWithExactly(remove.getCall(0), 'input/node_modules/.tmp/glc');
       sinon.assert.calledWithExactly(readDir.getCall(0), 'input/backend/api');
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'node input/node_modules/glidelite/lib/api.js', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(spawn.getCall(0), 'node input/node_modules/glidelite/lib/apiserver/run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(0), 'input/backend/api', { recursive: true });
     }
     expect(watchEvent).to.equal('change');
@@ -176,14 +176,14 @@ describe('moduleApi.ts', () => {
       sinon.assert.calledWithExactly(remove.getCall(1), 'input\\node_modules\\.tmp\\glc');
       sinon.assert.calledWithExactly(readDir.getCall(1), 'input\\backend\\api');
       sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input\\backend --rootDir input\\backend --outDir input\\node_modules\\.tmp\\glc', 'input');
-      sinon.assert.calledWithExactly(spawn.getCall(1), 'node input\\node_modules\\glidelite\\lib\\api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(spawn.getCall(1), 'node input\\node_modules\\glidelite\\lib\\apiserver\\run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(1), 'input\\backend\\api', { recursive: true });
     }
     else {
       sinon.assert.calledWithExactly(remove.getCall(1), 'input/node_modules/.tmp/glc');
       sinon.assert.calledWithExactly(readDir.getCall(1), 'input/backend/api');
       sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input/backend --rootDir input/backend --outDir input/node_modules/.tmp/glc', 'input');
-      sinon.assert.calledWithExactly(spawn.getCall(1), 'node input/node_modules/glidelite/lib/api.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      sinon.assert.calledWithExactly(spawn.getCall(1), 'node input/node_modules/glidelite/lib/apiserver/run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(1), 'input/backend/api', { recursive: true });
     }
     expect(watchEvent).to.equal('change');
@@ -211,11 +211,11 @@ describe('moduleApi.ts', () => {
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input', 'output');
     if ('win32' === process.platform) {
       sinon.assert.calledOnceWithExactly(makeDir, 'output\\etc\\cron.d');
-      sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/api.js" || node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
     }
     else {
       sinon.assert.calledOnceWithExactly(makeDir, 'output/etc/cron.d');
-      sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/api.js" || node /opt/cfg/node_modules/glidelite/lib/api.js >> /var/log/cfg/api.log &\n');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
     }
   });
 });

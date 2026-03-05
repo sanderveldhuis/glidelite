@@ -23,7 +23,7 @@
  */
 
 import { expect } from 'chai';
-import { IpcBuffer } from '../../src/glidelite/ipcBuffer';
+import { IpcBuffer } from '../../src/glidelite/backend/ipcBuffer';
 
 describe('ipcBuffer.ts', () => {
   it('validate when no start frame is available', () => {
