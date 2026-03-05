@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "includeEntryExports": true,
   "entry": [
-    "src/apiserver/api.ts",
+    "src/apiserver/run.ts",
     "src/compiler/glc.ts",
     "src/glidelite/glidelite.ts",
     "src/glidelite/backend/glidelite.ts",
@@ -20,8 +20,7 @@
     "@types/mocha",
     "@vitejs/plugin-react",
     "mocha",
-    "npm",
-    "vite"
+    "npm"
   ],
   "ignoreBinaries": ["glc"]
 }
