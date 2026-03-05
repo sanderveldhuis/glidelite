@@ -89,7 +89,7 @@ In your editor, type the following JSON in `glconfig.json`:
 Now make use of this configuration value, update `backend/api/routers/info.ts` with the following TypeScript code:
 
 ```typescript
-import { glconfig } from 'glidelite';
+import { glconfig } from 'glidelite/backend';
 import express from 'express';
 import checker from '../middleware/checker';
 
@@ -104,7 +104,7 @@ router.get('/info', checker, (req, res) => {
 export default router;
 ```
 
-By importing the `glidelite` module, it is possible to directly use the values from the `glconfig.json` via the provided `glconfig` object. The GlideLite Compiler will ensure it is linked correctly.
+By importing the `glidelite/backend` module, it is possible to directly use the values from the `glconfig.json` via the provided `glconfig` object. The GlideLite Compiler will ensure it is linked correctly.
 
 ## Use a logger
 
@@ -120,7 +120,7 @@ log.[name].error('message');
 Update `backend/api/middleware/checker.ts` with the following TypeScript code:
 
 ```typescript
-import { glconfig, log } from 'glidelite';
+import { glconfig, log } from 'glidelite/backend';
 import express from 'express';
 
 // Construct the Express router
@@ -163,7 +163,7 @@ Stop the local development run by pressing `Ctrl+C`, install the newly added dep
 
 ```typescript
 import { randomInt } from 'd3-random';
-import { glconfig } from 'glidelite';
+import { glconfig } from 'glidelite/backend';
 import express from 'express';
 import checker from '../middleware/checker';
 

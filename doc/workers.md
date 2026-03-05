@@ -118,7 +118,7 @@ Now make use of this configuration value, update `backend/workers/writer.ts` wit
 ```typescript
 'glc service';
 
-import { glconfig } from 'glidelite';
+import { glconfig } from 'glidelite/backend';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -131,7 +131,7 @@ function writeFile(data: string): void {
 writeFile(`Hello, ${glconfig.user}!`);
 ```
 
-By importing the `glidelite` module, it is possible to directly use the values from the `glconfig.json` via the provided `glconfig` object. The GlideLite Compiler will ensure it is linked correctly.
+By importing the `glidelite/backend` module, it is possible to directly use the values from the `glconfig.json` via the provided `glconfig` object. The GlideLite Compiler will ensure it is linked correctly.
 
 ## Use a logger
 
@@ -149,7 +149,7 @@ Let's name your worker `writer` and update `backend/workers/writer.ts` with the 
 ```typescript
 'glc service';
 
-import { glconfig, log } from 'glidelite';
+import { glconfig, log } from 'glidelite/backend';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -162,7 +162,7 @@ function writeFile(data: string): void {
 writeFile(`Hello, ${glconfig.user}!`);
 ```
 
-The imported `glidelite` module contains the logger via the provided `log` object. The GlideLite Compiler will ensure a new logger is initiated for your worker.
+The imported `glidelite/backend` module contains the logger via the provided `log` object. The GlideLite Compiler will ensure a new logger is initiated for your worker.
 
 ## Use dependency packages
 
@@ -190,7 +190,7 @@ Stop the local development run by pressing `Ctrl+C`, install the newly added dep
 'glc service';
 
 import { randomInt } from 'd3-random';
-import { glconfig, log } from 'glidelite';
+import { glconfig, log } from 'glidelite/backend';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 

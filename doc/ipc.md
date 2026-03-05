@@ -8,7 +8,7 @@ Inter-process communication (IPC) is a mechanism to allow separate modules or pr
 IPC in GlideLite is based on endpoint names: each module represents an endpoint, and you provide a name for each endpoint you start.
 
 ```typescript
-import { ipc } from 'glidelite';
+import { ipc } from 'glidelite/backend';
 
 // Start IPC as name 'myapplication' and connect to 'otherapplication1' and 'otherapplication2'
 ipc.start('myapplication', 'otherapplication1', 'otherapplication2');
@@ -21,7 +21,7 @@ ipc.stop();
 Publish messages are transmitted asynchronous to all endpoints which are subscribed to that message name. GlideLite caches the latest published message for each message name and will deliver that cached latest message to endpoints that subscribe later. Therefore publish messages are always guaranteed to be delivered.
 
 ```typescript
-import { ipc } from 'glidelite';
+import { ipc } from 'glidelite/backend';
 
 // Subscribe on a publish message with name 'hello' to the endpoint with name 'otherapplication1'
 ipc.to.otherapplication1?.subscribe('hello', (name, payload) => {
@@ -45,7 +45,7 @@ ipc.publish('object_message', { hello: 'world' });
 Indication messages are transmitted asynchronous to a specified endpoint as a fire-and-forget message; delivery is not guaranteed.
 
 ```typescript
-import { ipc } from 'glidelite';
+import { ipc } from 'glidelite/backend';
 
 // Register a callback for handling received indication messages
 ipc.onIndication((name, payload) => {
@@ -66,7 +66,7 @@ ipc.to.otherapplication1?.indication('object_message', { hello: 'world' });
 Request and response messages are transmitted asynchronous to a specified endpoint. Delivery is not guaranteed; there is no default timeout for requests. Once a response is received the specified callback will be invoked. GlideLite currently limits simultaneous open IPC requests to 100. If the limit is reached, the oldest pending requests will be dropped.
 
 ```typescript
-import { ipc } from 'glidelite';
+import { ipc } from 'glidelite/backend';
 
 // Register a callback for handling received request messages
 ipc.onRequest((name, payload, response) => {
