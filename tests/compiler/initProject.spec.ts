@@ -248,7 +248,7 @@ describe('initProject.ts', () => {
       sinon.assert.calledWithExactly(makeDir.getCall(3), 'test\\backend\\workers');
       sinon.assert.calledWithExactly(makeFile.getCall(4), 'test\\backend\\workers\\.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(4), 'test\\frontend');
-      sinon.assert.calledWithExactly(makeFile.getCall(5), 'test\\frontend\\vite.config.ts', "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
+      sinon.assert.calledWithExactly(makeFile.getCall(5), 'test\\frontend\\vite.config.ts', "import react from '@vitejs/plugin-react';\nimport { glConfig } from 'glidelite/vite';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  ...glConfig,\n  plugins: [react()]\n});\n");
       sinon.assert.calledWithExactly(makeFile.getCall(6), 'test\\frontend\\index.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
       sinon.assert.calledWithExactly(makeDir.getCall(5), 'test\\frontend\\public');
       sinon.assert.calledWithExactly(makeFile.getCall(7), 'test\\frontend\\public\\404.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>404 Not Found · GlideLite</title>\n  </head>\n  <body>\n    Not found!\n  </body>\n</html>\n');
@@ -273,7 +273,7 @@ describe('initProject.ts', () => {
       sinon.assert.calledWithExactly(makeDir.getCall(3), 'test/backend/workers');
       sinon.assert.calledWithExactly(makeFile.getCall(4), 'test/backend/workers/.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(4), 'test/frontend');
-      sinon.assert.calledWithExactly(makeFile.getCall(5), 'test/frontend/vite.config.ts', "import react from '@vitejs/plugin-react';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()]\n});\n");
+      sinon.assert.calledWithExactly(makeFile.getCall(5), 'test/frontend/vite.config.ts', "import react from '@vitejs/plugin-react';\nimport { glConfig } from 'glidelite/vite';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  ...glConfig,\n  plugins: [react()]\n});\n");
       sinon.assert.calledWithExactly(makeFile.getCall(6), 'test/frontend/index.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
       sinon.assert.calledWithExactly(makeDir.getCall(5), 'test/frontend/public');
       sinon.assert.calledWithExactly(makeFile.getCall(7), 'test/frontend/public/404.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>404 Not Found · GlideLite</title>\n  </head>\n  <body>\n    Not found!\n  </body>\n</html>\n');

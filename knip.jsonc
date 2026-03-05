@@ -6,7 +6,8 @@
     "src/compiler/glc.ts",
     "src/glidelite/glidelite.ts",
     "src/glidelite/backend/glidelite.ts",
-    "src/glidelite/frontend/glidelite.ts"
+    "src/glidelite/frontend/glidelite.ts",
+    "src/vite/glidelite.ts"
   ],
   "project": ["src/**"],
   "ignoreExportsUsedInFile": {

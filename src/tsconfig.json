@@ -4,6 +4,7 @@
   "references": [
     { "path": "./apiserver" },
     { "path": "./compiler" },
-    { "path": "./glidelite" }
+    { "path": "./glidelite" },
+    { "path": "./vite" }
   ]
 }
