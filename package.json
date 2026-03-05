@@ -24,6 +24,16 @@
   },
   "main": "./lib/glidelite.js",
   "typings": "./lib/glidelite.d.ts",
+  "exports": {
+    "./backend": {
+      "default": "./lib/backend/glidelite.js",
+      "types": "./lib/backend/glidelite.d.ts"
+    },
+    "./frontend": {
+      "default": "./lib/frontend/glidelite.js",
+      "types": "./lib/frontend/glidelite.d.ts"
+    }
+  },
   "bin": {
     "glc": "./bin/glc"
   },
@@ -46,7 +56,7 @@
     "format": "dprint fmt",
     "dist": "npm run format && npm run lint && npm run knip && npm run clean && npm run build && npm run test && npm run dist:clean && npm run dist:copy",
     "dist:clean": "node -e \"require('fs').rmSync('lib', { recursive: true, force: true })\"",
-    "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/src/compiler/**/*.js\" lib && cpx \"built/src/glidelite/**/*.{js,ts}\" lib"
+    "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/src/apiserver/**/*.js\" lib/apiserver && cpx \"built/src/compiler/**/*.js\" lib/compiler && cpx \"built/src/glidelite/**/*.{js,ts}\" lib"
   },
   "dependencies": {
     "@tsconfig/node-lts": "^24.0.0",

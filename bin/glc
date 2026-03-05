@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../lib/glc.js')
+require('../lib/compiler/glc.js')

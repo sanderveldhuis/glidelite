@@ -2,6 +2,7 @@
   "files": [],
   "include": [],
   "references": [
+    { "path": "./apiserver" },
     { "path": "./compiler" },
     { "path": "./glidelite" }
   ]

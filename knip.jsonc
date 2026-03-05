@@ -2,9 +2,11 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "includeEntryExports": true,
   "entry": [
+    "src/apiserver/api.ts",
     "src/compiler/glc.ts",
     "src/glidelite/glidelite.ts",
-    "src/glidelite/api.ts"
+    "src/glidelite/backend/glidelite.ts",
+    "src/glidelite/frontend/glidelite.ts"
   ],
   "project": ["src/**"],
   "ignoreExportsUsedInFile": {
