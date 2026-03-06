@@ -36,8 +36,8 @@ import { ExitStatus } from './types';
  */
 export function initProject(workingDirectory: string): void {
   const glConfig = join(workingDirectory, 'glconfig.json');
+  const tsConfig = join(workingDirectory, 'tsconfig.json');
   const backendDir = join(workingDirectory, 'backend');
-  const backendTsConfig = join(backendDir, 'tsconfig.json');
   const apiDir = join(backendDir, 'api');
   const apiMiddlewareDir = join(apiDir, 'middleware');
   const apiMiddlewareKeep = join(apiMiddlewareDir, '.gitkeep');
@@ -52,14 +52,16 @@ export function initProject(workingDirectory: string): void {
   const frontend404 = join(frontendPublicDir, '404.html');
   const frontend429 = join(frontendPublicDir, '429.html');
   const frontend500 = join(frontendPublicDir, '500.html');
+  const sharedDir = join(workingDirectory, 'shared');
+  const sharedKeep = join(sharedDir, '.gitkeep');
 
   // Check if all required files are not yet available to prevent overwriting existing user data
   if (exists(glConfig)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${glConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
-  if (exists(backendTsConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${backendTsConfig}'.`);
+  if (exists(tsConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${tsConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendViteConfig)) {
@@ -85,8 +87,8 @@ export function initProject(workingDirectory: string): void {
 
   // Create the file system structure if not exists, and create all required files
   makeFile(glConfig, '{\n}\n');
+  makeFile(tsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["backend/**/*", "shared/**/*"]\n}\n');
   makeDir(backendDir);
-  makeFile(backendTsConfig, '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
   makeDir(apiMiddlewareDir);
   makeFile(apiMiddlewareKeep, '');
   makeDir(apiRoutersDir);
@@ -100,6 +102,8 @@ export function initProject(workingDirectory: string): void {
   makeFile(frontend404, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>404 Not Found · GlideLite</title>\n  </head>\n  <body>\n    Not found!\n  </body>\n</html>\n');
   makeFile(frontend429, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>429 Too Many Requests · GlideLite</title>\n  </head>\n  <body>\n    Too Many Requests!\n  </body>\n</html>\n');
   makeFile(frontend500, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>500 Internal Server Error · GlideLite</title>\n  </head>\n  <body>\n    Internal Server Error!\n  </body>\n</html>\n');
+  makeDir(sharedDir);
+  makeFile(sharedKeep, '');
 
   console.log(`Created a new GlideLite project at: '${workingDirectory}'.`);
 }

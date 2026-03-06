@@ -139,6 +139,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const skippedWorkers: string[] = [];
   const children: ChildProcess[] = [];
   const workersDir = join(workingDirectory, 'backend', 'workers');
+  const sharedDir = join(workingDirectory, 'shared');
   let restartTimeout: NodeJS.Timeout;
 
   // Internal function to start running all workers
@@ -166,12 +167,8 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     }
   };
 
-  // Start running all workers
-  runWorkers();
-
-  // Watch for changes in files and restart workers when files changed
-  const watcher = watch(workersDir, { recursive: true });
-  watcher.on('change', () => {
+  // Internal function to stop and start running all workers
+  const restartWorkers = () => {
     // Use a delay to prevent restarting too much
     clearTimeout(restartTimeout);
     restartTimeout = setTimeout(() => {
@@ -186,6 +183,19 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       }
       runWorkers();
     }, restartDelay);
+  };
+
+  // Start running all workers
+  runWorkers();
+
+  // Watch for changes in files and restart workers when files changed
+  const workersWatcher = watch(workersDir, { recursive: true });
+  const sharedWatcher = watch(sharedDir, { recursive: true });
+  workersWatcher.on('change', () => {
+    restartWorkers();
+  });
+  sharedWatcher.on('change', () => {
+    restartWorkers();
   });
 }
 
@@ -212,11 +222,11 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
     // Construct Crontab content for either a task or a service
     const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
     if (instruction[1] === 'service') {
-      crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
-      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      crontab += `@reboot root node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/backend/workers/${jsFilePath}" || node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
     }
     else {
-      crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      crontab += `${instruction[2]} root node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
     }
   }
 

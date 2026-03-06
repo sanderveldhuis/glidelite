@@ -44,6 +44,7 @@ describe('moduleProject.ts', () => {
   let compileFrontend: sinon.SinonStub;
   let validateFrontend: sinon.SinonStub;
   let runFrontend: sinon.SinonStub;
+  let exists: sinon.SinonStub;
   let remove: sinon.SinonStub;
   let makeDir: sinon.SinonStub;
   let makeFile: sinon.SinonStub;
@@ -60,6 +61,7 @@ describe('moduleProject.ts', () => {
     compileFrontend = sinon.stub(moduleFrontendSrc, 'compile');
     validateFrontend = sinon.stub(moduleFrontendSrc, 'validate');
     runFrontend = sinon.stub(moduleFrontendSrc, 'run');
+    exists = sinon.stub(sysUtilsSrc, 'exists');
     remove = sinon.stub(sysUtilsSrc, 'remove');
     makeDir = sinon.stub(sysUtilsSrc, 'makeDir');
     makeFile = sinon.stub(sysUtilsSrc, 'makeFile');
@@ -77,6 +79,7 @@ describe('moduleProject.ts', () => {
     compileFrontend.restore();
     validateFrontend.restore();
     runFrontend.restore();
+    exists.restore();
     remove.restore();
     makeDir.restore();
     makeFile.restore();
@@ -84,47 +87,74 @@ describe('moduleProject.ts', () => {
   });
 
   it('validate checking the project', () => {
-    // No homepage available
-    validate({ name: 'pkg' }, { name: 'cfg' }, 'input');
-    sinon.assert.calledWithExactly(validateBackend.getCall(0), { name: 'pkg' }, { name: 'cfg' }, 'input');
-    sinon.assert.calledWithExactly(validateFrontend.getCall(0), { name: 'pkg' }, { name: 'cfg' }, 'input');
+    // All required files and directories exist, no homepage available
+    exists.onCall(0).returns(true);
+    validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\tsconfig.json');
+    }
+    else {
+      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/tsconfig.json');
+    }
+    sinon.assert.calledWithExactly(validateBackend.getCall(0), { name: 'pkg' }, { name: 'cfg' }, 'input1');
+    sinon.assert.calledWithExactly(validateFrontend.getCall(0), { name: 'pkg' }, { name: 'cfg' }, 'input1');
 
-    // Valid homepage
+    // Not all required files and directories exist
+    exists.onCall(1).returns(false);
+    validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input2\\tsconfig.json');
+      sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input2', missing file 'input2\\tsconfig.json'.");
+    }
+    else {
+      sinon.assert.calledWithExactly(exists.getCall(1), 'input2/tsconfig.json');
+      sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input2', missing file 'input2/tsconfig.json'.");
+    }
+    sinon.assert.calledWithExactly(processExit.getCall(0), 3001);
+
+    // All required files and directories exist, valid homepage
+    exists.onCall(2).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: 'http://example.com' }, 'input');
     sinon.assert.calledWithExactly(validateBackend.getCall(1), { name: 'pkg' }, { name: 'cfg', homepage: 'http://example.com' }, 'input');
     sinon.assert.calledWithExactly(validateFrontend.getCall(1), { name: 'pkg' }, { name: 'cfg', homepage: 'http://example.com' }, 'input');
+    exists.onCall(3).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: 'https://example.com' }, 'input');
     sinon.assert.calledWithExactly(validateBackend.getCall(2), { name: 'pkg' }, { name: 'cfg', homepage: 'https://example.com' }, 'input');
     sinon.assert.calledWithExactly(validateFrontend.getCall(2), { name: 'pkg' }, { name: 'cfg', homepage: 'https://example.com' }, 'input');
 
-    // Invalid homepage type
+    // All required files and directories exist, invalid homepage type
+    exists.onCall(4).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: 1 }, 'input');
     sinon.assert.calledWithExactly(validateBackend.getCall(3), { name: 'pkg' }, { name: 'cfg', homepage: 1 }, 'input');
     sinon.assert.calledWithExactly(validateFrontend.getCall(3), { name: 'pkg' }, { name: 'cfg', homepage: 1 }, 'input');
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input', invalid homepage '1'.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 3001);
+    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid project found at: 'input', invalid homepage '1'.");
+    sinon.assert.calledWithExactly(processExit.getCall(1), 3001);
+    exists.onCall(5).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: true }, 'input');
     sinon.assert.calledWithExactly(validateBackend.getCall(4), { name: 'pkg' }, { name: 'cfg', homepage: true }, 'input');
     sinon.assert.calledWithExactly(validateFrontend.getCall(4), { name: 'pkg' }, { name: 'cfg', homepage: true }, 'input');
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid project found at: 'input', invalid homepage 'true'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 3001);
+    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL3001:', "No valid project found at: 'input', invalid homepage 'true'.");
+    sinon.assert.calledWithExactly(processExit.getCall(2), 3001);
+    exists.onCall(6).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: null }, 'input');
     sinon.assert.calledWithExactly(validateBackend.getCall(5), { name: 'pkg' }, { name: 'cfg', homepage: null }, 'input');
     sinon.assert.calledWithExactly(validateFrontend.getCall(5), { name: 'pkg' }, { name: 'cfg', homepage: null }, 'input');
-    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL3001:', "No valid project found at: 'input', invalid homepage 'null'.");
-    sinon.assert.calledWithExactly(processExit.getCall(2), 3001);
+    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL3001:', "No valid project found at: 'input', invalid homepage 'null'.");
+    sinon.assert.calledWithExactly(processExit.getCall(3), 3001);
+    exists.onCall(7).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: { url: 'https://example.com/' } }, 'input');
     sinon.assert.calledWithExactly(validateBackend.getCall(6), { name: 'pkg' }, { name: 'cfg', homepage: { url: 'https://example.com/' } }, 'input');
     sinon.assert.calledWithExactly(validateFrontend.getCall(6), { name: 'pkg' }, { name: 'cfg', homepage: { url: 'https://example.com/' } }, 'input');
-    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL3001:', 'No valid project found at: \'input\', invalid homepage \'{"url":"https://example.com/"}\'.');
-    sinon.assert.calledWithExactly(processExit.getCall(3), 3001);
+    sinon.assert.calledWithExactly(consoleError.getCall(4), 'error GL3001:', 'No valid project found at: \'input\', invalid homepage \'{"url":"https://example.com/"}\'.');
+    sinon.assert.calledWithExactly(processExit.getCall(4), 3001);
 
-    // Invalid homepage format
+    // All required files and directories exist, invalid homepage format
+    exists.onCall(8).returns(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: 'example.com' }, 'input');
     sinon.assert.calledWithExactly(validateBackend.getCall(7), { name: 'pkg' }, { name: 'cfg', homepage: 'example.com' }, 'input');
     sinon.assert.calledWithExactly(validateFrontend.getCall(7), { name: 'pkg' }, { name: 'cfg', homepage: 'example.com' }, 'input');
-    sinon.assert.calledWithExactly(consoleError.getCall(4), 'error GL3001:', "No valid project found at: 'input', invalid homepage 'example.com'.");
-    sinon.assert.calledWithExactly(processExit.getCall(4), 3001);
+    sinon.assert.calledWithExactly(consoleError.getCall(5), 'error GL3001:', "No valid project found at: 'input', invalid homepage 'example.com'.");
+    sinon.assert.calledWithExactly(processExit.getCall(5), 3001);
   });
 
   it('validate cleaning the project', () => {

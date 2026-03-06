@@ -120,12 +120,12 @@ describe('moduleWorkers.ts', () => {
   });
 
   it('validate running the workers', () => {
-    let watchEvent;
-    let watchCallback: (() => void) | undefined;
+    const watchEvent: string[] = [];
+    const watchCallback: (() => void)[] = [];
     watch.returns({
       on: (event: string, callback: () => void) => {
-        watchEvent = event;
-        watchCallback = callback;
+        watchEvent.push(event);
+        watchCallback.push(callback);
       }
     });
     spawn.returns({ pid: 1234 });
@@ -135,24 +135,26 @@ describe('moduleWorkers.ts', () => {
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(0), 'input\\backend\\workers');
-      sinon.assert.calledOnceWithExactly(watch, 'input\\backend\\workers', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(0), 'input\\backend\\workers', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(1), 'input\\shared', { recursive: true });
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(0), 'input/backend/workers');
-      sinon.assert.calledOnceWithExactly(watch, 'input/backend/workers', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(0), 'input/backend/workers', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(1), 'input/shared', { recursive: true });
     }
-    expect(watchEvent).to.equal('change');
-    expect(watchCallback).to.not.equal(undefined);
-    // Next if statement is for satisfying TypeScript as it should not be reached
-    if (watchCallback === undefined) {
-      return;
-    }
+    expect(watchEvent.length).to.equal(2);
+    expect(watchEvent[0]).to.equal('change');
+    expect(watchEvent[1]).to.equal('change');
+    expect(watchCallback.length).to.equal(2);
+    expect(watchCallback[0]).to.not.equal(undefined);
+    expect(watchCallback[1]).to.not.equal(undefined);
 
     // Files with .ts extension available in workers directory, invalid instructions found
     // Validating all regexes are not part of this test, it will be done in another test
     readDir.onCall(1).returns([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     readFile.onCall(0).returns('"use strict";\n"glc task @test"\nconsole.log("done")');
-    watchCallback();
+    watchCallback[0]();
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(1), 'input\\backend\\workers');
       sinon.assert.calledWithExactly(readFile.getCall(0), 'path1\\test1.ts');
@@ -174,7 +176,7 @@ describe('moduleWorkers.ts', () => {
       readDir.onCall(2).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
     }
     readFile.onCall(1).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(2).returns('"use strict";\n"glc service"\nconsole.log("done")');
-    watchCallback();
+    watchCallback[1]();
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input\\backend\\workers');
       sinon.assert.calledWithExactly(readFile.getCall(1), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
@@ -201,7 +203,7 @@ describe('moduleWorkers.ts', () => {
       readDir.onCall(3).returns([{ name: 'test1.ts', parentPath: 'input/backend/workers/sub1/sub2' }, { name: 'test2.ts', parentPath: 'input/backend/workers/sub2/sub3' }]);
     }
     readFile.onCall(3).returns('"use strict";\n"glc task @yearly"\nconsole.log("done")').onCall(4).returns('"use strict";\n"glc task @monthly"\nconsole.log("done")');
-    watchCallback();
+    watchCallback[1]();
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(readDir.getCall(3), 'input\\backend\\workers');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
@@ -288,14 +290,14 @@ describe('moduleWorkers.ts', () => {
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input\\backend\\workers\\sub1\\sub2\\test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input\\backend\\workers\\sub2\\sub3\\test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output\\etc\\cron.d');
-      sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_workers', '@yearly root node /opt/cfg/backend/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/backend/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/backend/workers/sub2/sub3/test2.js" || node /opt/cfg/backend/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
     }
     else {
       sinon.assert.calledWithExactly(readDir.getCall(4), 'input/backend/workers');
       sinon.assert.calledWithExactly(readFile.getCall(3), 'input/backend/workers/sub1/sub2/test1.ts');
       sinon.assert.calledWithExactly(readFile.getCall(4), 'input/backend/workers/sub2/sub3/test2.ts');
       sinon.assert.calledOnceWithExactly(makeDir, 'output/etc/cron.d');
-      sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_workers', '@yearly root node /opt/cfg/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/workers/sub2/sub3/test2.js" || node /opt/cfg/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
+      sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_workers', '@yearly root node /opt/cfg/backend/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/backend/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/backend/workers/sub2/sub3/test2.js" || node /opt/cfg/backend/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
     }
   });
 

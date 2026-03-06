@@ -27,7 +27,6 @@ import * as moduleApi from './moduleApi';
 import * as moduleWorkers from './moduleWorkers';
 import {
   execute,
-  exists,
   readDir
 } from './sysUtils';
 import {
@@ -53,13 +52,6 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  const backendTsConfig = join(workingDirectory, 'backend', 'tsconfig.json');
-
-  if (!exists(backendTsConfig)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${backendTsConfig}'.`);
-    return process.exit(ExitStatus.ProjectInvalid);
-  }
-
   moduleWorkers.validate(pkg, config, workingDirectory);
   moduleApi.validate(pkg, config, workingDirectory);
 }
@@ -95,7 +87,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Compile the TypeScript files and modules afterwards
-  if (execute(`npm exec -- tsc -p ${backendDir} --rootDir ${backendDir} --outDir ${outputDir}`, workingDirectory)) {
+  if (execute(`npm exec -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${outputDir}`, workingDirectory)) {
     moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
     moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
   }

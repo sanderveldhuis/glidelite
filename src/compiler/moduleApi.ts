@@ -99,6 +99,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const tmpDir = join(workingDirectory, 'node_modules', '.tmp', 'glc');
   const backendDir = join(workingDirectory, 'backend');
   const apiDir = join(backendDir, 'api');
+  const sharedDir = join(workingDirectory, 'shared');
   const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'apiserver', 'run.js');
   const port = getApiPort(config);
   let child: ChildProcess | undefined;
@@ -116,7 +117,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
     if (tsFiles.length > 0) {
       // Compile the TypeScript files
-      if (!execute(`npm exec -- tsc -p ${backendDir} --rootDir ${backendDir} --outDir ${tmpDir}`, workingDirectory)) {
+      if (!execute(`npm exec -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${tmpDir}`, workingDirectory)) {
         return;
       }
     }
@@ -125,12 +126,8 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     child = spawn(`node ${glideliteApiJs}${port}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
   };
 
-  // Start running the API server
-  runApiServer();
-
-  // Watch for changes in files and restart API server when files changed
-  const watcher = watch(apiDir, { recursive: true });
-  watcher.on('change', () => {
+  // Internal function to stop and start running the API server
+  const restartApiServer = () => {
     // Use a delay to prevent restarting too much
     clearTimeout(restartTimeout);
     restartTimeout = setTimeout(() => {
@@ -144,6 +141,19 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       }
       runApiServer();
     }, restartDelay);
+  };
+
+  // Start running the API server
+  runApiServer();
+
+  // Watch for changes in files and restart API server when files changed
+  const apiWatcher = watch(apiDir, { recursive: true });
+  const sharedWatcher = watch(sharedDir, { recursive: true });
+  apiWatcher.on('change', () => {
+    restartApiServer();
+  });
+  sharedWatcher.on('change', () => {
+    restartApiServer();
   });
 }
 

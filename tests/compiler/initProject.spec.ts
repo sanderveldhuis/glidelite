@@ -68,7 +68,7 @@ describe('initProject.ts', () => {
     sinon.assert.calledOnceWithExactly(processExit, 2010);
   });
 
-  it('validate when the backend TypeScript config already exists', () => {
+  it('validate when the TypeScript config already exists', () => {
     exists.onCall(0).returns(false)
       .onCall(1).returns(true);
 
@@ -76,13 +76,13 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test\\backend\\tsconfig.json'.");
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\tsconfig.json');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test\\tsconfig.json'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test/backend/tsconfig.json'.");
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/tsconfig.json');
+      sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'tsconfig.json' file already defined at: 'test/tsconfig.json'.");
     }
     sinon.assert.calledOnceWithExactly(processExit, 2010);
   });
@@ -96,13 +96,13 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'vite.config.ts' file already defined at: 'test\\frontend\\vite.config.ts'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'vite.config.ts' file already defined at: 'test/frontend/vite.config.ts'.");
     }
@@ -119,14 +119,14 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'index.html' file already defined at: 'test\\frontend\\index.html'.");
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
       sinon.assert.calledOnceWithExactly(consoleError, 'error GL2010:', "A 'index.html' file already defined at: 'test/frontend/index.html'.");
@@ -145,7 +145,7 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
       sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\public\\404.html');
@@ -153,7 +153,7 @@ describe('initProject.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
       sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/public/404.html');
@@ -174,7 +174,7 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
       sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\public\\404.html');
@@ -183,7 +183,7 @@ describe('initProject.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
       sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/public/404.html');
@@ -206,7 +206,7 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
       sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\public\\404.html');
@@ -216,7 +216,7 @@ describe('initProject.ts', () => {
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
       sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/public/404.html');
@@ -232,15 +232,15 @@ describe('initProject.ts', () => {
 
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test\\glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\backend\\tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test\\tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test\\frontend\\vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test\\frontend\\index.html');
       sinon.assert.calledWithExactly(exists.getCall(4), 'test\\frontend\\public\\404.html');
       sinon.assert.calledWithExactly(exists.getCall(5), 'test\\frontend\\public\\429.html');
       sinon.assert.calledWithExactly(exists.getCall(6), 'test\\frontend\\public\\500.html');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'test\\glconfig.json', '{\n}\n');
+      sinon.assert.calledWithExactly(makeFile.getCall(1), 'test\\tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["backend/**/*", "shared/**/*"]\n}\n');
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'test\\backend');
-      sinon.assert.calledWithExactly(makeFile.getCall(1), 'test\\backend\\tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
       sinon.assert.calledWithExactly(makeDir.getCall(1), 'test\\backend\\api\\middleware');
       sinon.assert.calledWithExactly(makeFile.getCall(2), 'test\\backend\\api\\middleware\\.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(2), 'test\\backend\\api\\routers');
@@ -254,18 +254,20 @@ describe('initProject.ts', () => {
       sinon.assert.calledWithExactly(makeFile.getCall(7), 'test\\frontend\\public\\404.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>404 Not Found · GlideLite</title>\n  </head>\n  <body>\n    Not found!\n  </body>\n</html>\n');
       sinon.assert.calledWithExactly(makeFile.getCall(8), 'test\\frontend\\public\\429.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>429 Too Many Requests · GlideLite</title>\n  </head>\n  <body>\n    Too Many Requests!\n  </body>\n</html>\n');
       sinon.assert.calledWithExactly(makeFile.getCall(9), 'test\\frontend\\public\\500.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>500 Internal Server Error · GlideLite</title>\n  </head>\n  <body>\n    Internal Server Error!\n  </body>\n</html>\n');
+      sinon.assert.calledWithExactly(makeDir.getCall(6), 'test\\shared');
+      sinon.assert.calledWithExactly(makeFile.getCall(10), 'test\\shared\\.gitkeep', '');
     }
     else {
       sinon.assert.calledWithExactly(exists.getCall(0), 'test/glconfig.json');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'test/backend/tsconfig.json');
+      sinon.assert.calledWithExactly(exists.getCall(1), 'test/tsconfig.json');
       sinon.assert.calledWithExactly(exists.getCall(2), 'test/frontend/vite.config.ts');
       sinon.assert.calledWithExactly(exists.getCall(3), 'test/frontend/index.html');
       sinon.assert.calledWithExactly(exists.getCall(4), 'test/frontend/public/404.html');
       sinon.assert.calledWithExactly(exists.getCall(5), 'test/frontend/public/429.html');
       sinon.assert.calledWithExactly(exists.getCall(6), 'test/frontend/public/500.html');
       sinon.assert.calledWithExactly(makeFile.getCall(0), 'test/glconfig.json', '{\n}\n');
+      sinon.assert.calledWithExactly(makeFile.getCall(1), 'test/tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["backend/**/*", "shared/**/*"]\n}\n');
       sinon.assert.calledWithExactly(makeDir.getCall(0), 'test/backend');
-      sinon.assert.calledWithExactly(makeFile.getCall(1), 'test/backend/tsconfig.json', '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["**/*"]\n}\n');
       sinon.assert.calledWithExactly(makeDir.getCall(1), 'test/backend/api/middleware');
       sinon.assert.calledWithExactly(makeFile.getCall(2), 'test/backend/api/middleware/.gitkeep', '');
       sinon.assert.calledWithExactly(makeDir.getCall(2), 'test/backend/api/routers');
@@ -279,6 +281,8 @@ describe('initProject.ts', () => {
       sinon.assert.calledWithExactly(makeFile.getCall(7), 'test/frontend/public/404.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>404 Not Found · GlideLite</title>\n  </head>\n  <body>\n    Not found!\n  </body>\n</html>\n');
       sinon.assert.calledWithExactly(makeFile.getCall(8), 'test/frontend/public/429.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>429 Too Many Requests · GlideLite</title>\n  </head>\n  <body>\n    Too Many Requests!\n  </body>\n</html>\n');
       sinon.assert.calledWithExactly(makeFile.getCall(9), 'test/frontend/public/500.html', '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>500 Internal Server Error · GlideLite</title>\n  </head>\n  <body>\n    Internal Server Error!\n  </body>\n</html>\n');
+      sinon.assert.calledWithExactly(makeDir.getCall(6), 'test/shared');
+      sinon.assert.calledWithExactly(makeFile.getCall(10), 'test/shared/.gitkeep', '');
     }
     sinon.assert.calledOnceWithExactly(consoleLog, "Created a new GlideLite project at: 'test'.");
   });

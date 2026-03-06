@@ -136,12 +136,12 @@ describe('moduleApi.ts', () => {
   });
 
   it('validate running the API', () => {
-    let watchEvent;
-    let watchCallback: (() => void) | undefined;
+    const watchEvent: string[] = [];
+    const watchCallback: (() => void)[] = [];
     watch.returns({
       on: (event: string, callback: () => void) => {
-        watchEvent = event;
-        watchCallback = callback;
+        watchEvent.push(event);
+        watchCallback.push(callback);
       }
     });
     spawn.returns({ pid: 1234 });
@@ -154,19 +154,21 @@ describe('moduleApi.ts', () => {
       sinon.assert.calledWithExactly(readDir.getCall(0), 'input\\backend\\api');
       sinon.assert.calledWithExactly(spawn.getCall(0), 'node input\\node_modules\\glidelite\\lib\\apiserver\\run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(0), 'input\\backend\\api', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(1), 'input\\shared', { recursive: true });
     }
     else {
       sinon.assert.calledWithExactly(remove.getCall(0), 'input/node_modules/.tmp/glc');
       sinon.assert.calledWithExactly(readDir.getCall(0), 'input/backend/api');
       sinon.assert.calledWithExactly(spawn.getCall(0), 'node input/node_modules/glidelite/lib/apiserver/run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
       sinon.assert.calledWithExactly(watch.getCall(0), 'input/backend/api', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(1), 'input/shared', { recursive: true });
     }
-    expect(watchEvent).to.equal('change');
-    expect(watchCallback).to.not.equal(undefined);
-    // Next if statement is for satisfying TypeScript as it should not be reached
-    if (watchCallback === undefined) {
-      return;
-    }
+    expect(watchEvent.length).to.equal(2);
+    expect(watchEvent[0]).to.equal('change');
+    expect(watchEvent[1]).to.equal('change');
+    expect(watchCallback.length).to.equal(2);
+    expect(watchCallback[0]).to.not.equal(undefined);
+    expect(watchCallback[1]).to.not.equal(undefined);
 
     // With API port in GlideLite configuration, TypeScript files available, and a sucessful execute
     readDir.onCall(1).returns([{ name: 'test.ts' }, { name: 'test.js' }]);
@@ -175,35 +177,58 @@ describe('moduleApi.ts', () => {
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(remove.getCall(1), 'input\\node_modules\\.tmp\\glc');
       sinon.assert.calledWithExactly(readDir.getCall(1), 'input\\backend\\api');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input\\backend --rootDir input\\backend --outDir input\\node_modules\\.tmp\\glc', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
       sinon.assert.calledWithExactly(spawn.getCall(1), 'node input\\node_modules\\glidelite\\lib\\apiserver\\run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
-      sinon.assert.calledWithExactly(watch.getCall(1), 'input\\backend\\api', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(2), 'input\\backend\\api', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(3), 'input\\shared', { recursive: true });
     }
     else {
       sinon.assert.calledWithExactly(remove.getCall(1), 'input/node_modules/.tmp/glc');
       sinon.assert.calledWithExactly(readDir.getCall(1), 'input/backend/api');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input/backend --rootDir input/backend --outDir input/node_modules/.tmp/glc', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
       sinon.assert.calledWithExactly(spawn.getCall(1), 'node input/node_modules/glidelite/lib/apiserver/run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
-      sinon.assert.calledWithExactly(watch.getCall(1), 'input/backend/api', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(2), 'input/backend/api', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(3), 'input/shared', { recursive: true });
     }
-    expect(watchEvent).to.equal('change');
-    expect(watchCallback).to.not.equal(undefined);
+    expect(watchEvent.length).to.equal(4);
+    expect(watchEvent[2]).to.equal('change');
+    expect(watchEvent[3]).to.equal('change');
+    expect(watchCallback.length).to.equal(4);
+    expect(watchCallback[2]).to.not.equal(undefined);
+    expect(watchCallback[3]).to.not.equal(undefined);
 
     // Test the callback function with TypeScript files available but a failing execute
     readDir.onCall(2).returns([{ name: 'test.tsx' }, { name: 'test.ts' }]);
     execute.onCall(1).returns(false);
-    watchCallback();
+    watchCallback[2]();
     if ('win32' === process.platform) {
       sinon.assert.calledWithExactly(spawn.getCall(2), 'taskkill', ['/pid', '1234', '/f', '/t']);
       sinon.assert.calledWithExactly(remove.getCall(2), 'input\\node_modules\\.tmp\\glc');
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input\\backend\\api');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input\\backend --rootDir input\\backend --outDir input\\node_modules\\.tmp\\glc', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
     }
     else {
       sinon.assert.calledWithExactly(spawn.getCall(2), 'sh', ['-c', `kill -9 1234`]);
       sinon.assert.calledWithExactly(remove.getCall(2), 'input/node_modules/.tmp/glc');
       sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/api');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input/backend --rootDir input/backend --outDir input/node_modules/.tmp/glc', 'input');
+      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
+    }
+
+    // Test the callback function with TypeScript files available but a failing execute
+    readDir.onCall(3).returns([{ name: 'test.tsx' }, { name: 'test.ts' }]);
+    execute.onCall(2).returns(false);
+    watchCallback[3]();
+    if ('win32' === process.platform) {
+      sinon.assert.calledWithExactly(spawn.getCall(3), 'taskkill', ['/pid', '1234', '/f', '/t']);
+      sinon.assert.calledWithExactly(remove.getCall(3), 'input\\node_modules\\.tmp\\glc');
+      sinon.assert.calledWithExactly(readDir.getCall(3), 'input\\backend\\api');
+      sinon.assert.calledWithExactly(execute.getCall(2), 'npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
+    }
+    else {
+      sinon.assert.calledWithExactly(spawn.getCall(3), 'sh', ['-c', `kill -9 1234`]);
+      sinon.assert.calledWithExactly(remove.getCall(3), 'input/node_modules/.tmp/glc');
+      sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/api');
+      sinon.assert.calledWithExactly(execute.getCall(2), 'npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
     }
   });
 
