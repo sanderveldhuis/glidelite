@@ -1,4 +1,3 @@
-"use strict";
 /**
  * MIT License
  *
@@ -22,5 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-// Empty on purpose
+import { UserConfig } from 'vite';
+/**
+ * GlideLite configuration for Vite.
+ */
+export declare const glConfig: UserConfig;
