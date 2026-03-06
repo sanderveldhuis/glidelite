@@ -169,6 +169,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   // Start running all workers
   runWorkers();
 
+  // TODO: also watch shared directory
   // Watch for changes in files and restart workers when files changed
   const watcher = watch(workersDir, { recursive: true });
   watcher.on('change', () => {
@@ -212,11 +213,11 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
     // Construct Crontab content for either a task or a service
     const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
     if (instruction[1] === 'service') {
-      crontab += `@reboot root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
-      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/workers/${jsFilePath}" || node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      crontab += `@reboot root node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/backend/workers/${jsFilePath}" || node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
     }
     else {
-      crontab += `${instruction[2]} root node /opt/${config.name as string}/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
+      crontab += `${instruction[2]} root node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
     }
   }
 

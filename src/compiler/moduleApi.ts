@@ -116,7 +116,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
     if (tsFiles.length > 0) {
       // Compile the TypeScript files
-      if (!execute(`npm exec -- tsc -p ${backendDir} --rootDir ${backendDir} --outDir ${tmpDir}`, workingDirectory)) {
+      if (!execute(`npm exec -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${tmpDir}`, workingDirectory)) {
         return;
       }
     }
@@ -128,6 +128,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   // Start running the API server
   runApiServer();
 
+  // TODO: also watch shared directory
   // Watch for changes in files and restart API server when files changed
   const watcher = watch(apiDir, { recursive: true });
   watcher.on('change', () => {
