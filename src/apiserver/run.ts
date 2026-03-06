@@ -44,18 +44,18 @@ function isRequestHandler(obj: unknown): obj is RequestHandler {
 let isDevelopment = false;
 let routersDir = '';
 for (let dir = __dirname;; dir = dirname(dir)) {
-  // Search for the API router directory
-  routersDir = join(dir, 'backend', 'api', 'routers');
+  // Search for the temporary development directory
+  routersDir = join(dir, 'node_modules', '.tmp', 'glc', 'backend', 'api', 'routers');
   let result = statSync(routersDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
+    isDevelopment = true;
     break;
   }
 
-  // Search for the temporary development directory
-  routersDir = join(dir, 'node_modules', '.tmp', 'glc', 'backend', 'api', 'routers');
+  // Search for the API router directory
+  routersDir = join(dir, 'backend', 'api', 'routers');
   result = statSync(routersDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
-    isDevelopment = true;
     break;
   }
 
