@@ -141,7 +141,7 @@ describe('moduleWorkers.ts', () => {
     else {
       sinon.assert.calledWithExactly(readDir.getCall(0), 'input/backend/workers');
       sinon.assert.calledWithExactly(watch.getCall(0), 'input/backend/workers', { recursive: true });
-      sinon.assert.calledWithExactly(watch.getCall(0), 'input/shared', { recursive: true });
+      sinon.assert.calledWithExactly(watch.getCall(1), 'input/shared', { recursive: true });
     }
     expect(watchEvent.length).to.equal(2);
     expect(watchEvent[0]).to.equal('change');
