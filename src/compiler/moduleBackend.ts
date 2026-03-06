@@ -27,7 +27,6 @@ import * as moduleApi from './moduleApi';
 import * as moduleWorkers from './moduleWorkers';
 import {
   execute,
-  exists,
   readDir
 } from './sysUtils';
 import {

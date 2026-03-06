@@ -139,6 +139,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const skippedWorkers: string[] = [];
   const children: ChildProcess[] = [];
   const workersDir = join(workingDirectory, 'backend', 'workers');
+  const sharedDir = join(workingDirectory, 'shared');
   let restartTimeout: NodeJS.Timeout;
 
   // Internal function to start running all workers
@@ -166,13 +167,8 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     }
   };
 
-  // Start running all workers
-  runWorkers();
-
-  // TODO: also watch shared directory
-  // Watch for changes in files and restart workers when files changed
-  const watcher = watch(workersDir, { recursive: true });
-  watcher.on('change', () => {
+  // Internal function to stop and start running all workers
+  const restartWorkers = () => {
     // Use a delay to prevent restarting too much
     clearTimeout(restartTimeout);
     restartTimeout = setTimeout(() => {
@@ -187,6 +183,19 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       }
       runWorkers();
     }, restartDelay);
+  };
+
+  // Start running all workers
+  runWorkers();
+
+  // Watch for changes in files and restart workers when files changed
+  const workersWatcher = watch(workersDir, { recursive: true });
+  const sharedWatcher = watch(sharedDir, { recursive: true });
+  workersWatcher.on('change', () => {
+    restartWorkers();
+  });
+  sharedWatcher.on('change', () => {
+    restartWorkers();
   });
 }
 
