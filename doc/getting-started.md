@@ -40,7 +40,7 @@ This will create the filesystem structure with required files for a GlideLite pr
 │  │  └─ 500.html       # example 500 page
 │  ├─ vite.config.ts    # Vite configuration for frontend code
 │  └─ index.html        # example index page
-├─ shared               # contains all shared backend and frondend code
+├─ shared               # contains all shared backend and frontend code
 ├─ glconfig.json        # GlideLite configuration for the project
 └─ tsconfig.json        # TypeScript configuration for backend modules
 ```
