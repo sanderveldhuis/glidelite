@@ -45,7 +45,7 @@ let isDevelopment = false;
 let routersDir = '';
 for (let dir = __dirname;; dir = dirname(dir)) {
   // Search for the API router directory
-  routersDir = join(dir, 'api', 'routers');
+  routersDir = join(dir, 'backend', 'api', 'routers');
   let result = statSync(routersDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
     break;
