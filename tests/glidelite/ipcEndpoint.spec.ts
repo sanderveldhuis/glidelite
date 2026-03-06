@@ -24,11 +24,11 @@
 
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { IpcEndpointImpl } from '../../src/glidelite/ipcEndpoint';
+import { IpcEndpointImpl } from '../../src/glidelite/backend/ipcEndpoint';
 import {
   IpcMessage,
   IpcPayload
-} from '../../src/glidelite/ipcMessage';
+} from '../../src/glidelite/backend/ipcMessage';
 
 describe('ipcEndpoint.ts', () => {
   let endpoint: IpcEndpointImpl;

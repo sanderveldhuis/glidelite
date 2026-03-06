@@ -26,13 +26,13 @@ import { expect } from 'chai';
 import * as fs from 'node:fs';
 import * as net from 'node:net';
 import sinon from 'ts-sinon';
-import { IpcImpl } from '../../src/glidelite/ipc';
-import { IpcClient } from '../../src/glidelite/ipcClient';
-import { IpcEndpointImpl } from '../../src/glidelite/ipcEndpoint';
+import { IpcImpl } from '../../src/glidelite/backend/ipc';
+import { IpcClient } from '../../src/glidelite/backend/ipcClient';
+import { IpcEndpointImpl } from '../../src/glidelite/backend/ipcEndpoint';
 import {
   IpcMessage,
   IpcPayload
-} from '../../src/glidelite/ipcMessage';
+} from '../../src/glidelite/backend/ipcMessage';
 
 describe('ipc.ts', () => {
   let ipc: IpcImpl;

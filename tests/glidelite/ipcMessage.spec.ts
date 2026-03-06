@@ -23,7 +23,7 @@
  */
 
 import { expect } from 'chai';
-import { IpcMessage } from '../../src/glidelite/ipcMessage';
+import { IpcMessage } from '../../src/glidelite/backend/ipcMessage';
 
 describe('ipcMessage.ts', () => {
   it('validate serializing to payload', () => {

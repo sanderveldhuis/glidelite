@@ -27,7 +27,7 @@ import sinon from 'ts-sinon';
 import {
   log,
   Logger
-} from '../../src/glidelite/logger';
+} from '../../src/glidelite/backend/logger';
 
 describe('logger.ts', () => {
   let consoleLog: sinon.SinonStub;

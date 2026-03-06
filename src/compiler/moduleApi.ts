@@ -77,7 +77,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   const apiRouters = join(workingDirectory, 'backend', 'api', 'routers');
-  const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
+  const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'apiserver', 'run.js');
 
   if (!exists(apiRouters)) {
     console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${apiRouters}'.`);
@@ -99,7 +99,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const tmpDir = join(workingDirectory, 'node_modules', '.tmp', 'glc');
   const backendDir = join(workingDirectory, 'backend');
   const apiDir = join(backendDir, 'api');
-  const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'api.js');
+  const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'apiserver', 'run.js');
   const port = getApiPort(config);
   let child: ChildProcess | undefined;
   let restartTimeout: NodeJS.Timeout;
@@ -162,7 +162,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   makeDir(cronDir);
   makeFile(
     cronFile,
-    `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n` +
-      `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port}" || node /opt/${config.name as string}/node_modules/glidelite/lib/api.js${port} >> /var/log/${config.name as string}/api.log &\n`
+    `@reboot root node /opt/${config.name as string}/node_modules/glidelite/lib/apiserver/run.js${port} >> /var/log/${config.name as string}/api.log &\n` +
+      `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/node_modules/glidelite/lib/apiserver/run.js${port}" || node /opt/${config.name as string}/node_modules/glidelite/lib/apiserver/run.js${port} >> /var/log/${config.name as string}/api.log &\n`
   );
 }

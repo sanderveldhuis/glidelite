@@ -1,4 +1,7 @@
 {
-  "comment1": "this file is used by the unittest 'tests/glidelite/glconfig.spec.ts'",
-  "comment2": "do not remove this file"
+  "comment1": "this file is used by the unittests",
+  "comment2": "do not remove this file",
+  "ports": {
+    "api": 12345
+  }
 }

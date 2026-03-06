@@ -22,37 +22,15 @@
  * SOFTWARE.
  */
 
-import {
-  assert,
-  expect
-} from 'chai';
-import * as path from 'node:path';
-import sinon from 'ts-sinon';
+import { expect } from 'chai';
+import { ApiError } from '../../src/glidelite/frontend/api';
 
-describe('glconfig.ts', () => {
-  it('validate not finding the GlideLite config', async () => {
-    const dirname = sinon.stub(path, 'dirname') as sinon.SinonStub;
-    dirname.returns(__dirname).returns(__dirname);
+describe('api.ts', () => {
+  it('validate the API error type', () => {
+    const error = new ApiError(12345);
 
-    try {
-      await import(path.resolve('src/glidelite/backend/glconfig'));
-      dirname.restore();
-      assert.fail('import succeeded unexpectedly');
-    }
-    catch (error) {
-      dirname.restore();
-      expect(error).to.deep.equal(new Error('No glconfig.json file available'));
-    }
-  });
-
-  it('validate finding the GlideLite config', async () => {
-    const { glconfig } = await import(path.resolve('src/glidelite/backend/glconfig')); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
-    expect(glconfig).to.deep.equal({
-      comment1: 'this file is used by the unittests',
-      comment2: 'do not remove this file',
-      ports: {
-        api: 12345
-      }
-    });
+    expect(error.status).to.equal(12345);
+    expect(error.name).to.equal('Error');
+    expect(error.message).to.equal('xhr_error');
   });
 });

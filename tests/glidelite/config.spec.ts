@@ -29,13 +29,17 @@ import {
 import * as path from 'node:path';
 import sinon from 'ts-sinon';
 
-describe('glconfig.ts', () => {
+// Just loading the `defineConfig` to prevent missing dependencies
+import { defineConfig } from 'vite';
+defineConfig({});
+
+describe('config.ts', () => {
   it('validate not finding the GlideLite config', async () => {
     const dirname = sinon.stub(path, 'dirname') as sinon.SinonStub;
     dirname.returns(__dirname).returns(__dirname);
 
     try {
-      await import(path.resolve('src/glidelite/backend/glconfig'));
+      await import(path.resolve('src/vite/config'));
       dirname.restore();
       assert.fail('import succeeded unexpectedly');
     }
@@ -46,13 +50,22 @@ describe('glconfig.ts', () => {
   });
 
   it('validate finding the GlideLite config', async () => {
-    const { glconfig } = await import(path.resolve('src/glidelite/backend/glconfig')); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
-    expect(glconfig).to.deep.equal({
-      comment1: 'this file is used by the unittests',
-      comment2: 'do not remove this file',
-      ports: {
-        api: 12345
+    const { glConfig } = await import(path.resolve('src/vite/config')); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
+    expect(glConfig).to.deep.equal({
+      server: {
+        proxy: {
+          '/api': {
+            target: 'http://localhost:12345',
+            rewrite: glConfig.server.proxy['/api'].rewrite /* eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+          }
+        }
       }
     });
+
+    // Test rewrite function
+    const result1 = glConfig.server.proxy['/api'].rewrite('/api/test1'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+    expect(result1).to.equal('/test1');
+    const result2 = glConfig.server.proxy['/api'].rewrite('/apitest1'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+    expect(result2).to.equal('test1');
   });
 });
