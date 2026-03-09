@@ -184,6 +184,7 @@ Continue your journey into GlideLite:
 
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * Backend
+  * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
   * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
   * [Use configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md)
   * [Use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md)
