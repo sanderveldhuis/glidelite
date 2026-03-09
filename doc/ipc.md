@@ -106,6 +106,7 @@ Continue your journey into GlideLite:
   * [Use configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md)
   * [Use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md)
   * [Logging](https://github.com/sanderveldhuis/glidelite/blob/main/doc/logging.md)
+  * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
 * Frontend
   * [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md)
   * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
