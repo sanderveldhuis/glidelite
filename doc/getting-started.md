@@ -74,8 +74,14 @@ npx glc -m backend
 To dive deeper into GlideLite it is time to start coding your project:
 
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
-* [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
-* [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
-* [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
-* [Frontend](https://github.com/sanderveldhuis/glidelite/blob/main/doc/frontend.md)
+* Backend
+  * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
+  * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
+  * [Use configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md)
+  * [Use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md)
+  * [Logging](https://github.com/sanderveldhuis/glidelite/blob/main/doc/logging.md)
+  * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
+* Frontend
+  * [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md)
+  * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
 * [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)
