@@ -26,5 +26,6 @@ Continue your journey into GlideLite:
   * [Logging](https://github.com/sanderveldhuis/glidelite/blob/main/doc/logging.md)
   * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
 * Frontend
+  * [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md)
   * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
 * [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)
