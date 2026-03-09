@@ -50,3 +50,4 @@ Continue your journey into GlideLite:
 * Frontend
   * [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md)
   * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
+* [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)
