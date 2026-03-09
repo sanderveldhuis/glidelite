@@ -118,6 +118,7 @@ Specifies the port for the API server which is responsible for all custom design
 
 Continue your journey into GlideLite:
 
+* [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * Backend
   * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
   * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
