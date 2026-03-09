@@ -12,3 +12,19 @@ Deployed projects will automatically handle `404 Not Found`, `429 Too Many Reque
 * _404.html_: displayed when the requested resource is not found.
 * _429.html_: displayed when the client is rate limited after performing excessive requests.
 * _500.html_: displayed when the server encountered an unexpected condition that prevents fulfilling the request.
+
+# Further reading
+
+Continue your journey into GlideLite:
+
+* [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
+* Backend
+  * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
+  * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
+  * [Use configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md)
+  * [Use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md)
+  * [Logging](https://github.com/sanderveldhuis/glidelite/blob/main/doc/logging.md)
+  * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
+* Frontend
+  * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
+* [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)
