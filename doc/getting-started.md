@@ -35,9 +35,6 @@ This will create the filesystem structure with required files for a GlideLite pr
 │  └─ workers           # contains code for workers
 ├─ frontend             # contains all frontend modules
 │  ├─ public            # contains public assets
-│  │  ├─ 404.html       # example 404 page
-│  │  ├─ 429.html       # example 429 page
-│  │  └─ 500.html       # example 500 page
 │  ├─ vite.config.ts    # Vite configuration for frontend code
 │  └─ index.html        # example index page
 ├─ shared               # contains all shared backend and frontend code
