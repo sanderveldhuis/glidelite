@@ -70,7 +70,7 @@
     "directory-import": "^3.3.2",
     "express": "^5.2.1",
     "http-graceful-shutdown": "^3.1.16",
-    "npm": "^11.12.1",
+    "npm": "^11.13.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
