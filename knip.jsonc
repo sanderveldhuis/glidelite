@@ -22,5 +22,8 @@
     "mocha",
     "npm"
   ],
-  "ignoreBinaries": ["glc"]
+  "ignoreBinaries": [
+    "glc",
+    "taskkill"
+  ]
 }
