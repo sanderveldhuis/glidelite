@@ -63,7 +63,7 @@
     "dist:copy": "node -e \"require('fs').mkdirSync('lib')\" && cpx \"built/src/apiserver/**/*.js\" lib/apiserver && cpx \"built/src/compiler/**/*.js\" lib/compiler && cpx \"built/src/glidelite/**/*.{js,ts}\" lib && cpx \"built/src/vite/**/*.{js,ts}\" lib/vite"
   },
   "dependencies": {
-    "@tsconfig/node-lts": "^24.0.0",
+    "@tsconfig/node-lts": "^24.0.1",
     "@types/express": "^5.0.6",
     "@types/node": "latest",
     "@vitejs/plugin-react": "^5.1.4",
