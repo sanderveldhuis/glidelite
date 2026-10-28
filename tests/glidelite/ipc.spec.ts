@@ -22,10 +22,16 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
-import * as fs from 'node:fs';
-import * as net from 'node:net';
-import sinon from 'ts-sinon';
+import fs from 'node:fs';
+import net from 'node:net';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import { IpcImpl } from '../../src/glidelite/backend/ipc';
 import { IpcClient } from '../../src/glidelite/backend/ipcClient';
 import { IpcEndpointImpl } from '../../src/glidelite/backend/ipcEndpoint';
@@ -33,6 +39,8 @@ import {
   IpcMessage,
   IpcPayload
 } from '../../src/glidelite/backend/ipcMessage';
+
+vi.mock('node:fs');
 
 describe('ipc.ts', () => {
   let ipc: IpcImpl;
@@ -48,47 +56,37 @@ describe('ipc.ts', () => {
   }, () => {
     // Not used
   });
-  let serverMock: sinon.SinonMock;
-  let endpoint1Mock: sinon.SinonMock;
-  let endpoint2Mock: sinon.SinonMock;
-  let client1Mock: sinon.SinonMock;
-  let client2Mock: sinon.SinonMock;
-  let consoleError: sinon.SinonStub;
-  let rmSync: sinon.SinonStub;
-  let fakeTimer: sinon.SinonFakeTimers;
 
   beforeEach(() => {
     ipc = new IpcImpl();
-    serverMock = sinon.mock(ipc._server);
-    endpoint1Mock = sinon.mock(endpoint1);
-    endpoint2Mock = sinon.mock(endpoint2);
-    client1Mock = sinon.mock(client1);
-    client2Mock = sinon.mock(client2);
-    consoleError = sinon.stub(console, 'error');
-    rmSync = sinon.stub(fs, 'rmSync');
-    fakeTimer = sinon.useFakeTimers(1234567890);
   });
 
   afterEach(() => {
-    serverMock.verify();
-    endpoint1Mock.verify();
-    endpoint2Mock.verify();
-    client1Mock.verify();
-    client2Mock.verify();
-    consoleError.restore();
-    rmSync.restore();
-    fakeTimer.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate starting IPC', () => {
-    serverMock.expects('close').twice();
-    serverMock.expects('removeAllListeners').twice();
-    serverMock.expects('on').twice().withArgs('error');
-    serverMock.expects('on').twice().withArgs('connection');
-    serverMock.expects('listen').twice();
+    // @ts-expect-error because function has return type Server
+    const serverClose = vi.spyOn(ipc._server, 'close').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Server
+    const serverRemoveAllListeners = vi.spyOn(ipc._server, 'removeAllListeners').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Server
+    const serverOn = vi.spyOn(ipc._server, 'on').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Server
+    const serverListen = vi.spyOn(ipc._server, 'listen').mockImplementation(() => {/*Empty*/});
+    const rmSync = vi.spyOn(fs, 'rmSync').mockImplementation(() => {/*Empty*/});
 
     // No endpoints defined
     ipc.start('test1');
+    expect(serverClose).toHaveBeenCalledTimes(1);
+    expect(serverClose).toHaveBeenLastCalledWith();
+    expect(serverRemoveAllListeners).toHaveBeenCalledTimes(1);
+    expect(serverRemoveAllListeners).toHaveBeenLastCalledWith();
+    expect(serverOn).toHaveBeenCalledTimes(2);
+    expect(serverOn).toHaveBeenNthCalledWith(1, 'error', expect.anything());
+    expect(serverOn).toHaveBeenNthCalledWith(2, 'connection', expect.anything());
+    expect(serverListen).toHaveBeenCalledTimes(1);
+    expect(serverListen).toHaveBeenLastCalledWith(ipc._path);
     expect(ipc._name).to.equal('test1');
     expect(Object.keys(ipc.to).length).to.equal(0);
     if ('win32' === process.platform) {
@@ -96,11 +94,21 @@ describe('ipc.ts', () => {
     }
     else {
       expect(ipc._path).to.match(/^.*\/ipc_test1$/);
-      sinon.assert.calledWithExactly(rmSync.getCall(0), ipc._path, { force: true });
+      expect(rmSync).toHaveBeenCalledTimes(1);
+      expect(rmSync).toHaveBeenLastCalledWith(ipc._path, { force: true });
     }
 
     // Endpoints defined
     ipc.start('test2', 'endpoint1', 'endpoint2');
+    expect(serverClose).toHaveBeenCalledTimes(2);
+    expect(serverClose).toHaveBeenLastCalledWith();
+    expect(serverRemoveAllListeners).toHaveBeenCalledTimes(2);
+    expect(serverRemoveAllListeners).toHaveBeenLastCalledWith();
+    expect(serverOn).toHaveBeenCalledTimes(4);
+    expect(serverOn).toHaveBeenNthCalledWith(3, 'error', expect.anything());
+    expect(serverOn).toHaveBeenNthCalledWith(4, 'connection', expect.anything());
+    expect(serverListen).toHaveBeenCalledTimes(2);
+    expect(serverListen).toHaveBeenLastCalledWith(ipc._path);
     expect(ipc._name).to.equal('test2');
     expect(Object.keys(ipc.to).length).to.equal(2);
     expect(ipc.to.endpoint1).to.not.equal(undefined);
@@ -110,7 +118,8 @@ describe('ipc.ts', () => {
     }
     else {
       expect(ipc._path).to.match(/^.*\/ipc_test2$/);
-      sinon.assert.calledWithExactly(rmSync.getCall(1), ipc._path, { force: true });
+      expect(rmSync).toHaveBeenCalledTimes(2);
+      expect(rmSync).toHaveBeenLastCalledWith(ipc._path, { force: true });
     }
 
     // Cleanup
@@ -120,6 +129,15 @@ describe('ipc.ts', () => {
   });
 
   it('validate stopping IPC', () => {
+    // @ts-expect-error because function has return type Server
+    const serverClose = vi.spyOn(ipc._server, 'close').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Server
+    const serverRemoveAllListeners = vi.spyOn(ipc._server, 'removeAllListeners').mockImplementation(() => {/*Empty*/});
+    const endpoint1Stop = vi.spyOn(endpoint1, 'stop').mockImplementation(() => {/*Empty*/});
+    const endpoint2Stop = vi.spyOn(endpoint2, 'stop').mockImplementation(() => {/*Empty*/});
+    const client1Stop = vi.spyOn(client1, 'stop').mockImplementation(() => {/*Empty*/});
+    const client2Stop = vi.spyOn(client2, 'stop').mockImplementation(() => {/*Empty*/});
+
     ipc._retryTimer = setTimeout(() => {
       // Should not happen
     }, 1000);
@@ -134,15 +152,19 @@ describe('ipc.ts', () => {
     ipc.to.endpoint2 = endpoint2;
     ipc._clients.push(client1);
     ipc._clients.push(client2);
-
-    serverMock.expects('close').once();
-    serverMock.expects('removeAllListeners').once();
-    endpoint1Mock.expects('stop').once();
-    endpoint2Mock.expects('stop').once();
-    client1Mock.expects('stop').once();
-    client2Mock.expects('stop').once();
     ipc.stop();
-
+    expect(serverClose).toHaveBeenCalledTimes(1);
+    expect(serverClose).toHaveBeenLastCalledWith();
+    expect(serverRemoveAllListeners).toHaveBeenCalledTimes(1);
+    expect(serverRemoveAllListeners).toHaveBeenLastCalledWith();
+    expect(endpoint1Stop).toHaveBeenCalledTimes(1);
+    expect(endpoint1Stop).toHaveBeenLastCalledWith();
+    expect(endpoint2Stop).toHaveBeenCalledTimes(1);
+    expect(endpoint2Stop).toHaveBeenLastCalledWith();
+    expect(client1Stop).toHaveBeenCalledTimes(1);
+    expect(client1Stop).toHaveBeenLastCalledWith();
+    expect(client2Stop).toHaveBeenCalledTimes(1);
+    expect(client2Stop).toHaveBeenLastCalledWith();
     expect(ipc._server).to.not.equal(undefined);
     expect(ipc._retryTimer).to.not.equal(undefined);
     expect(Object.keys(ipc._publishCache).length).to.equal(0);
@@ -153,6 +175,9 @@ describe('ipc.ts', () => {
   });
 
   it('validate publishing a message', () => {
+    const client1Publish = vi.spyOn(client1, 'publish').mockImplementation(() => {/*Empty*/});
+    const client2Publish = vi.spyOn(client2, 'publish').mockImplementation(() => {/*Empty*/});
+
     // Message not existing in cache and no clients available
     ipc.publish('test1');
     ipc.publish('test2', true);
@@ -167,14 +192,18 @@ describe('ipc.ts', () => {
     expect(ipc._publishCache.test2.session).to.equal(undefined);
 
     // Message existing in publish cache and clients available
-    client1Mock.expects('publish').once().withArgs('test1');
-    client1Mock.expects('publish').once().withArgs('test2');
-    client2Mock.expects('publish').once().withArgs('test1');
-    client2Mock.expects('publish').once().withArgs('test2');
     ipc._clients.push(client1);
     ipc._clients.push(client2);
     ipc.publish('test1');
+    expect(client1Publish).toHaveBeenCalledTimes(1);
+    expect(client1Publish).toHaveBeenLastCalledWith('test1', expect.any(IpcMessage));
+    expect(client2Publish).toHaveBeenCalledTimes(1);
+    expect(client2Publish).toHaveBeenLastCalledWith('test1', expect.any(IpcMessage));
     ipc.publish('test2', true);
+    expect(client1Publish).toHaveBeenCalledTimes(2);
+    expect(client1Publish).toHaveBeenLastCalledWith('test2', expect.any(IpcMessage));
+    expect(client2Publish).toHaveBeenCalledTimes(2);
+    expect(client2Publish).toHaveBeenLastCalledWith('test2', expect.any(IpcMessage));
     expect(Object.keys(ipc._publishCache).length).to.equal(2);
     expect(ipc._publishCache.test1.name).to.equal('test1');
     expect(ipc._publishCache.test1.type).to.equal('publish');
@@ -237,33 +266,62 @@ describe('ipc.ts', () => {
   });
 
   it('validate starting the server', () => {
+    // @ts-expect-error because function has return type Server
+    const serverOn = vi.spyOn(ipc._server, 'on').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Server
+    const serverListen = vi.spyOn(ipc._server, 'listen').mockImplementation(() => {/*Empty*/});
+    const rmSync = vi.spyOn(fs, 'rmSync').mockImplementation(() => {/*Empty*/});
+
     ipc._path = 'test';
-    serverMock.expects('on').once().withArgs('error');
-    serverMock.expects('on').once().withArgs('connection');
-    serverMock.expects('listen').once().withExactArgs('test');
     ipc._startServer();
+    expect(serverOn).toHaveBeenCalledTimes(2);
+    expect(serverOn).toHaveBeenNthCalledWith(1, 'error', expect.anything());
+    expect(serverOn).toHaveBeenNthCalledWith(2, 'connection', expect.anything());
+    expect(serverListen).toHaveBeenCalledTimes(1);
+    expect(serverListen).toHaveBeenLastCalledWith('test');
     if (process.platform !== 'win32') {
-      sinon.assert.calledOnceWithExactly(rmSync, 'test', { force: true });
+      expect(rmSync).toHaveBeenCalledTimes(1);
+      expect(rmSync).toHaveBeenLastCalledWith('test', { force: true });
     }
   });
 
   it('validate handling an error event', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    const client1Stop = vi.spyOn(client1, 'stop').mockImplementation(() => {/*Empty*/});
+    const client2Stop = vi.spyOn(client2, 'stop').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Server
+    const serverClose = vi.spyOn(ipc._server, 'close').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Server
+    const serverRemoveAllListeners = vi.spyOn(ipc._server, 'removeAllListeners').mockImplementation(() => {/*Empty*/});
+    vi.spyOn(Date, 'now').mockImplementation(() => {
+      return 1234567890;
+    });
+
+    // No error message, clients available
     ipc._name = 'test';
     ipc._clients.push(client1);
     ipc._clients.push(client2);
-    serverMock.expects('close').twice();
-    serverMock.expects('removeAllListeners').twice();
-    client1Mock.expects('stop').once();
-    client2Mock.expects('stop').once();
-
-    // No error message, clients available
     ipc._onError(new Error());
-    sinon.assert.calledWithExactly(consoleError.getCall(0), '1234567890:ERR:ipc:server:test:');
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('1234567890:ERR:ipc:server:test:');
+    expect(serverClose).toHaveBeenCalledTimes(1);
+    expect(serverClose).toHaveBeenLastCalledWith();
+    expect(serverRemoveAllListeners).toHaveBeenCalledTimes(1);
+    expect(serverRemoveAllListeners).toHaveBeenLastCalledWith();
+    expect(client1Stop).toHaveBeenCalledTimes(1);
+    expect(client1Stop).toHaveBeenLastCalledWith();
+    expect(client2Stop).toHaveBeenCalledTimes(1);
+    expect(client2Stop).toHaveBeenLastCalledWith();
     expect(ipc._clients.length).to.equal(0);
 
     // With error message, no clients available
     ipc._onError(new Error('Unknown error'));
-    sinon.assert.calledWithExactly(consoleError.getCall(1), '1234567890:ERR:ipc:server:test:Unknown error');
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('1234567890:ERR:ipc:server:test:Unknown error');
+    expect(serverClose).toHaveBeenCalledTimes(2);
+    expect(serverClose).toHaveBeenLastCalledWith();
+    expect(serverRemoveAllListeners).toHaveBeenCalledTimes(2);
+    expect(serverRemoveAllListeners).toHaveBeenLastCalledWith();
 
     // Cleanup
     clearTimeout(ipc._retryTimer);

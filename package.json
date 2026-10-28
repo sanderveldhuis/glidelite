@@ -50,7 +50,7 @@
     "SECURITY.md"
   ],
   "scripts": {
-    "test": "nyc mocha",
+    "test": "vitest run",
     "build": "npm run build:compiler && npm run build:tests",
     "build:compiler": "tsc -b --emitDeclarationOnly false src",
     "build:tests": "tsc -b --emitDeclarationOnly false tests",
@@ -66,29 +66,24 @@
     "@tsconfig/node-lts": "^24.0.1",
     "@types/express": "^5.0.6",
     "@types/node": "latest",
-    "@vitejs/plugin-react": "^5.1.4",
+    "@vitejs/plugin-react": "^6.1.2",
     "directory-import": "^3.3.2",
     "express": "^5.3.0",
     "http-graceful-shutdown": "^4.0.0",
     "npm": "^12.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "vite": "^8.3.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "@types/chai": "^5.2.3",
-    "@types/mocha": "^10.0.10",
-    "chai": "^6.3.0",
+    "@vitest/coverage-v8": "^5.0.5",
     "cpx2": "^9.0.3",
     "dprint": "^0.64.3",
     "eslint": "^10.13.0",
     "globals": "^17.13.0",
-    "knip": "^6.42.1",
-    "mocha": "^12.0.3",
-    "nyc": "^18.0.0",
-    "ts-sinon": "^2.0.2",
-    "typescript-eslint": "^8.72.0"
+    "knip": "^6.43.0",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^5.0.5"
   }
 }

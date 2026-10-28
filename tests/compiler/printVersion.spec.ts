@@ -22,23 +22,25 @@
  * SOFTWARE.
  */
 
-import sinon from 'ts-sinon';
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import { printVersion } from '../../src/compiler/printVersion';
 import { version } from '../../src/compiler/version';
 
 describe('printVersion.ts', () => {
-  let consoleLog: sinon.SinonStub;
-
-  beforeEach(() => {
-    consoleLog = sinon.stub(console, 'log');
-  });
-
   afterEach(() => {
-    consoleLog.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate printing the version', () => {
+    const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {/*Emtpy*/});
     printVersion();
-    sinon.assert.calledOnceWithExactly(consoleLog, 'Version', version);
+    expect(consoleLog).toHaveBeenCalledTimes(1);
+    expect(consoleLog).toHaveBeenLastCalledWith('Version', version);
   });
 });

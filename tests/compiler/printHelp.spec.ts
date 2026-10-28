@@ -22,26 +22,28 @@
  * SOFTWARE.
  */
 
-import sinon from 'ts-sinon';
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import { printHelp } from '../../src/compiler/printHelp';
 import { version } from '../../src/compiler/version';
 
 describe('printHelp.ts', () => {
-  let consoleLog: sinon.SinonStub;
-
-  beforeEach(() => {
-    consoleLog = sinon.stub(console, 'log');
-  });
-
   afterEach(() => {
-    consoleLog.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate printing the help', () => {
+    const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {/*Emtpy*/});
     printHelp();
+    expect(consoleLog).toHaveBeenCalledTimes(23);
     // We are only validating the important output
-    sinon.assert.calledWithExactly(consoleLog, 'glc: The GlideLite Compiler - Version', version, '\n');
-    sinon.assert.calledWithExactly(consoleLog, '     \x1b[94m--help, -h\x1b[39m  Print this message.\n');
-    sinon.assert.calledWithExactly(consoleLog, "  \x1b[94m--version, -v\x1b[39m  Print the compiler's version.\n");
+    expect(consoleLog).toHaveBeenCalledWith('glc: The GlideLite Compiler - Version', version, '\n');
+    expect(consoleLog).toHaveBeenCalledWith('     \x1b[94m--help, -h\x1b[39m  Print this message.\n');
+    expect(consoleLog).toHaveBeenCalledWith("  \x1b[94m--version, -v\x1b[39m  Print the compiler's version.\n");
   });
 });

@@ -22,7 +22,13 @@
  * SOFTWARE.
  */
 
-import sinon from 'ts-sinon';
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import * as moduleApiSrc from '../../src/compiler/moduleApi';
 import {
   clean,
@@ -31,115 +37,119 @@ import {
   validate
 } from '../../src/compiler/moduleBackend';
 import * as moduleWorkersSrc from '../../src/compiler/moduleWorkers';
-import * as sysUtils from '../../src/compiler/sysUtils';
+import * as sysUtilsSrc from '../../src/compiler/sysUtils';
 
 describe('moduleBackend.ts', () => {
-  let processExit: sinon.SinonStub;
-  let readDir: sinon.SinonStub;
-  let execute: sinon.SinonStub;
-  let runApi: sinon.SinonStub;
-  let cleanApi: sinon.SinonStub;
-  let compileApi: sinon.SinonStub;
-  let validateApi: sinon.SinonStub;
-  let runWorkers: sinon.SinonStub;
-  let cleanWorkers: sinon.SinonStub;
-  let compileWorkers: sinon.SinonStub;
-  let validateWorkers: sinon.SinonStub;
-
-  beforeEach(() => {
-    processExit = sinon.stub(process, 'exit');
-    readDir = sinon.stub(sysUtils, 'readDir');
-    execute = sinon.stub(sysUtils, 'execute');
-    runApi = sinon.stub(moduleApiSrc, 'run');
-    cleanApi = sinon.stub(moduleApiSrc, 'clean');
-    compileApi = sinon.stub(moduleApiSrc, 'compile');
-    validateApi = sinon.stub(moduleApiSrc, 'validate');
-    runWorkers = sinon.stub(moduleWorkersSrc, 'run');
-    cleanWorkers = sinon.stub(moduleWorkersSrc, 'clean');
-    compileWorkers = sinon.stub(moduleWorkersSrc, 'compile');
-    validateWorkers = sinon.stub(moduleWorkersSrc, 'validate');
-  });
-
   afterEach(() => {
-    processExit.restore();
-    readDir.restore();
-    execute.restore();
-    runApi.restore();
-    cleanApi.restore();
-    compileApi.restore();
-    validateApi.restore();
-    runWorkers.restore();
-    cleanWorkers.restore();
-    compileWorkers.restore();
-    validateWorkers.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate checking the backend', () => {
+    const validateWorkers = vi.spyOn(moduleWorkersSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
+    const validateApi = vi.spyOn(moduleApiSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
+
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input');
-    sinon.assert.calledOnceWithExactly(validateWorkers, { name: 'pkg' }, { name: 'cfg' }, 'input');
-    sinon.assert.calledOnceWithExactly(validateApi, { name: 'pkg' }, { name: 'cfg' }, 'input');
+    expect(validateWorkers).toHaveBeenCalledTimes(1);
+    expect(validateWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
+    expect(validateApi).toHaveBeenCalledTimes(1);
+    expect(validateApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
   });
 
   it('validate cleaning the backend', () => {
+    const cleanWorkers = vi.spyOn(moduleWorkersSrc, 'clean').mockImplementation(() => {/*Emtpy*/});
+    const cleanApi = vi.spyOn(moduleApiSrc, 'clean').mockImplementation(() => {/*Emtpy*/});
+
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
-    sinon.assert.calledOnceWithExactly(cleanWorkers, { name: 'pkg' }, { name: 'cfg' }, 'output');
-    sinon.assert.calledOnceWithExactly(cleanApi, { name: 'pkg' }, { name: 'cfg' }, 'output');
+    expect(cleanWorkers).toHaveBeenCalledTimes(1);
+    expect(cleanWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'output');
+    expect(cleanApi).toHaveBeenCalledTimes(1);
+    expect(cleanApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'output');
   });
 
   it('validate running the backend', () => {
+    const runWorkers = vi.spyOn(moduleWorkersSrc, 'run').mockImplementation(() => {/*Emtpy*/});
+    const runApi = vi.spyOn(moduleApiSrc, 'run').mockImplementation(() => {/*Emtpy*/});
+
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
-    sinon.assert.calledOnceWithExactly(runWorkers, { name: 'pkg' }, { name: 'cfg' }, 'input');
-    sinon.assert.calledOnceWithExactly(runApi, { name: 'pkg' }, { name: 'cfg' }, 'input');
+    expect(runWorkers).toHaveBeenCalledTimes(1);
+    expect(runWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
+    expect(runApi).toHaveBeenCalledTimes(1);
+    expect(runApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
   });
 
   it('validate compiling the backend', () => {
+    const compileWorkers = vi.spyOn(moduleWorkersSrc, 'compile').mockImplementation(() => {/*Emtpy*/});
+    const compileApi = vi.spyOn(moduleApiSrc, 'compile').mockImplementation(() => {/*Emtpy*/});
+    const execute = vi.spyOn(sysUtilsSrc, 'execute');
+    const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+
     // No files available in API directory
-    readDir.onCall(0).returns([]);
+    readDir.mockReturnValueOnce([]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input1', 'output1');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(readDir.getCall(0), 'input1\\backend');
+      expect(readDir).toHaveBeenCalledTimes(1);
+      expect(readDir).toHaveBeenLastCalledWith('input1\\backend');
     }
     else {
-      sinon.assert.calledWithExactly(readDir.getCall(0), 'input1/backend');
+      expect(readDir).toHaveBeenCalledTimes(1);
+      expect(readDir).toHaveBeenLastCalledWith('input1/backend');
     }
 
     // No files with .ts extension available in API directory
-    readDir.onCall(1).returns([{ name: 'test.tsx' }, { name: 'test.js' }]);
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.js' }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input2', 'output2');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(readDir.getCall(1), 'input2\\backend');
+      expect(readDir).toHaveBeenCalledTimes(2);
+      expect(readDir).toHaveBeenLastCalledWith('input2\\backend');
     }
     else {
-      sinon.assert.calledWithExactly(readDir.getCall(1), 'input2/backend');
+      expect(readDir).toHaveBeenCalledTimes(2);
+      expect(readDir).toHaveBeenLastCalledWith('input2/backend');
     }
 
     // Files with .ts extension available in API directory but execution failed
-    readDir.onCall(2).returns([{ name: 'test1.ts', parentPath: 'path1' }]);
-    execute.onCall(0).returns(false);
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }]);
+    execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(readDir.getCall(2), 'input3\\backend');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input3 --rootDir input3 --outDir output3\\opt\\cfg', 'input3');
+      expect(readDir).toHaveBeenCalledTimes(3);
+      expect(readDir).toHaveBeenLastCalledWith('input3\\backend');
+      expect(execute).toHaveBeenCalledTimes(1);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input3 --rootDir input3 --outDir output3\\opt\\cfg', 'input3');
     }
     else {
-      sinon.assert.calledWithExactly(readDir.getCall(2), 'input3/backend');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input3 --rootDir input3 --outDir output3/opt/cfg', 'input3');
+      expect(readDir).toHaveBeenCalledTimes(3);
+      expect(readDir).toHaveBeenLastCalledWith('input3/backend');
+      expect(execute).toHaveBeenCalledTimes(1);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input3 --rootDir input3 --outDir output3/opt/cfg', 'input3');
     }
-    sinon.assert.calledOnceWithExactly(processExit, 3002);
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(3002);
 
     // Files with .ts extension available in API directory and execution succeeded
-    readDir.onCall(3).returns([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
-    execute.onCall(1).returns(true);
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
+    execute.mockReturnValueOnce(true);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(readDir.getCall(3), 'input4\\backend');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input4 --rootDir input4 --outDir output4\\opt\\cfg', 'input4');
+      expect(readDir).toHaveBeenCalledTimes(4);
+      expect(readDir).toHaveBeenLastCalledWith('input4\\backend');
+      expect(execute).toHaveBeenCalledTimes(2);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input4 --rootDir input4 --outDir output4\\opt\\cfg', 'input4');
     }
     else {
-      sinon.assert.calledWithExactly(readDir.getCall(3), 'input4/backend');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input4 --rootDir input4 --outDir output4/opt/cfg', 'input4');
+      expect(readDir).toHaveBeenCalledTimes(4);
+      expect(readDir).toHaveBeenLastCalledWith('input4/backend');
+      expect(execute).toHaveBeenCalledTimes(2);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input4 --rootDir input4 --outDir output4/opt/cfg', 'input4');
     }
-    sinon.assert.calledOnceWithExactly(compileWorkers, { name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
-    sinon.assert.calledOnceWithExactly(compileApi, { name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
+    expect(compileWorkers).toHaveBeenCalledTimes(1);
+    expect(compileWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
+    expect(compileApi).toHaveBeenCalledTimes(1);
+    expect(compileApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
   });
 });

@@ -22,22 +22,18 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
-import sinon from 'ts-sinon';
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import { parseCommandLine } from '../../src/compiler/parseCommandLine';
 
 describe('parseCommandLine.ts', () => {
-  let consoleError: sinon.SinonStub;
-  let processExit: sinon.SinonStub;
-
-  beforeEach(() => {
-    consoleError = sinon.stub(console, 'error');
-    processExit = sinon.stub(process, 'exit');
-  });
-
   afterEach(() => {
-    consoleError.restore();
-    processExit.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate when no parameters are given', () => {
@@ -55,35 +51,51 @@ describe('parseCommandLine.ts', () => {
   });
 
   it('validate when an unknown option is given', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+
     const command1 = parseCommandLine(['-']);
     expect(command1).to.equal(undefined);
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1001:', "Unknown compiler option '-'.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 1001);
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '-'.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command2 = parseCommandLine(['--']);
     expect(command2).to.equal(undefined);
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1001:', "Unknown compiler option '--'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 1001);
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '--'.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command3 = parseCommandLine(['-helps']);
     expect(command3).to.equal(undefined);
-    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1001:', "Unknown compiler option '-helps'.");
-    sinon.assert.calledWithExactly(processExit.getCall(2), 1001);
+    expect(consoleError).toHaveBeenCalledTimes(3);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '-helps'.");
+    expect(processExit).toHaveBeenCalledTimes(3);
+    expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command4 = parseCommandLine(['--helps']);
     expect(command4).to.equal(undefined);
-    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1001:', "Unknown compiler option '--helps'.");
-    sinon.assert.calledWithExactly(processExit.getCall(3), 1001);
+    expect(consoleError).toHaveBeenCalledTimes(4);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '--helps'.");
+    expect(processExit).toHaveBeenCalledTimes(4);
+    expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command5 = parseCommandLine(['-hel']);
     expect(command5).to.equal(undefined);
-    sinon.assert.calledWithExactly(consoleError.getCall(4), 'error GL1001:', "Unknown compiler option '-hel'.");
-    sinon.assert.calledWithExactly(processExit.getCall(4), 1001);
+    expect(consoleError).toHaveBeenCalledTimes(5);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '-hel'.");
+    expect(processExit).toHaveBeenCalledTimes(5);
+    expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command6 = parseCommandLine(['--hel']);
     expect(command6).to.equal(undefined);
-    sinon.assert.calledWithExactly(consoleError.getCall(5), 'error GL1001:', "Unknown compiler option '--hel'.");
-    sinon.assert.calledWithExactly(processExit.getCall(5), 1001);
+    expect(consoleError).toHaveBeenCalledTimes(6);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '--hel'.");
+    expect(processExit).toHaveBeenCalledTimes(6);
+    expect(processExit).toHaveBeenLastCalledWith(1001);
   });
 
   it('validate when a boolean option is given', () => {
@@ -149,55 +161,79 @@ describe('parseCommandLine.ts', () => {
   });
 
   it('validate when a string option without value is given', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+
     const command1 = parseCommandLine(['--module']);
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1002:', "Compiler option 'module' expects an argument.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 1002);
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1002:', "Compiler option 'module' expects an argument.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(1002);
 
     const command2 = parseCommandLine(['-module']);
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1002:', "Compiler option 'module' expects an argument.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 1002);
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1002:', "Compiler option 'module' expects an argument.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(1002);
 
     const command3 = parseCommandLine(['--m']);
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1002:', "Compiler option 'module' expects an argument.");
-    sinon.assert.calledWithExactly(processExit.getCall(2), 1002);
+    expect(consoleError).toHaveBeenCalledTimes(3);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1002:', "Compiler option 'module' expects an argument.");
+    expect(processExit).toHaveBeenCalledTimes(3);
+    expect(processExit).toHaveBeenLastCalledWith(1002);
 
     const command4 = parseCommandLine(['-m']);
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1002:', "Compiler option 'module' expects an argument.");
-    sinon.assert.calledWithExactly(processExit.getCall(3), 1002);
+    expect(consoleError).toHaveBeenCalledTimes(4);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1002:', "Compiler option 'module' expects an argument.");
+    expect(processExit).toHaveBeenCalledTimes(4);
+    expect(processExit).toHaveBeenLastCalledWith(1002);
   });
 
   it('validate when a string option with invalid value is given', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+
     const command1 = parseCommandLine(['--module', 'backen']);
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 1003);
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(1003);
 
     const command2 = parseCommandLine(['-module', 'backendd']);
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 1003);
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(1003);
 
     const command3 = parseCommandLine(['--m', 'fronten']);
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
-    sinon.assert.calledWithExactly(processExit.getCall(2), 1003);
+    expect(consoleError).toHaveBeenCalledTimes(3);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
+    expect(processExit).toHaveBeenCalledTimes(3);
+    expect(processExit).toHaveBeenLastCalledWith(1003);
 
     const command4 = parseCommandLine(['-m', 'frontendd']);
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
-    sinon.assert.calledWithExactly(consoleError.getCall(3), 'error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
-    sinon.assert.calledWithExactly(processExit.getCall(3), 1003);
+    expect(consoleError).toHaveBeenCalledTimes(4);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
+    expect(processExit).toHaveBeenCalledTimes(4);
+    expect(processExit).toHaveBeenLastCalledWith(1003);
   });
 
   it('validate when a string option with valid value is given', () => {

@@ -22,7 +22,11 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
+import {
+  describe,
+  expect,
+  it
+} from 'vitest';
 import { ApiError } from '../../src/glidelite/frontend/api';
 
 describe('api.ts', () => {

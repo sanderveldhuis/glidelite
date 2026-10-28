@@ -22,146 +22,155 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
-import * as childProcess from 'node:child_process';
-import * as fs from 'node:fs';
-import sinon from 'ts-sinon';
+import child_process from 'node:child_process';
+import fs from 'node:fs';
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import {
   clean,
   compile,
   run,
   validate
 } from '../../src/compiler/moduleApi';
-import * as sysUtils from '../../src/compiler/sysUtils';
+import * as sysUtilsSrc from '../../src/compiler/sysUtils';
+
+vi.mock('node:fs');
+vi.mock('node:child_process');
 
 describe('moduleApi.ts', () => {
-  let setTimeout: sinon.SinonStub;
-  let consoleError: sinon.SinonStub;
-  let processExit: sinon.SinonStub;
-  let watch: sinon.SinonStub;
-  let spawn: sinon.SinonStub;
-  let exists: sinon.SinonStub;
-  let readDir: sinon.SinonStub;
-  let makeFile: sinon.SinonStub;
-  let makeDir: sinon.SinonStub;
-  let remove: sinon.SinonStub;
-  let execute: sinon.SinonStub;
-
-  beforeEach(() => {
-    setTimeout = sinon.stub(global, 'setTimeout');
-    consoleError = sinon.stub(console, 'error');
-    processExit = sinon.stub(process, 'exit');
-    watch = sinon.stub(fs, 'watch');
-    spawn = sinon.stub(childProcess, 'spawn');
-    exists = sinon.stub(sysUtils, 'exists');
-    readDir = sinon.stub(sysUtils, 'readDir');
-    makeFile = sinon.stub(sysUtils, 'makeFile');
-    makeDir = sinon.stub(sysUtils, 'makeDir');
-    remove = sinon.stub(sysUtils, 'remove');
-    execute = sinon.stub(sysUtils, 'execute');
-    // Ensure to call a timeout callback directly without delay
-    setTimeout.callsFake((cb: () => void) => {
-      cb();
-    });
-  });
-
   afterEach(() => {
-    setTimeout.restore();
-    consoleError.restore();
-    processExit.restore();
-    watch.restore();
-    spawn.restore();
-    exists.restore();
-    readDir.restore();
-    makeFile.restore();
-    makeDir.restore();
-    remove.restore();
-    execute.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate checking the API', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const exists = vi.spyOn(sysUtilsSrc, 'exists');
+
     // All required files and directories exist
-    exists.onCall(0).returns(true)
-      .onCall(1).returns(true);
+    exists.mockReturnValueOnce(true).mockReturnValueOnce(true);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\backend\\api\\routers');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input1\\node_modules\\glidelite\\lib\\apiserver\\run.js');
+      expect(exists).toHaveBeenCalledTimes(2);
+      expect(exists).toHaveBeenNthCalledWith(1, 'input1\\backend\\api\\routers');
+      expect(exists).toHaveBeenNthCalledWith(2, 'input1\\node_modules\\glidelite\\lib\\apiserver\\run.js');
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/backend/api/routers');
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input1/node_modules/glidelite/lib/apiserver/run.js');
+      expect(exists).toHaveBeenCalledTimes(2);
+      expect(exists).toHaveBeenNthCalledWith(1, 'input1/backend/api/routers');
+      expect(exists).toHaveBeenNthCalledWith(2, 'input1/node_modules/glidelite/lib/apiserver/run.js');
     }
 
     // Not all required files and directories exist
-    exists.onCall(2).returns(false);
+    exists.mockReturnValueOnce(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input2\\backend\\api\\routers');
-      sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input2', missing directory 'input2\\backend\\api\\routers'.");
+      expect(exists).toHaveBeenCalledTimes(3);
+      expect(exists).toHaveBeenLastCalledWith('input2\\backend\\api\\routers');
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input2', missing directory 'input2\\backend\\api\\routers'.");
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input2/backend/api/routers');
-      sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL3001:', "No valid project found at: 'input2', missing directory 'input2/backend/api/routers'.");
+      expect(exists).toHaveBeenCalledTimes(3);
+      expect(exists).toHaveBeenLastCalledWith('input2/backend/api/routers');
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input2', missing directory 'input2/backend/api/routers'.");
     }
-    sinon.assert.calledWithExactly(processExit.getCall(0), 3001);
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(3001);
 
     // Not all required files and directories exist
-    exists.onCall(3).returns(true)
-      .onCall(4).returns(false);
+    exists.mockReturnValueOnce(true).mockReturnValueOnce(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input3');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(3), 'input3\\backend\\api\\routers');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input3\\node_modules\\glidelite\\lib\\apiserver\\run.js');
-      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3\\node_modules\\glidelite\\lib\\apiserver\\run.js'.");
+      expect(exists).toHaveBeenCalledTimes(5);
+      expect(exists).toHaveBeenNthCalledWith(4, 'input3\\backend\\api\\routers');
+      expect(exists).toHaveBeenNthCalledWith(5, 'input3\\node_modules\\glidelite\\lib\\apiserver\\run.js');
+      expect(consoleError).toHaveBeenCalledTimes(2);
+      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3\\node_modules\\glidelite\\lib\\apiserver\\run.js'.");
     }
     else {
-      sinon.assert.calledWithExactly(exists.getCall(3), 'input3/backend/api/routers');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input3/node_modules/glidelite/lib/apiserver/run.js');
-      sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'.");
+      expect(exists).toHaveBeenCalledTimes(5);
+      expect(exists).toHaveBeenNthCalledWith(4, 'input3/backend/api/routers');
+      expect(exists).toHaveBeenNthCalledWith(5, 'input3/node_modules/glidelite/lib/apiserver/run.js');
+      expect(consoleError).toHaveBeenCalledTimes(2);
+      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'.");
     }
-    sinon.assert.calledWithExactly(processExit.getCall(1), 3001);
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(3001);
   });
 
   it('validate cleaning the API', () => {
+    const remove = vi.spyOn(sysUtilsSrc, 'remove').mockImplementation(() => {/*Emtpy*/});
+
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(remove.getCall(0), 'output\\opt\\cfg\\api');
-      sinon.assert.calledWithExactly(remove.getCall(1), 'output\\etc\\cron.d\\cfg_api');
+      expect(remove).toHaveBeenCalledTimes(2);
+      expect(remove).toHaveBeenNthCalledWith(1, 'output\\opt\\cfg\\api');
+      expect(remove).toHaveBeenNthCalledWith(2, 'output\\etc\\cron.d\\cfg_api');
     }
     else {
-      sinon.assert.calledWithExactly(remove.getCall(0), 'output/opt/cfg/api');
-      sinon.assert.calledWithExactly(remove.getCall(1), 'output/etc/cron.d/cfg_api');
+      expect(remove).toHaveBeenCalledTimes(2);
+      expect(remove).toHaveBeenNthCalledWith(1, 'output/opt/cfg/api');
+      expect(remove).toHaveBeenNthCalledWith(2, 'output/etc/cron.d/cfg_api');
     }
   });
 
   it('validate running the API', () => {
+    const execute = vi.spyOn(sysUtilsSrc, 'execute');
+    const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
+    const remove = vi.spyOn(sysUtilsSrc, 'remove').mockImplementation(() => {/*Emtpy*/});
+    const spawn = vi.spyOn(child_process, 'spawn');
+    const watch = vi.spyOn(fs, 'watch');
+    // @ts-expect-error because function has return type Timeout
+    vi.spyOn(global, 'setTimeout').mockImplementation((cb: () => void) => {
+      cb();
+      return 0;
+    });
+
     const watchEvent: string[] = [];
     const watchCallback: (() => void)[] = [];
-    watch.returns({
+    // @ts-expect-error because object has missing types which are not used in the test
+    spawn.mockReturnValue({ pid: 1234 });
+    watch.mockReturnValue({
+      // @ts-expect-error because function has return type FSWatcher
       on: (event: string, callback: () => void) => {
         watchEvent.push(event);
         watchCallback.push(callback);
+        return 0;
       }
     });
-    spawn.returns({ pid: 1234 });
 
     // Without API port in GlideLite configuration and no TypeScript files available
-    readDir.onCall(0).returns([]);
+    readDir.mockReturnValueOnce([]);
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(remove.getCall(0), 'input\\node_modules\\.tmp\\glc');
-      sinon.assert.calledWithExactly(readDir.getCall(0), 'input\\backend\\api');
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'node input\\node_modules\\glidelite\\lib\\apiserver\\run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
-      sinon.assert.calledWithExactly(watch.getCall(0), 'input\\backend\\api', { recursive: true });
-      sinon.assert.calledWithExactly(watch.getCall(1), 'input\\shared', { recursive: true });
+      expect(remove).toHaveBeenCalledTimes(1);
+      expect(remove).toHaveBeenLastCalledWith('input\\node_modules\\.tmp\\glc');
+      expect(readDir).toHaveBeenCalledTimes(1);
+      expect(readDir).toHaveBeenLastCalledWith('input\\backend\\api');
+      expect(spawn).toHaveBeenCalledTimes(1);
+      expect(spawn).toHaveBeenLastCalledWith('node input\\node_modules\\glidelite\\lib\\apiserver\\run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
+      expect(watch).toHaveBeenCalledTimes(2);
+      expect(watch).toHaveBeenNthCalledWith(1, 'input\\backend\\api', { recursive: true });
+      expect(watch).toHaveBeenNthCalledWith(2, 'input\\shared', { recursive: true });
     }
     else {
-      sinon.assert.calledWithExactly(remove.getCall(0), 'input/node_modules/.tmp/glc');
-      sinon.assert.calledWithExactly(readDir.getCall(0), 'input/backend/api');
-      sinon.assert.calledWithExactly(spawn.getCall(0), 'node input/node_modules/glidelite/lib/apiserver/run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
-      sinon.assert.calledWithExactly(watch.getCall(0), 'input/backend/api', { recursive: true });
-      sinon.assert.calledWithExactly(watch.getCall(1), 'input/shared', { recursive: true });
+      expect(remove).toHaveBeenCalledTimes(1);
+      expect(remove).toHaveBeenLastCalledWith('input/node_modules/.tmp/glc');
+      expect(readDir).toHaveBeenCalledTimes(1);
+      expect(readDir).toHaveBeenLastCalledWith('input/backend/api');
+      expect(spawn).toHaveBeenCalledTimes(1);
+      expect(spawn).toHaveBeenLastCalledWith('node input/node_modules/glidelite/lib/apiserver/run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
+      expect(watch).toHaveBeenCalledTimes(2);
+      expect(watch).toHaveBeenNthCalledWith(1, 'input/backend/api', { recursive: true });
+      expect(watch).toHaveBeenNthCalledWith(2, 'input/shared', { recursive: true });
     }
     expect(watchEvent.length).to.equal(2);
     expect(watchEvent[0]).to.equal('change');
@@ -171,24 +180,35 @@ describe('moduleApi.ts', () => {
     expect(watchCallback[1]).to.not.equal(undefined);
 
     // With API port in GlideLite configuration, TypeScript files available, and a sucessful execute
-    readDir.onCall(1).returns([{ name: 'test.ts' }, { name: 'test.js' }]);
-    execute.onCall(0).returns(true);
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test.ts' }, { name: 'test.js' }]);
+    execute.mockReturnValueOnce(true);
     run({ name: 'pkg' }, { name: 'cfg', ports: { api: 1234 } }, 'input');
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(remove.getCall(1), 'input\\node_modules\\.tmp\\glc');
-      sinon.assert.calledWithExactly(readDir.getCall(1), 'input\\backend\\api');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
-      sinon.assert.calledWithExactly(spawn.getCall(1), 'node input\\node_modules\\glidelite\\lib\\apiserver\\run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
-      sinon.assert.calledWithExactly(watch.getCall(2), 'input\\backend\\api', { recursive: true });
-      sinon.assert.calledWithExactly(watch.getCall(3), 'input\\shared', { recursive: true });
+      expect(remove).toHaveBeenCalledTimes(2);
+      expect(remove).toHaveBeenLastCalledWith('input\\node_modules\\.tmp\\glc');
+      expect(readDir).toHaveBeenCalledTimes(2);
+      expect(readDir).toHaveBeenLastCalledWith('input\\backend\\api');
+      expect(execute).toHaveBeenCalledTimes(1);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
+      expect(spawn).toHaveBeenCalledTimes(2);
+      expect(spawn).toHaveBeenLastCalledWith('node input\\node_modules\\glidelite\\lib\\apiserver\\run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      expect(watch).toHaveBeenCalledTimes(4);
+      expect(watch).toHaveBeenNthCalledWith(3, 'input\\backend\\api', { recursive: true });
+      expect(watch).toHaveBeenNthCalledWith(4, 'input\\shared', { recursive: true });
     }
     else {
-      sinon.assert.calledWithExactly(remove.getCall(1), 'input/node_modules/.tmp/glc');
-      sinon.assert.calledWithExactly(readDir.getCall(1), 'input/backend/api');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
-      sinon.assert.calledWithExactly(spawn.getCall(1), 'node input/node_modules/glidelite/lib/apiserver/run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
-      sinon.assert.calledWithExactly(watch.getCall(2), 'input/backend/api', { recursive: true });
-      sinon.assert.calledWithExactly(watch.getCall(3), 'input/shared', { recursive: true });
+      expect(remove).toHaveBeenCalledTimes(2);
+      expect(remove).toHaveBeenLastCalledWith('input/node_modules/.tmp/glc');
+      expect(readDir).toHaveBeenCalledTimes(2);
+      expect(readDir).toHaveBeenLastCalledWith('input/backend/api');
+      expect(execute).toHaveBeenCalledTimes(1);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
+      expect(spawn).toHaveBeenCalledTimes(2);
+      expect(spawn).toHaveBeenLastCalledWith('node input/node_modules/glidelite/lib/apiserver/run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
+      expect(watch).toHaveBeenCalledTimes(4);
+      expect(watch).toHaveBeenNthCalledWith(3, 'input/backend/api', { recursive: true });
+      expect(watch).toHaveBeenNthCalledWith(4, 'input/shared', { recursive: true });
     }
     expect(watchEvent.length).to.equal(4);
     expect(watchEvent[2]).to.equal('change');
@@ -198,49 +218,74 @@ describe('moduleApi.ts', () => {
     expect(watchCallback[3]).to.not.equal(undefined);
 
     // Test the callback function with TypeScript files available but a failing execute
-    readDir.onCall(2).returns([{ name: 'test.tsx' }, { name: 'test.ts' }]);
-    execute.onCall(1).returns(false);
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.ts' }]);
+    execute.mockReturnValueOnce(false);
     watchCallback[2]();
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(spawn.getCall(2), 'taskkill', ['/pid', '1234', '/f', '/t']);
-      sinon.assert.calledWithExactly(remove.getCall(2), 'input\\node_modules\\.tmp\\glc');
-      sinon.assert.calledWithExactly(readDir.getCall(2), 'input\\backend\\api');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
+      expect(spawn).toHaveBeenCalledTimes(3);
+      expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
+      expect(remove).toHaveBeenCalledTimes(3);
+      expect(remove).toHaveBeenLastCalledWith('input\\node_modules\\.tmp\\glc');
+      expect(readDir).toHaveBeenCalledTimes(3);
+      expect(readDir).toHaveBeenLastCalledWith('input\\backend\\api');
+      expect(execute).toHaveBeenCalledTimes(2);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
     }
     else {
-      sinon.assert.calledWithExactly(spawn.getCall(2), 'sh', ['-c', `kill -9 1234`]);
-      sinon.assert.calledWithExactly(remove.getCall(2), 'input/node_modules/.tmp/glc');
-      sinon.assert.calledWithExactly(readDir.getCall(2), 'input/backend/api');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
+      expect(spawn).toHaveBeenCalledTimes(3);
+      expect(spawn).toHaveBeenLastCalledWith('sh', ['-c', `kill -9 1234`]);
+      expect(remove).toHaveBeenCalledTimes(3);
+      expect(remove).toHaveBeenLastCalledWith('input/node_modules/.tmp/glc');
+      expect(readDir).toHaveBeenCalledTimes(3);
+      expect(readDir).toHaveBeenLastCalledWith('input/backend/api');
+      expect(execute).toHaveBeenCalledTimes(2);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
     }
 
     // Test the callback function with TypeScript files available but a failing execute
-    readDir.onCall(3).returns([{ name: 'test.tsx' }, { name: 'test.ts' }]);
-    execute.onCall(2).returns(false);
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.ts' }]);
+    execute.mockReturnValueOnce(false);
     watchCallback[3]();
     if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(spawn.getCall(3), 'taskkill', ['/pid', '1234', '/f', '/t']);
-      sinon.assert.calledWithExactly(remove.getCall(3), 'input\\node_modules\\.tmp\\glc');
-      sinon.assert.calledWithExactly(readDir.getCall(3), 'input\\backend\\api');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
+      expect(spawn).toHaveBeenCalledTimes(4);
+      expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
+      expect(remove).toHaveBeenCalledTimes(4);
+      expect(remove).toHaveBeenLastCalledWith('input\\node_modules\\.tmp\\glc');
+      expect(readDir).toHaveBeenCalledTimes(4);
+      expect(readDir).toHaveBeenLastCalledWith('input\\backend\\api');
+      expect(execute).toHaveBeenCalledTimes(3);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
     }
     else {
-      sinon.assert.calledWithExactly(spawn.getCall(3), 'sh', ['-c', `kill -9 1234`]);
-      sinon.assert.calledWithExactly(remove.getCall(3), 'input/node_modules/.tmp/glc');
-      sinon.assert.calledWithExactly(readDir.getCall(3), 'input/backend/api');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
+      expect(spawn).toHaveBeenCalledTimes(4);
+      expect(spawn).toHaveBeenLastCalledWith('sh', ['-c', `kill -9 1234`]);
+      expect(remove).toHaveBeenCalledTimes(4);
+      expect(remove).toHaveBeenLastCalledWith('input/node_modules/.tmp/glc');
+      expect(readDir).toHaveBeenCalledTimes(4);
+      expect(readDir).toHaveBeenLastCalledWith('input/backend/api');
+      expect(execute).toHaveBeenCalledTimes(3);
+      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
     }
   });
 
   it('validate compiling the API', () => {
+    const makeDir = vi.spyOn(sysUtilsSrc, 'makeDir').mockImplementation(() => {/*Emtpy*/});
+    const makeFile = vi.spyOn(sysUtilsSrc, 'makeFile').mockImplementation(() => {/*Emtpy*/});
+
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input', 'output');
     if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(makeDir, 'output\\etc\\cron.d');
-      sinon.assert.calledOnceWithExactly(makeFile, 'output\\etc\\cron.d\\cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
+      expect(makeDir).toHaveBeenCalledTimes(1);
+      expect(makeDir).toHaveBeenLastCalledWith('output\\etc\\cron.d');
+      expect(makeFile).toHaveBeenCalledTimes(1);
+      expect(makeFile).toHaveBeenLastCalledWith('output\\etc\\cron.d\\cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
     }
     else {
-      sinon.assert.calledOnceWithExactly(makeDir, 'output/etc/cron.d');
-      sinon.assert.calledOnceWithExactly(makeFile, 'output/etc/cron.d/cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
+      expect(makeDir).toHaveBeenCalledTimes(1);
+      expect(makeDir).toHaveBeenLastCalledWith('output/etc/cron.d');
+      expect(makeFile).toHaveBeenCalledTimes(1);
+      expect(makeFile).toHaveBeenLastCalledWith('output/etc/cron.d/cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
     }
   });
 });
