@@ -22,9 +22,15 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
-import * as net from 'node:net';
-import sinon from 'ts-sinon';
+import net from 'node:net';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import { IpcClient } from '../../src/glidelite/backend/ipcClient';
 import {
   IpcMessage,
@@ -44,30 +50,28 @@ describe('ipcClient.ts', () => {
     responseCb = response;
   };
   let client: IpcClient;
-  let socketMock: sinon.SinonMock;
-  let consoleError: sinon.SinonStub;
-  let fakeTimer: sinon.SinonFakeTimers;
 
   beforeEach(() => {
     client = new IpcClient(socket, {}, onIndication, onRequest);
-    socketMock = sinon.mock(socket);
-    consoleError = sinon.stub(console, 'error');
-    fakeTimer = sinon.useFakeTimers(1234567890);
   });
 
   afterEach(() => {
-    socketMock.verify();
-    consoleError.restore();
-    fakeTimer.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate starting an IPC client', () => {
-    socketMock.expects('removeAllListeners').once();
-    socketMock.expects('on').once().withArgs('end');
-    socketMock.expects('on').once().withArgs('error');
-    socketMock.expects('on').once().withArgs('data');
-    client.start();
+    // @ts-expect-error because function has return type Socket
+    const socketOn = vi.spyOn(client._socket, 'on').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Socket
+    const socketRemoveAllListeners = vi.spyOn(client._socket, 'removeAllListeners').mockImplementation(() => {/*Empty*/});
 
+    client.start();
+    expect(socketRemoveAllListeners).toHaveBeenCalledTimes(1);
+    expect(socketRemoveAllListeners).toHaveBeenLastCalledWith();
+    expect(socketOn).toHaveBeenCalledTimes(3);
+    expect(socketOn).toHaveBeenNthCalledWith(1, 'end', expect.anything());
+    expect(socketOn).toHaveBeenNthCalledWith(2, 'error', expect.anything());
+    expect(socketOn).toHaveBeenNthCalledWith(3, 'data', expect.anything());
     expect(client._socket).to.equal(socket);
     expect(client._buffer).to.not.equal(undefined);
     expect(Object.keys(client._publishCache).length).to.equal(0);
@@ -77,14 +81,16 @@ describe('ipcClient.ts', () => {
   });
 
   it('validate stopping an IPC client', () => {
+    // @ts-expect-error because function has return type Socket
+    const socketEnd = vi.spyOn(client._socket, 'end').mockImplementation(() => {/*Empty*/});
+
     client._publishCache.test1 = new IpcMessage('test1', 'publish');
     client._publishCache.test2 = new IpcMessage('test2', 'publish');
     client._subscriptions.push('test1');
     client._subscriptions.push('test2');
-
-    socketMock.expects('end').once();
     client.stop();
-
+    expect(socketEnd).toHaveBeenCalledTimes(1);
+    expect(socketEnd).toHaveBeenLastCalledWith();
     expect(client._socket).to.equal(socket);
     expect(client._buffer).to.not.equal(undefined);
     expect(Object.keys(client._publishCache).length).to.equal(2);
@@ -94,64 +100,87 @@ describe('ipcClient.ts', () => {
   });
 
   it('validate checking if the socket open', () => {
-    const destroyedStub = sinon.stub(socket, 'destroyed');
-    const writableStub = sinon.stub(socket, 'writable');
-    const readableStub = sinon.stub(socket, 'readable');
+    const socketDestroyed = vi.spyOn(client._socket, 'destroyed', 'get');
+    const socketWritable = vi.spyOn(client._socket, 'writable', 'get');
+    const socketReadable = vi.spyOn(client._socket, 'readable', 'get');
 
-    destroyedStub.value(false);
-    writableStub.value(true);
-    readableStub.value(true);
+    socketDestroyed.mockReturnValue(false);
+    socketWritable.mockReturnValue(true);
+    socketReadable.mockReturnValue(true);
     expect(client.isOpen()).to.equal(true);
-    destroyedStub.value(true);
-    writableStub.value(true);
-    readableStub.value(true);
-    expect(client.isOpen()).to.equal(false);
-    destroyedStub.value(false);
-    writableStub.value(false);
-    readableStub.value(true);
-    expect(client.isOpen()).to.equal(false);
-    destroyedStub.value(false);
-    writableStub.value(true);
-    readableStub.value(false);
+
+    socketDestroyed.mockReturnValue(true);
+    socketWritable.mockReturnValue(true);
+    socketReadable.mockReturnValue(true);
     expect(client.isOpen()).to.equal(false);
 
-    destroyedStub.restore();
-    writableStub.restore();
-    readableStub.restore();
+    socketDestroyed.mockReturnValue(false);
+    socketWritable.mockReturnValue(false);
+    socketReadable.mockReturnValue(true);
+    expect(client.isOpen()).to.equal(false);
+
+    socketDestroyed.mockReturnValue(false);
+    socketWritable.mockReturnValue(true);
+    socketReadable.mockReturnValue(false);
+    expect(client.isOpen()).to.equal(false);
   });
 
   it('validate publishing a message', () => {
+    // @ts-expect-error because function has return type boolean
+    const socketWrite = vi.spyOn(client._socket, 'write').mockImplementation(() => {/*Empty*/});
+
     // No subscriptions available
     client.publish('test1', new IpcMessage('test1', 'publish', { result: true }));
+    expect(socketWrite).toHaveBeenCalledTimes(0);
 
     // Subscription available
     client._subscriptions.push('test2');
     client._subscriptions.push('test3');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test2","type":"publish","payload":{"result":false}}[GLE]');
     client.publish('test2', new IpcMessage('test2', 'publish', { result: false }));
+    expect(socketWrite).toHaveBeenCalledTimes(1);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test2","type":"publish","payload":{"result":false}}[GLE]');
 
     // Subscription not available
     client.publish('test1', new IpcMessage('test1', 'publish', { result: true }));
+    expect(socketWrite).toHaveBeenCalledTimes(1);
   });
 
   it('validate handling an end event', () => {
-    socketMock.expects('end').once();
+    // @ts-expect-error because function has return type Socket
+    const socketEnd = vi.spyOn(client._socket, 'end').mockImplementation(() => {/*Empty*/});
+
     client._onEnd();
+    expect(socketEnd).toHaveBeenCalledTimes(1);
+    expect(socketEnd).toHaveBeenLastCalledWith();
   });
 
   it('validate handling an error event', () => {
-    socketMock.expects('destroy').twice();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type Socket
+    const socketDestroy = vi.spyOn(client._socket, 'destroy').mockImplementation(() => {/*Empty*/});
+    vi.spyOn(Date, 'now').mockImplementation(() => {
+      return 1234567890;
+    });
 
     // No error message
     client._onError(new Error());
-    sinon.assert.calledWithExactly(consoleError.getCall(0), '1234567890:ERR:ipc:client:');
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('1234567890:ERR:ipc:client:');
+    expect(socketDestroy).toHaveBeenCalledTimes(1);
+    expect(socketDestroy).toHaveBeenLastCalledWith();
 
     // With error message
     client._onError(new Error('Unknown error'));
-    sinon.assert.calledWithExactly(consoleError.getCall(1), '1234567890:ERR:ipc:client:Unknown error');
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('1234567890:ERR:ipc:client:Unknown error');
+    expect(socketDestroy).toHaveBeenCalledTimes(2);
+    expect(socketDestroy).toHaveBeenLastCalledWith();
   });
 
   it('validate handling a data event', () => {
+    // @ts-expect-error because function has return type Socket
+    const socketWrite = vi.spyOn(client._socket, 'write').mockImplementation(() => {/*Empty*/});
+
     // In this test we will not validate the buffer itself because it is tested in another test file
 
     // Message types which should not be handled
@@ -194,13 +223,18 @@ describe('ipcClient.ts', () => {
 
     // Validate the response callback given in the previous step
     if (!responseCb) return; // Required to satisfy TypeScript
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test","type":"response","session":99}[GLE]');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test","type":"response","session":99,"payload":{"result":true}}[GLE]');
     responseCb();
+    expect(socketWrite).toHaveBeenCalledTimes(1);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test","type":"response","session":99}[GLE]');
     responseCb({ result: true });
+    expect(socketWrite).toHaveBeenCalledTimes(2);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test","type":"response","session":99,"payload":{"result":true}}[GLE]');
   });
 
   it('validate handling a subscription', () => {
+    // @ts-expect-error because function has return type Socket
+    const socketWrite = vi.spyOn(client._socket, 'write').mockImplementation(() => {/*Empty*/});
+
     // No subscriptions and publish cache available
     client._onSubscribe(new IpcMessage('test1', 'subscribe'));
     expect(client._subscriptions.length).to.equal(1);
@@ -229,10 +263,12 @@ describe('ipcClient.ts', () => {
     // Subscription does not exist and publish cache available
     client._publishCache.test3 = new IpcMessage('test3', 'publish', { result: true });
     client._publishCache.test4 = new IpcMessage('test4', 'publish', { result: false });
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test3","type":"publish","payload":{"result":true}}[GLE]');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test4","type":"publish","payload":{"result":false}}[GLE]');
     client._onSubscribe(new IpcMessage('test3', 'subscribe'));
+    expect(socketWrite).toHaveBeenCalledTimes(1);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test3","type":"publish","payload":{"result":true}}[GLE]');
     client._onSubscribe(new IpcMessage('test4', 'subscribe'));
+    expect(socketWrite).toHaveBeenCalledTimes(2);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test4","type":"publish","payload":{"result":false}}[GLE]');
     expect(client._subscriptions.length).to.equal(4);
     expect(client._subscriptions[0]).to.equal('test1');
     expect(client._subscriptions[1]).to.equal('test2');

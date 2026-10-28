@@ -22,186 +22,145 @@
  * SOFTWARE.
  */
 
-import * as childProcess from 'node:child_process';
-import sinon from 'ts-sinon';
+import child_process from 'node:child_process';
+import path from 'node:path';
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import {
   clean,
   compile,
   run,
   validate
 } from '../../src/compiler/moduleFrontend';
-import * as sysUtils from '../../src/compiler/sysUtils';
+import * as sysUtilsSrc from '../../src/compiler/sysUtils';
+
+vi.mock('node:child_process');
 
 describe('moduleFrontend.ts', () => {
-  let consoleError: sinon.SinonStub;
-  let processExit: sinon.SinonStub;
-  let exists: sinon.SinonStub;
-  let readDir: sinon.SinonStub;
-  let remove: sinon.SinonStub;
-  let execute: sinon.SinonStub;
-  let spawn: sinon.SinonStub;
-
-  beforeEach(() => {
-    consoleError = sinon.stub(console, 'error');
-    processExit = sinon.stub(process, 'exit');
-    exists = sinon.stub(sysUtils, 'exists');
-    readDir = sinon.stub(sysUtils, 'readDir');
-    remove = sinon.stub(sysUtils, 'remove');
-    execute = sinon.stub(sysUtils, 'execute');
-    spawn = sinon.stub(childProcess, 'spawn');
-  });
-
   afterEach(() => {
-    consoleError.restore();
-    processExit.restore();
-    exists.restore();
-    readDir.restore();
-    remove.restore();
-    execute.restore();
-    spawn.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate checking the frontend', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const exists = vi.spyOn(sysUtilsSrc, 'exists');
+
     // All required files and directories exist
-    exists.onCall(0).returns(true);
+    exists.mockReturnValueOnce(true);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\frontend\\vite.config.js');
-    }
-    else {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/frontend/vite.config.js');
-    }
+    expect(exists).toHaveBeenCalledTimes(1);
+    expect(exists).toHaveBeenNthCalledWith(1, path.normalize('input1/frontend/vite.config.js'));
 
     // Not all required files and directories exist
-    exists.onCall(1).returns(false);
-    exists.onCall(2).returns(false);
-    exists.onCall(3).returns(false);
-    exists.onCall(4).returns(false);
-    exists.onCall(5).returns(false);
-    exists.onCall(6).returns(false);
+    exists.mockReturnValue(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input2\\frontend\\vite.config.js');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input2\\frontend\\vite.config.mjs');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'input2\\frontend\\vite.config.cjs');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input2\\frontend\\vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'input2\\frontend\\vite.config.mts');
-      sinon.assert.calledWithExactly(exists.getCall(6), 'input2\\frontend\\vite.config.cts');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3001:', "No valid project found at: 'input2', missing file 'input2\\frontend\\vite.config.ts'.");
-    }
-    else {
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input2/frontend/vite.config.js');
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input2/frontend/vite.config.mjs');
-      sinon.assert.calledWithExactly(exists.getCall(3), 'input2/frontend/vite.config.cjs');
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input2/frontend/vite.config.ts');
-      sinon.assert.calledWithExactly(exists.getCall(5), 'input2/frontend/vite.config.mts');
-      sinon.assert.calledWithExactly(exists.getCall(6), 'input2/frontend/vite.config.cts');
-      sinon.assert.calledOnceWithExactly(consoleError, 'error GL3001:', "No valid project found at: 'input2', missing file 'input2/frontend/vite.config.ts'.");
-    }
-    sinon.assert.calledOnceWithExactly(processExit, 3001);
+    expect(exists).toHaveBeenCalledTimes(7);
+    expect(exists).toHaveBeenNthCalledWith(2, path.normalize('input2/frontend/vite.config.js'));
+    expect(exists).toHaveBeenNthCalledWith(3, path.normalize('input2/frontend/vite.config.mjs'));
+    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('input2/frontend/vite.config.cjs'));
+    expect(exists).toHaveBeenNthCalledWith(5, path.normalize('input2/frontend/vite.config.ts'));
+    expect(exists).toHaveBeenNthCalledWith(6, path.normalize('input2/frontend/vite.config.mts'));
+    expect(exists).toHaveBeenNthCalledWith(7, path.normalize('input2/frontend/vite.config.cts'));
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing file 'input2/frontend/vite.config.ts'."));
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(3001);
   });
 
   it('validate cleaning the frontend', () => {
+    const remove = vi.spyOn(sysUtilsSrc, 'remove').mockImplementation(() => {/*Emtpy*/});
+
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(remove, 'output\\var\\www\\cfg');
-    }
-    else {
-      sinon.assert.calledOnceWithExactly(remove, 'output/var/www/cfg');
-    }
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('output/var/www/cfg'));
   });
 
   it('validate running the frontend', () => {
+    // @ts-expect-error because function has return type ChildProcess
+    const spawn = vi.spyOn(child_process, 'spawn').mockImplementation(() => {/*Emtpy*/});
+
     run({ name: 'pkg' }, { name: 'cfg' }, 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledOnceWithExactly(spawn, 'npm exec -- vite', { shell: true, cwd: 'output\\frontend', stdio: 'inherit' });
-    }
-    else {
-      sinon.assert.calledOnceWithExactly(spawn, 'npm exec -- vite', { shell: true, cwd: 'output/frontend', stdio: 'inherit' });
-    }
+    expect(spawn).toHaveBeenCalledTimes(1);
+    expect(spawn).toHaveBeenLastCalledWith('npm exec -- vite', { shell: true, cwd: path.normalize('output/frontend'), stdio: 'inherit' });
   });
 
   it('validate compiling the frontend', () => {
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const remove = vi.spyOn(sysUtilsSrc, 'remove').mockImplementation(() => {/*Emtpy*/});
+    const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
+    const exists = vi.spyOn(sysUtilsSrc, 'exists');
+    const execute = vi.spyOn(sysUtilsSrc, 'execute');
+
     // No TypeScript validation needed and execution succeeded
-    exists.onCall(0).returns(false);
-    execute.onCall(0).returns(true);
+    exists.mockReturnValueOnce(false);
+    execute.mockReturnValueOnce(true);
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input1', 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1\\frontend\\tsconfig.json');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- vite build --outDir output\\var\\www\\cfg --emptyOutDir', 'input1\\frontend');
-    }
-    else {
-      sinon.assert.calledWithExactly(exists.getCall(0), 'input1/frontend/tsconfig.json');
-      sinon.assert.calledWithExactly(execute.getCall(0), 'npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir', 'input1/frontend');
-    }
+    expect(exists).toHaveBeenCalledTimes(1);
+    expect(exists).toHaveBeenLastCalledWith(path.normalize('input1/frontend/tsconfig.json'));
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input1/frontend'));
 
     // No TypeScript validation needed and execution failed
-    exists.onCall(1).returns(false);
-    execute.onCall(1).returns(false);
+    exists.mockReturnValueOnce(false);
+    execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input2', 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input2\\frontend\\tsconfig.json');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- vite build --outDir output\\var\\www\\cfg --emptyOutDir', 'input2\\frontend');
-    }
-    else {
-      sinon.assert.calledWithExactly(exists.getCall(1), 'input2/frontend/tsconfig.json');
-      sinon.assert.calledWithExactly(execute.getCall(1), 'npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir', 'input2/frontend');
-    }
-    sinon.assert.calledWithExactly(processExit.getCall(0), 3002);
+    expect(exists).toHaveBeenCalledTimes(2);
+    expect(exists).toHaveBeenLastCalledWith(path.normalize('input2/frontend/tsconfig.json'));
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input2/frontend'));
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(3002);
 
     // TypeScript validation needed, no generated files available, execution succeeded
-    exists.onCall(2).returns(true);
-    readDir.onCall(0).returns([]);
-    execute.onCall(2).returns(true);
-    execute.onCall(3).returns(true);
+    exists.mockReturnValueOnce(true);
+    readDir.mockReturnValueOnce([]);
+    execute.mockReturnValueOnce(true).mockReturnValueOnce(true);
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input3', 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input3\\frontend\\tsconfig.json');
-      sinon.assert.calledWithExactly(readDir.getCall(0), 'input3\\frontend');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'npm exec -- tsc -b --noEmit', 'input3\\frontend');
-      sinon.assert.calledWithExactly(execute.getCall(3), 'npm exec -- vite build --outDir output\\var\\www\\cfg --emptyOutDir', 'input3\\frontend');
-    }
-    else {
-      sinon.assert.calledWithExactly(exists.getCall(2), 'input3/frontend/tsconfig.json');
-      sinon.assert.calledWithExactly(readDir.getCall(0), 'input3/frontend');
-      sinon.assert.calledWithExactly(execute.getCall(2), 'npm exec -- tsc -b --noEmit', 'input3/frontend');
-      sinon.assert.calledWithExactly(execute.getCall(3), 'npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir', 'input3/frontend');
-    }
+    expect(exists).toHaveBeenCalledTimes(3);
+    expect(exists).toHaveBeenLastCalledWith(path.normalize('input3/frontend/tsconfig.json'));
+    expect(readDir).toHaveBeenCalledTimes(1);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input3/frontend'));
+    expect(execute).toHaveBeenCalledTimes(4);
+    expect(execute).toHaveBeenNthCalledWith(3, 'npm exec -- tsc -b --noEmit', path.normalize('input3/frontend'));
+    expect(execute).toHaveBeenNthCalledWith(4, path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input3/frontend'));
 
     // TypeScript validation needed, no generated files available, execution failed
-    exists.onCall(3).returns(true);
-    readDir.onCall(1).returns([]);
-    execute.onCall(4).returns(false);
+    exists.mockReturnValueOnce(true);
+    readDir.mockReturnValueOnce([]);
+    execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input4', 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(3), 'input4\\frontend\\tsconfig.json');
-      sinon.assert.calledWithExactly(readDir.getCall(1), 'input4\\frontend');
-      sinon.assert.calledWithExactly(execute.getCall(4), 'npm exec -- tsc -b --noEmit', 'input4\\frontend');
-    }
-    else {
-      sinon.assert.calledWithExactly(exists.getCall(3), 'input4/frontend/tsconfig.json');
-      sinon.assert.calledWithExactly(readDir.getCall(1), 'input4/frontend');
-      sinon.assert.calledWithExactly(execute.getCall(4), 'npm exec -- tsc -b --noEmit', 'input4/frontend');
-    }
-    sinon.assert.calledWithExactly(processExit.getCall(1), 3002);
+    expect(exists).toHaveBeenCalledTimes(4);
+    expect(exists).toHaveBeenLastCalledWith(path.normalize('input4/frontend/tsconfig.json'));
+    expect(readDir).toHaveBeenCalledTimes(2);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input4/frontend'));
+    expect(execute).toHaveBeenCalledTimes(5);
+    expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -b --noEmit', path.normalize('input4/frontend'));
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(3002);
 
     // TypeScript validation needed, no generated files available, execution failed
-    exists.onCall(4).returns(true);
-    readDir.onCall(2).returns([{ name: 'test.tsbuildinfo.bak', parentPath: 'path1' }, { name: 'test.app.tsbuildinfo', parentPath: 'path2' }]);
-    execute.onCall(5).returns(false);
+    exists.mockReturnValueOnce(true);
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test.tsbuildinfo.bak', parentPath: 'path1' }, { name: 'test.app.tsbuildinfo', parentPath: 'path2' }]);
+    execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input5', 'output');
-    if ('win32' === process.platform) {
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input5\\frontend\\tsconfig.json');
-      sinon.assert.calledWithExactly(readDir.getCall(2), 'input5\\frontend');
-      sinon.assert.calledOnceWithExactly(remove, 'path2\\test.app.tsbuildinfo');
-      sinon.assert.calledWithExactly(execute.getCall(5), 'npm exec -- tsc -b --noEmit', 'input5\\frontend');
-    }
-    else {
-      sinon.assert.calledWithExactly(exists.getCall(4), 'input5/frontend/tsconfig.json');
-      sinon.assert.calledWithExactly(readDir.getCall(2), 'input5/frontend');
-      sinon.assert.calledOnceWithExactly(remove, 'path2/test.app.tsbuildinfo');
-      sinon.assert.calledWithExactly(execute.getCall(5), 'npm exec -- tsc -b --noEmit', 'input5/frontend');
-    }
-    sinon.assert.calledWithExactly(processExit.getCall(2), 3002);
+    expect(exists).toHaveBeenCalledTimes(5);
+    expect(exists).toHaveBeenLastCalledWith(path.normalize('input5/frontend/tsconfig.json'));
+    expect(readDir).toHaveBeenCalledTimes(3);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input5/frontend'));
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('path2/test.app.tsbuildinfo'));
+    expect(execute).toHaveBeenCalledTimes(6);
+    expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -b --noEmit', path.normalize('input5/frontend'));
+    expect(processExit).toHaveBeenCalledTimes(3);
+    expect(processExit).toHaveBeenLastCalledWith(3002);
   });
 });

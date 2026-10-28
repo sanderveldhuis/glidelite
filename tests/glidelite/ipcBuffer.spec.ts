@@ -22,7 +22,11 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
+import {
+  describe,
+  expect,
+  it
+} from 'vitest';
 import { IpcBuffer } from '../../src/glidelite/backend/ipcBuffer';
 
 describe('ipcBuffer.ts', () => {

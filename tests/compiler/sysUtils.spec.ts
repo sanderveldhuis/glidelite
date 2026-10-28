@@ -22,10 +22,15 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
-import * as child_process from 'node:child_process';
-import * as fs from 'node:fs';
-import sinon from 'ts-sinon';
+import child_process from 'node:child_process';
+import fs from 'node:fs';
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import {
   copyFile,
   execute,
@@ -38,195 +43,240 @@ import {
   remove
 } from '../../src/compiler/sysUtils';
 
+vi.mock('node:fs');
+vi.mock('node:child_process');
+
 describe('sysUtils.ts', () => {
-  let consoleError: sinon.SinonStub;
-  let processExit: sinon.SinonStub;
-  let existsSync: sinon.SinonStub;
-  let mkdirSync: sinon.SinonStub;
-  let rmSync: sinon.SinonStub;
-  let readdirSync: sinon.SinonStub;
-  let readFileSync: sinon.SinonStub;
-  let writeFileSync: sinon.SinonStub;
-  let copyFileSync: sinon.SinonStub;
-  let execSync: sinon.SinonStub;
-
-  beforeEach(() => {
-    consoleError = sinon.stub(console, 'error');
-    processExit = sinon.stub(process, 'exit');
-    existsSync = sinon.stub(fs, 'existsSync');
-    mkdirSync = sinon.stub(fs, 'mkdirSync');
-    rmSync = sinon.stub(fs, 'rmSync');
-    readdirSync = sinon.stub(fs, 'readdirSync');
-    readFileSync = sinon.stub(fs, 'readFileSync');
-    writeFileSync = sinon.stub(fs, 'writeFileSync');
-    copyFileSync = sinon.stub(fs, 'copyFileSync');
-    execSync = sinon.stub(child_process, 'execSync');
-  });
-
   afterEach(() => {
-    consoleError.restore();
-    processExit.restore();
-    existsSync.restore();
-    mkdirSync.restore();
-    rmSync.restore();
-    readdirSync.restore();
-    readFileSync.restore();
-    writeFileSync.restore();
-    copyFileSync.restore();
-    execSync.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate checking if a file or directory exists', () => {
-    existsSync.returns(true);
+    const existsSync = vi.spyOn(fs, 'existsSync');
+
+    existsSync.mockReturnValueOnce(true);
     const result1 = exists('test');
     expect(result1).to.equal(true);
-    sinon.assert.calledWithExactly(existsSync.getCall(0), 'test');
+    expect(existsSync).toHaveBeenCalledTimes(1);
+    expect(existsSync).toHaveBeenLastCalledWith('test');
 
-    existsSync.returns(false);
+    existsSync.mockReturnValueOnce(false);
     const result2 = exists('test');
     expect(result2).to.equal(false);
-    sinon.assert.calledWithExactly(existsSync.getCall(1), 'test');
+    expect(existsSync).toHaveBeenCalledTimes(2);
+    expect(existsSync).toHaveBeenLastCalledWith('test');
   });
 
   it('validate removing a file or directory', () => {
+    const rmSync = vi.spyOn(fs, 'rmSync').mockImplementation(() => {/*Emtpy*/});
     remove('test');
-    sinon.assert.calledOnceWithExactly(rmSync, 'test', { recursive: true, force: true });
+    expect(rmSync).toHaveBeenCalledTimes(1);
+    expect(rmSync).toHaveBeenLastCalledWith('test', { recursive: true, force: true });
   });
 
   it('validate creating a directory', () => {
-    makeDir('test');
-    sinon.assert.calledWithExactly(mkdirSync.getCall(0), 'test', { recursive: true });
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const mkdirSync = vi.spyOn(fs, 'mkdirSync').mockImplementation((): undefined => {/*Emtpy*/});
 
-    mkdirSync.throws(new Error('unknown'));
     makeDir('test');
-    sinon.assert.calledWithExactly(mkdirSync.getCall(1), 'test', { recursive: true });
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2001:', "Failed creating directory at: 'test', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2001);
+    expect(mkdirSync).toHaveBeenCalledTimes(1);
+    expect(mkdirSync).toHaveBeenLastCalledWith('test', { recursive: true });
 
-    mkdirSync.throws(new Number());
+    mkdirSync.mockThrowOnce(new Error('unknown'));
     makeDir('test');
-    sinon.assert.calledWithExactly(mkdirSync.getCall(2), 'test', { recursive: true });
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2001:', "Failed creating directory at: 'test'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2001);
+    expect(mkdirSync).toHaveBeenCalledTimes(2);
+    expect(mkdirSync).toHaveBeenLastCalledWith('test', { recursive: true });
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2001:', "Failed creating directory at: 'test', unknown.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2001);
+
+    mkdirSync.mockThrowOnce(new Number());
+    makeDir('test');
+    expect(mkdirSync).toHaveBeenCalledTimes(3);
+    expect(mkdirSync).toHaveBeenLastCalledWith('test', { recursive: true });
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2001:', "Failed creating directory at: 'test'.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(2001);
   });
 
   it('validate creating a file', () => {
-    makeFile('test', 'content');
-    sinon.assert.calledWithExactly(writeFileSync.getCall(0), 'test', 'content');
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const writeFileSync = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {/*Emtpy*/});
 
-    writeFileSync.throws(new Error('unknown'));
     makeFile('test', 'content');
-    sinon.assert.calledWithExactly(writeFileSync.getCall(1), 'test', 'content');
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2011:', "Failed creating file at: 'test', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2011);
+    expect(writeFileSync).toHaveBeenCalledTimes(1);
+    expect(writeFileSync).toHaveBeenLastCalledWith('test', 'content');
 
-    writeFileSync.throws(new Number());
+    writeFileSync.mockThrowOnce(new Error('unknown'));
     makeFile('test', 'content');
-    sinon.assert.calledWithExactly(writeFileSync.getCall(2), 'test', 'content');
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2011:', "Failed creating file at: 'test'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2011);
+    expect(writeFileSync).toHaveBeenCalledTimes(2);
+    expect(writeFileSync).toHaveBeenLastCalledWith('test', 'content');
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2011:', "Failed creating file at: 'test', unknown.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2011);
+
+    writeFileSync.mockThrowOnce(new Number());
+    makeFile('test', 'content');
+    expect(writeFileSync).toHaveBeenCalledTimes(3);
+    expect(writeFileSync).toHaveBeenLastCalledWith('test', 'content');
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2011:', "Failed creating file at: 'test'.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(2011);
   });
 
   it('validate copying a file', () => {
-    copyFile('source', 'dest');
-    sinon.assert.calledWithExactly(copyFileSync.getCall(0), 'source', 'dest');
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const copyFileSync = vi.spyOn(fs, 'copyFileSync').mockImplementation(() => {/*Emtpy*/});
 
-    copyFileSync.throws(new Error('unknown'));
     copyFile('source', 'dest');
-    sinon.assert.calledWithExactly(copyFileSync.getCall(1), 'source', 'dest');
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2013:', "Failed copying file from: 'source', to: 'dest', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2013);
+    expect(copyFileSync).toHaveBeenCalledTimes(1);
+    expect(copyFileSync).toHaveBeenLastCalledWith('source', 'dest');
 
-    copyFileSync.throws(new Number());
+    copyFileSync.mockThrowOnce(new Error('unknown'));
     copyFile('source', 'dest');
-    sinon.assert.calledWithExactly(copyFileSync.getCall(2), 'source', 'dest');
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2013:', "Failed copying file from: 'source', to: 'dest'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2013);
+    expect(copyFileSync).toHaveBeenCalledTimes(2);
+    expect(copyFileSync).toHaveBeenLastCalledWith('source', 'dest');
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2013:', "Failed copying file from: 'source', to: 'dest', unknown.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2013);
+
+    copyFileSync.mockThrowOnce(new Number());
+    copyFile('source', 'dest');
+    expect(copyFileSync).toHaveBeenCalledTimes(3);
+    expect(copyFileSync).toHaveBeenLastCalledWith('source', 'dest');
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2013:', "Failed copying file from: 'source', to: 'dest'.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(2013);
   });
 
   it('validate reading a directory', () => {
-    readdirSync.returns([]);
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const readdirSync = vi.spyOn(fs, 'readdirSync');
+
+    readdirSync.mockReturnValueOnce([]);
     const result = readDir('test');
+    expect(readdirSync).toHaveBeenCalledTimes(1);
+    expect(readdirSync).toHaveBeenLastCalledWith('test', { withFileTypes: true, recursive: true });
     expect(result.length).to.equal(0);
-    sinon.assert.calledWithExactly(readdirSync.getCall(0), 'test', { withFileTypes: true, recursive: true });
 
-    readdirSync.throws(new Error('unknown'));
+    readdirSync.mockThrowOnce(new Error('unknown'));
     readDir('test');
-    sinon.assert.calledWithExactly(readdirSync.getCall(1), 'test', { withFileTypes: true, recursive: true });
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2002:', "Failed reading directory at: 'test', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2002);
+    expect(readdirSync).toHaveBeenCalledTimes(2);
+    expect(readdirSync).toHaveBeenLastCalledWith('test', { withFileTypes: true, recursive: true });
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2002:', "Failed reading directory at: 'test', unknown.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2002);
 
-    readdirSync.throws(new Number());
+    readdirSync.mockThrowOnce(new Number());
     readDir('test');
-    sinon.assert.calledWithExactly(readdirSync.getCall(2), 'test', { withFileTypes: true, recursive: true });
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2002:', "Failed reading directory at: 'test'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2002);
+    expect(readdirSync).toHaveBeenCalledTimes(3);
+    expect(readdirSync).toHaveBeenLastCalledWith('test', { withFileTypes: true, recursive: true });
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2002:', "Failed reading directory at: 'test'.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(2002);
   });
 
   it('validate reading a file', () => {
-    readFileSync.returns({
-      toString: () => {
-        return 'content';
-      }
-    });
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const readFileSync = vi.spyOn(fs, 'readFileSync');
+
+    readFileSync.mockReturnValueOnce(Buffer.from('content'));
     const result = readFile('test');
+    expect(readFileSync).toHaveBeenCalledTimes(1);
+    expect(readFileSync).toHaveBeenLastCalledWith('test');
     expect(result).to.equal('content');
-    sinon.assert.calledWithExactly(readFileSync.getCall(0), 'test');
 
-    readFileSync.throws(new Error('unknown'));
+    readFileSync.mockThrowOnce(new Error('unknown'));
     readFile('test');
-    sinon.assert.calledWithExactly(readFileSync.getCall(1), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2012:', "Failed reading file at: 'test', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2012);
+    expect(readFileSync).toHaveBeenCalledTimes(2);
+    expect(readFileSync).toHaveBeenLastCalledWith('test');
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading file at: 'test', unknown.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2012);
 
-    readFileSync.throws(new Number());
+    readFileSync.mockThrowOnce(new Number());
     readFile('test');
-    sinon.assert.calledWithExactly(readFileSync.getCall(2), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2012:', "Failed reading file at: 'test'.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2012);
+    expect(readFileSync).toHaveBeenCalledTimes(3);
+    expect(readFileSync).toHaveBeenLastCalledWith('test');
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading file at: 'test'.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(2012);
   });
 
   it('validate reading a JSON file', () => {
-    readFileSync.returns({
-      toString: () => {
-        return '{"hello":"world"}';
-      }
-    });
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const readFileSync = vi.spyOn(fs, 'readFileSync');
+
+    readFileSync.mockReturnValueOnce(Buffer.from('{"hello":"world"}'));
     const result = readJsonFile('test');
+    expect(readFileSync).toHaveBeenCalledTimes(1);
+    expect(readFileSync).toHaveBeenLastCalledWith('test');
     expect(result).to.deep.equal({ hello: 'world' });
-    sinon.assert.calledWithExactly(readFileSync.getCall(0), 'test');
 
-    readFileSync.returns({
-      toString: () => {
-        return 'invalid-json';
-      }
-    });
+    readFileSync.mockReturnValueOnce(Buffer.from('invalid-json'));
     readJsonFile('test');
-    sinon.assert.calledWithExactly(readFileSync.getCall(1), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(0), 'error GL2012:', "Failed reading JSON at: 'test', Unexpected token 'i', \"invalid-json\" is not valid JSON.");
-    sinon.assert.calledWithExactly(processExit.getCall(0), 2012);
+    expect(readFileSync).toHaveBeenCalledTimes(2);
+    expect(readFileSync).toHaveBeenLastCalledWith('test');
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading JSON at: 'test', Unexpected token 'i', \"invalid-json\" is not valid JSON.");
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2012);
 
-    readFileSync.throws(new Error('unknown'));
+    readFileSync.mockThrowOnce(new Error('unknown'));
     readJsonFile('test');
-    sinon.assert.calledWithExactly(readFileSync.getCall(2), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(1), 'error GL2012:', "Failed reading JSON at: 'test', unknown.");
-    sinon.assert.calledWithExactly(processExit.getCall(1), 2012);
+    expect(readFileSync).toHaveBeenCalledTimes(3);
+    expect(readFileSync).toHaveBeenLastCalledWith('test');
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading JSON at: 'test', unknown.");
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenLastCalledWith(2012);
 
-    readFileSync.throws(new Number());
+    readFileSync.mockThrowOnce(new Number());
     readJsonFile('test');
-    sinon.assert.calledWithExactly(readFileSync.getCall(3), 'test');
-    sinon.assert.calledWithExactly(consoleError.getCall(2), 'error GL2012:', "Failed reading JSON at: 'test'.");
-    sinon.assert.calledWithExactly(processExit.getCall(2), 2012);
+    expect(readFileSync).toHaveBeenCalledTimes(4);
+    expect(readFileSync).toHaveBeenLastCalledWith('test');
+    expect(consoleError).toHaveBeenCalledTimes(3);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading JSON at: 'test'.");
+    expect(processExit).toHaveBeenCalledTimes(3);
+    expect(processExit).toHaveBeenLastCalledWith(2012);
   });
 
   it('validate executing a command', () => {
-    let result = execute('test', 'path');
-    expect(result).to.equal(true);
-    sinon.assert.calledWithExactly(execSync.getCall(0), 'test', { cwd: 'path', stdio: 'inherit' });
+    const execSync = vi.spyOn(child_process, 'execSync').mockImplementation(() => {
+      return '';
+    });
 
-    execSync.throws(new Error('unknown'));
+    let result = execute('test', 'path');
+    expect(execSync).toHaveBeenCalledTimes(1);
+    expect(execSync).toHaveBeenLastCalledWith('test', { cwd: 'path', stdio: 'inherit' });
+    expect(result).to.equal(true);
+
+    execSync.mockThrowOnce(new Error('unknown'));
     result = execute('test', 'path');
+    expect(execSync).toHaveBeenCalledTimes(2);
+    expect(execSync).toHaveBeenLastCalledWith('test', { cwd: 'path', stdio: 'inherit' });
     expect(result).to.equal(false);
-    sinon.assert.calledWithExactly(execSync.getCall(1), 'test', { cwd: 'path', stdio: 'inherit' });
   });
 });

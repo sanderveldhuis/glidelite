@@ -22,8 +22,14 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
-import sinon from 'ts-sinon';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import { IpcEndpointImpl } from '../../src/glidelite/backend/ipcEndpoint';
 import {
   IpcMessage,
@@ -32,35 +38,32 @@ import {
 
 describe('ipcEndpoint.ts', () => {
   let endpoint: IpcEndpointImpl;
-  let socketMock: sinon.SinonMock;
-  let consoleError: sinon.SinonStub;
-  let fakeTimer: sinon.SinonFakeTimers;
 
   beforeEach(() => {
     endpoint = new IpcEndpointImpl('test');
-    socketMock = sinon.mock(endpoint._socket);
-    consoleError = sinon.stub(console, 'error');
-    fakeTimer = sinon.useFakeTimers(1234567890);
   });
 
   afterEach(() => {
-    socketMock.verify();
-    consoleError.restore();
-    fakeTimer.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate starting an IPC endpoint', () => {
+    // @ts-expect-error because function has return type Socket
+    const socketOn = vi.spyOn(endpoint._socket, 'on').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type Socket
+    const socketConnect = vi.spyOn(endpoint._socket, 'connect').mockImplementation(() => {/*Emtpy*/});
+
     expect(endpoint._running).to.equal(false);
     expect(endpoint._retryTimer).to.equal(undefined);
-
-    socketMock.expects('on').once().withArgs('connect');
-    socketMock.expects('on').once().withArgs('end');
-    socketMock.expects('on').once().withArgs('error');
-    socketMock.expects('on').once().withArgs('close');
-    socketMock.expects('on').once().withArgs('data');
-    socketMock.expects('connect').once().withArgs(endpoint._path);
     endpoint.start();
-
+    expect(socketOn).toHaveBeenCalledTimes(5);
+    expect(socketOn).toHaveBeenNthCalledWith(1, 'connect', expect.anything());
+    expect(socketOn).toHaveBeenNthCalledWith(2, 'end', expect.anything());
+    expect(socketOn).toHaveBeenNthCalledWith(3, 'error', expect.anything());
+    expect(socketOn).toHaveBeenNthCalledWith(4, 'close', expect.anything());
+    expect(socketOn).toHaveBeenNthCalledWith(5, 'data', expect.anything());
+    expect(socketConnect).toHaveBeenCalledTimes(1);
+    expect(socketConnect).toHaveBeenLastCalledWith(endpoint._path);
     expect(endpoint._name).to.equal('test');
     expect(endpoint._socket).to.not.equal(undefined);
     expect(endpoint._buffer).to.not.equal(undefined);
@@ -79,6 +82,9 @@ describe('ipcEndpoint.ts', () => {
   });
 
   it('validate stopping an IPC endpoint', () => {
+    // @ts-expect-error because function has return type Socket
+    const socketEnd = vi.spyOn(endpoint._socket, 'end').mockImplementation(() => {/*Emtpy*/});
+
     endpoint._running = true;
     endpoint._retryTimer = setTimeout(() => {
       // Should not happen
@@ -90,9 +96,9 @@ describe('ipcEndpoint.ts', () => {
       // Not used
     };
 
-    socketMock.expects('end').once();
     endpoint.stop();
-
+    expect(socketEnd).toHaveBeenCalledTimes(1);
+    expect(socketEnd).toHaveBeenLastCalledWith();
     expect(endpoint._name).to.equal('test');
     expect(endpoint._socket).to.not.equal(undefined);
     expect(endpoint._buffer).to.not.equal(undefined);
@@ -111,37 +117,64 @@ describe('ipcEndpoint.ts', () => {
   });
 
   it('validate indication message', () => {
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test1","type":"indication"}[GLE]');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test2","type":"indication","payload":{"result":true}}[GLE]');
+    const socketWrite = vi.spyOn(endpoint._socket, 'write').mockImplementation(() => {
+      return true;
+    });
+
     endpoint.indication('test1');
+    expect(socketWrite).toHaveBeenCalledTimes(1);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test1","type":"indication"}[GLE]');
+
     endpoint.indication('test2', { result: true });
+    expect(socketWrite).toHaveBeenCalledTimes(2);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test2","type":"indication","payload":{"result":true}}[GLE]');
   });
 
   it('validate request message', () => {
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test1","type":"request","session":1}[GLE]');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test2","type":"request","session":2,"payload":{"result":true}}[GLE]');
+    const socketWrite = vi.spyOn(endpoint._socket, 'write').mockImplementation(() => {
+      return true;
+    });
+
     endpoint.request('test1', undefined, () => {
       // Nothing to do
     });
+    expect(socketWrite).toHaveBeenCalledTimes(1);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test1","type":"request","session":1}[GLE]');
     expect(endpoint._requests[0]).to.not.equal(undefined);
     expect(endpoint._requests[1]).to.equal(undefined);
+    expect(endpoint._requests[98]).to.equal(undefined);
+    expect(endpoint._requests[99]).to.equal(undefined);
+    expect(endpoint._session).to.equal(2);
+
     endpoint.request('test2', { result: true }, () => {
       // Nothing to do
     });
+    expect(socketWrite).toHaveBeenCalledTimes(2);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test2","type":"request","session":2,"payload":{"result":true}}[GLE]');
     expect(endpoint._requests[0]).to.not.equal(undefined);
     expect(endpoint._requests[1]).to.not.equal(undefined);
+    expect(endpoint._requests[98]).to.equal(undefined);
+    expect(endpoint._requests[99]).to.equal(undefined);
     expect(endpoint._session).to.equal(3);
 
     // Restarting session number after 100
     endpoint._session = 99;
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test3","type":"request","session":99}[GLE]');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test4","type":"request","session":100}[GLE]');
     endpoint.request('test3', undefined, () => {
       // Nothing to do
     });
+    expect(socketWrite).toHaveBeenCalledTimes(3);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test3","type":"request","session":99}[GLE]');
+    expect(endpoint._requests[0]).to.not.equal(undefined);
+    expect(endpoint._requests[1]).to.not.equal(undefined);
+    expect(endpoint._requests[98]).to.not.equal(undefined);
+    expect(endpoint._requests[99]).to.equal(undefined);
+    expect(endpoint._session).to.equal(100);
+
     endpoint.request('test4', undefined, () => {
       // Nothing to do
     });
+    expect(socketWrite).toHaveBeenCalledTimes(4);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test4","type":"request","session":100}[GLE]');
     expect(endpoint._requests[0]).to.not.equal(undefined);
     expect(endpoint._requests[1]).to.not.equal(undefined);
     expect(endpoint._requests[98]).to.not.equal(undefined);
@@ -150,46 +183,82 @@ describe('ipcEndpoint.ts', () => {
   });
 
   it('validate subscribe message', () => {
-    socketMock.expects('write').twice().withExactArgs('[GLS]{"name":"test1","type":"subscribe"}[GLE]');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test2","type":"subscribe"}[GLE]');
+    const socketWrite = vi.spyOn(endpoint._socket, 'write').mockImplementation(() => {
+      return true;
+    });
+
     endpoint.subscribe('test1', () => {
       // Nothing to do
     });
+    expect(socketWrite).toHaveBeenCalledTimes(1);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test1","type":"subscribe"}[GLE]');
+    expect(Object.keys(endpoint._subscriptions).length).to.equal(1);
+    expect(endpoint._subscriptions.test1).to.not.equal(undefined);
+    expect(endpoint._subscriptions.test2).to.equal(undefined);
+
     endpoint.subscribe('test2', () => {
       // Nothing to do
     });
+    expect(socketWrite).toHaveBeenCalledTimes(2);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test2","type":"subscribe"}[GLE]');
+    expect(Object.keys(endpoint._subscriptions).length).to.equal(2);
+    expect(endpoint._subscriptions.test1).to.not.equal(undefined);
+    expect(endpoint._subscriptions.test2).to.not.equal(undefined);
+
     endpoint.subscribe('test1', () => {
       // Nothing to do
     });
+    expect(socketWrite).toHaveBeenCalledTimes(3);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test1","type":"subscribe"}[GLE]');
     expect(Object.keys(endpoint._subscriptions).length).to.equal(2);
     expect(endpoint._subscriptions.test1).to.not.equal(undefined);
     expect(endpoint._subscriptions.test2).to.not.equal(undefined);
   });
 
   it('validate unsubscribe message', () => {
-    socketMock.expects('write').twice().withExactArgs('[GLS]{"name":"test1","type":"unsubscribe"}[GLE]');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test2","type":"unsubscribe"}[GLE]');
+    const socketWrite = vi.spyOn(endpoint._socket, 'write').mockImplementation(() => {
+      return true;
+    });
+
     endpoint._subscriptions.test1 = () => {
       // Nothing to do
     };
     endpoint._subscriptions.test2 = () => {
       // Nothing to do
     };
+
     endpoint.unsubscribe('test1');
+    expect(socketWrite).toHaveBeenCalledTimes(1);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test1","type":"unsubscribe"}[GLE]');
+    expect(Object.keys(endpoint._subscriptions).length).to.equal(1);
+    expect(endpoint._subscriptions.test1).to.equal(undefined);
+    expect(endpoint._subscriptions.test2).to.not.equal(undefined);
+
     endpoint.unsubscribe('test2');
+    expect(socketWrite).toHaveBeenCalledTimes(2);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test2","type":"unsubscribe"}[GLE]');
+    expect(Object.keys(endpoint._subscriptions).length).to.equal(0);
+    expect(endpoint._subscriptions.test1).to.equal(undefined);
+    expect(endpoint._subscriptions.test2).to.equal(undefined);
+
     endpoint.unsubscribe('test1');
+    expect(socketWrite).toHaveBeenCalledTimes(3);
+    expect(socketWrite).toHaveBeenLastCalledWith('[GLS]{"name":"test1","type":"unsubscribe"}[GLE]');
     expect(Object.keys(endpoint._subscriptions).length).to.equal(0);
     expect(endpoint._subscriptions.test1).to.equal(undefined);
     expect(endpoint._subscriptions.test2).to.equal(undefined);
   });
 
   it('validate handling a connected event', () => {
+    const socketWrite = vi.spyOn(endpoint._socket, 'write').mockImplementation(() => {
+      return true;
+    });
+
     // No subscriptions available
     endpoint._onConnected();
+    expect(socketWrite).toHaveBeenCalledTimes(0);
 
     // Subscriptions available
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test1","type":"subscribe"}[GLE]');
-    socketMock.expects('write').once().withExactArgs('[GLS]{"name":"test2","type":"subscribe"}[GLE]');
     endpoint._subscriptions.test1 = () => {
       // Nothing to do
     };
@@ -197,39 +266,69 @@ describe('ipcEndpoint.ts', () => {
       // Nothing to do
     };
     endpoint._onConnected();
+    expect(socketWrite).toHaveBeenCalledTimes(2);
+    expect(socketWrite).toHaveBeenNthCalledWith(1, '[GLS]{"name":"test1","type":"subscribe"}[GLE]');
+    expect(socketWrite).toHaveBeenNthCalledWith(2, '[GLS]{"name":"test2","type":"subscribe"}[GLE]');
   });
 
   it('validate handling an end event', () => {
-    socketMock.expects('end').once();
+    // @ts-expect-error because function has return type Socket
+    const socketEnd = vi.spyOn(endpoint._socket, 'end').mockImplementation(() => {/*Empty*/});
+
     endpoint._onEnd();
+    expect(socketEnd).toHaveBeenCalledTimes(1);
+    expect(socketEnd).toHaveBeenLastCalledWith();
   });
 
   it('validate handling an error event', () => {
-    socketMock.expects('destroy').thrice();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type Socket
+    const socketDestroy = vi.spyOn(endpoint._socket, 'destroy').mockImplementation(() => {/*Empty*/});
+    vi.spyOn(Date, 'now').mockImplementation(() => {
+      return 1234567890;
+    });
 
     // No error message
     endpoint._onError(new Error());
-    sinon.assert.calledWithExactly(consoleError.getCall(0), '1234567890:ERR:ipc:endpoint:test:');
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('1234567890:ERR:ipc:endpoint:test:');
+    expect(socketDestroy).toHaveBeenCalledTimes(1);
+    expect(socketDestroy).toHaveBeenLastCalledWith();
 
     // With ignored error message
     endpoint._onError(new Error('Unknown ENOENT error'));
+    expect(socketDestroy).toHaveBeenCalledTimes(2);
+    expect(socketDestroy).toHaveBeenLastCalledWith();
 
     // With error message
     endpoint._onError(new Error('Unknown error'));
-    sinon.assert.calledWithExactly(consoleError.getCall(1), '1234567890:ERR:ipc:endpoint:test:Unknown error');
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('1234567890:ERR:ipc:endpoint:test:Unknown error');
+    expect(socketDestroy).toHaveBeenCalledTimes(3);
+    expect(socketDestroy).toHaveBeenLastCalledWith();
   });
 
   it('validate handling a close event', () => {
-    socketMock.expects('destroy').twice();
-    socketMock.expects('removeAllListeners').twice();
+    // @ts-expect-error because function has return type Socket
+    const socketDestroy = vi.spyOn(endpoint._socket, 'destroy').mockImplementation(() => {/*Empty*/});
+    // @ts-expect-error because function has return type Socket
+    const socketRemoveAllListeners = vi.spyOn(endpoint._socket, 'removeAllListeners').mockImplementation(() => {/*Empty*/});
 
     // Not running
     endpoint._onClose();
+    expect(socketDestroy).toHaveBeenCalledTimes(1);
+    expect(socketDestroy).toHaveBeenLastCalledWith();
+    expect(socketRemoveAllListeners).toHaveBeenCalledTimes(1);
+    expect(socketRemoveAllListeners).toHaveBeenLastCalledWith();
     expect(endpoint._retryTimer).to.equal(undefined);
 
     // Running
     endpoint._running = true;
     endpoint._onClose();
+    expect(socketDestroy).toHaveBeenCalledTimes(2);
+    expect(socketDestroy).toHaveBeenLastCalledWith();
+    expect(socketRemoveAllListeners).toHaveBeenCalledTimes(2);
+    expect(socketRemoveAllListeners).toHaveBeenLastCalledWith();
     expect(endpoint._retryTimer).to.not.equal(undefined);
 
     // Cleanup

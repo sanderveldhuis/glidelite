@@ -22,31 +22,43 @@
  * SOFTWARE.
  */
 
+import path from 'node:path';
 import {
+  afterEach,
   assert,
-  expect
-} from 'chai';
-import * as path from 'node:path';
-import sinon from 'ts-sinon';
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
+
+vi.mock('node:path');
 
 describe('glconfig.ts', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('validate not finding the GlideLite config', async () => {
-    const dirname = sinon.stub(path, 'dirname') as sinon.SinonStub;
-    dirname.returns(__dirname).returns(__dirname);
+    vi.spyOn(path, 'join').mockImplementation((...args: string[]) => args.join('/'));
+    vi.spyOn(path, 'dirname').mockReturnValue(`${__dirname}/../..`);
 
     try {
-      await import(path.resolve('src/glidelite/backend/glconfig'));
-      dirname.restore();
+      // Append a unique query string to trick the loader into thinking it's a new file ensuring it is newly imported
+      await import(`${__dirname}/../../src/glidelite/backend/glconfig?test=1`);
       assert.fail('import succeeded unexpectedly');
     }
     catch (error) {
-      dirname.restore();
       expect(error).to.deep.equal(new Error('No glconfig.json file available'));
     }
   });
 
   it('validate finding the GlideLite config', async () => {
-    const { glconfig } = await import(path.resolve('src/glidelite/backend/glconfig')); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
+    vi.spyOn(path, 'join').mockImplementation((...args: string[]) => args.join('/'));
+    vi.spyOn(path, 'dirname').mockReturnValue(`${__dirname}/..`);
+
+    // Append a unique query string to trick the loader into thinking it's a new file ensuring it is newly imported
+    const { glconfig } = await import(`${__dirname}/../../src/glidelite/backend/glconfig?test=2`); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
     expect(glconfig).to.deep.equal({
       comment1: 'this file is used by the unittests',
       comment2: 'do not remove this file',

@@ -22,7 +22,11 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
+import {
+  describe,
+  expect,
+  it
+} from 'vitest';
 import { version } from '../../src/compiler/version';
 
 describe('version.ts', () => {

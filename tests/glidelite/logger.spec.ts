@@ -22,28 +22,21 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
-import sinon from 'ts-sinon';
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import {
   log,
   Logger
 } from '../../src/glidelite/backend/logger';
 
 describe('logger.ts', () => {
-  let consoleLog: sinon.SinonStub;
-  let consoleError: sinon.SinonStub;
-  let fakeTimer: sinon.SinonFakeTimers;
-
-  beforeEach(() => {
-    consoleLog = sinon.stub(console, 'log');
-    consoleError = sinon.stub(console, 'error');
-    fakeTimer = sinon.useFakeTimers(1234567890);
-  });
-
   afterEach(() => {
-    consoleLog.restore();
-    consoleError.restore();
-    fakeTimer.restore();
+    vi.restoreAllMocks();
   });
 
   it('validate creating singleton instance loggers', () => {
@@ -60,14 +53,22 @@ describe('logger.ts', () => {
   });
 
   it('validate usage of loggers', () => {
+    const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {/*Emtpy*/});
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(Date, 'now').mockImplementation(() => {
+      return 1234567890;
+    });
+
     const msg = 'Test 3';
     log.healthman.debug('Test 1');
     log.deviceman.info('%s %d', 'Test', 2);
     log.healthman.warn(msg);
     log.deviceman.error(['Test', '4']);
-    sinon.assert.calledWithExactly(consoleLog.getCall(0), '1234567890:DBG:healthman:Test 1');
-    sinon.assert.calledWithExactly(consoleLog.getCall(1), '1234567890:INF:deviceman:%s %d', 'Test', 2);
-    sinon.assert.calledWithExactly(consoleLog.getCall(2), '1234567890:WRN:healthman:Test 3');
-    sinon.assert.calledOnceWithExactly(consoleError, '1234567890:ERR:deviceman:Test,4');
+    expect(consoleLog).toHaveBeenCalledTimes(3);
+    expect(consoleLog).toHaveBeenNthCalledWith(1, '1234567890:DBG:healthman:Test 1');
+    expect(consoleLog).toHaveBeenNthCalledWith(2, '1234567890:INF:deviceman:%s %d', 'Test', 2);
+    expect(consoleLog).toHaveBeenNthCalledWith(3, '1234567890:WRN:healthman:Test 3');
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('1234567890:ERR:deviceman:Test,4');
   });
 });

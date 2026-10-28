@@ -22,7 +22,11 @@
  * SOFTWARE.
  */
 
-import { expect } from 'chai';
+import {
+  describe,
+  expect,
+  it
+} from 'vitest';
 import { IpcMessage } from '../../src/glidelite/backend/ipcMessage';
 
 describe('ipcMessage.ts', () => {

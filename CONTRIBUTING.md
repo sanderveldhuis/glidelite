@@ -109,19 +109,19 @@ npm test
 To run only a specific subset of tests, use:
 
 ```Shell
-npx nyc mocha --grep '<regex>'
+npx vitest run <name>.spec.ts
 ```
 
 e.g. to run all version tests:
 
 ```Shell
-npx nyc mocha --grep 'version.ts'
+npx vitest run version.spec.ts
 ```
 
 or to run a specific test:
 
 ```Shell
-npx nyc mocha --grep 'validate the version variable'
+npx vitest run version.spec.ts -t 'validate the version variable'
 ```
 
 ## Adding a Test
