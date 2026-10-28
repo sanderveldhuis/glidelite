@@ -109,7 +109,7 @@ describe('initProject.ts', () => {
       expect(exists).toHaveBeenCalledTimes(3);
       expect(exists).toHaveBeenNthCalledWith(1, 'test/glconfig.json');
       expect(exists).toHaveBeenNthCalledWith(2, 'test/tsconfig.json');
-      expect(exists).toHaveBeenNthCalledWith(3, 'test/frontend\\vite.config.ts');
+      expect(exists).toHaveBeenNthCalledWith(3, 'test/frontend/vite.config.ts');
       expect(consoleError).toHaveBeenCalledTimes(1);
       expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', "A 'vite.config.ts' file already defined at: 'test/frontend/vite.config.ts'.");
     }

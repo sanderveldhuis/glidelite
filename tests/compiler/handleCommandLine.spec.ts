@@ -229,7 +229,7 @@ describe('handleCommandLine.ts', () => {
       expect(readJsonFile).toHaveBeenNthCalledWith(7, process.cwd() + '/package.json');
       expect(readJsonFile).toHaveBeenNthCalledWith(8, process.cwd() + '/glconfig.json');
       expect(compileFrontend).toHaveBeenCalledTimes(4);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '//world');
+      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/world');
     }
     expect(validateFrontend).toHaveBeenCalledTimes(4);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());

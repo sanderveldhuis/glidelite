@@ -78,7 +78,7 @@ describe('moduleWorkers.ts', () => {
       expect(exists).toHaveBeenCalledTimes(2);
       expect(exists).toHaveBeenNthCalledWith(2, 'input2/backend/workers');
       expect(consoleError).toHaveBeenCalledTimes(1);
-      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input2', missing directory 'input2\\backend\\workers'.");
+      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input2', missing directory 'input2/backend/workers'.");
     }
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
