@@ -24,6 +24,7 @@
 
 import child_process from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
 import {
   afterEach,
   describe,
@@ -56,52 +57,28 @@ describe('moduleApi.ts', () => {
     // All required files and directories exist
     exists.mockReturnValueOnce(true).mockReturnValueOnce(true);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
-    if ('win32' === process.platform) {
-      expect(exists).toHaveBeenCalledTimes(2);
-      expect(exists).toHaveBeenNthCalledWith(1, 'input1\\backend\\api\\routers');
-      expect(exists).toHaveBeenNthCalledWith(2, 'input1\\node_modules\\glidelite\\lib\\apiserver\\run.js');
-    }
-    else {
-      expect(exists).toHaveBeenCalledTimes(2);
-      expect(exists).toHaveBeenNthCalledWith(1, 'input1/backend/api/routers');
-      expect(exists).toHaveBeenNthCalledWith(2, 'input1/node_modules/glidelite/lib/apiserver/run.js');
-    }
+    expect(exists).toHaveBeenCalledTimes(2);
+    expect(exists).toHaveBeenNthCalledWith(1, path.normalize('input1/backend/api/routers'));
+    expect(exists).toHaveBeenNthCalledWith(2, path.normalize('input1/node_modules/glidelite/lib/apiserver/run.js'));
 
     // Not all required files and directories exist
     exists.mockReturnValueOnce(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
-    if ('win32' === process.platform) {
-      expect(exists).toHaveBeenCalledTimes(3);
-      expect(exists).toHaveBeenLastCalledWith('input2\\backend\\api\\routers');
-      expect(consoleError).toHaveBeenCalledTimes(1);
-      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input2', missing directory 'input2\\backend\\api\\routers'.");
-    }
-    else {
-      expect(exists).toHaveBeenCalledTimes(3);
-      expect(exists).toHaveBeenLastCalledWith('input2/backend/api/routers');
-      expect(consoleError).toHaveBeenCalledTimes(1);
-      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input2', missing directory 'input2/backend/api/routers'.");
-    }
+    expect(exists).toHaveBeenCalledTimes(3);
+    expect(exists).toHaveBeenLastCalledWith(path.normalize('input2/backend/api/routers'));
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing directory 'input2/backend/api/routers'."));
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
 
     // Not all required files and directories exist
     exists.mockReturnValueOnce(true).mockReturnValueOnce(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input3');
-    if ('win32' === process.platform) {
-      expect(exists).toHaveBeenCalledTimes(5);
-      expect(exists).toHaveBeenNthCalledWith(4, 'input3\\backend\\api\\routers');
-      expect(exists).toHaveBeenNthCalledWith(5, 'input3\\node_modules\\glidelite\\lib\\apiserver\\run.js');
-      expect(consoleError).toHaveBeenCalledTimes(2);
-      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3\\node_modules\\glidelite\\lib\\apiserver\\run.js'.");
-    }
-    else {
-      expect(exists).toHaveBeenCalledTimes(5);
-      expect(exists).toHaveBeenNthCalledWith(4, 'input3/backend/api/routers');
-      expect(exists).toHaveBeenNthCalledWith(5, 'input3/node_modules/glidelite/lib/apiserver/run.js');
-      expect(consoleError).toHaveBeenCalledTimes(2);
-      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'.");
-    }
+    expect(exists).toHaveBeenCalledTimes(5);
+    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('input3/backend/api/routers'));
+    expect(exists).toHaveBeenNthCalledWith(5, path.normalize('input3/node_modules/glidelite/lib/apiserver/run.js'));
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'."));
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });
@@ -110,16 +87,9 @@ describe('moduleApi.ts', () => {
     const remove = vi.spyOn(sysUtilsSrc, 'remove').mockImplementation(() => {/*Emtpy*/});
 
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
-    if ('win32' === process.platform) {
-      expect(remove).toHaveBeenCalledTimes(2);
-      expect(remove).toHaveBeenNthCalledWith(1, 'output\\opt\\cfg\\api');
-      expect(remove).toHaveBeenNthCalledWith(2, 'output\\etc\\cron.d\\cfg_api');
-    }
-    else {
-      expect(remove).toHaveBeenCalledTimes(2);
-      expect(remove).toHaveBeenNthCalledWith(1, 'output/opt/cfg/api');
-      expect(remove).toHaveBeenNthCalledWith(2, 'output/etc/cron.d/cfg_api');
-    }
+    expect(remove).toHaveBeenCalledTimes(2);
+    expect(remove).toHaveBeenNthCalledWith(1, path.normalize('output/opt/cfg/api'));
+    expect(remove).toHaveBeenNthCalledWith(2, path.normalize('output/etc/cron.d/cfg_api'));
   });
 
   it('validate running the API', () => {
@@ -150,28 +120,15 @@ describe('moduleApi.ts', () => {
     // Without API port in GlideLite configuration and no TypeScript files available
     readDir.mockReturnValueOnce([]);
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
-    if ('win32' === process.platform) {
-      expect(remove).toHaveBeenCalledTimes(1);
-      expect(remove).toHaveBeenLastCalledWith('input\\node_modules\\.tmp\\glc');
-      expect(readDir).toHaveBeenCalledTimes(1);
-      expect(readDir).toHaveBeenLastCalledWith('input\\backend\\api');
-      expect(spawn).toHaveBeenCalledTimes(1);
-      expect(spawn).toHaveBeenLastCalledWith('node input\\node_modules\\glidelite\\lib\\apiserver\\run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
-      expect(watch).toHaveBeenCalledTimes(2);
-      expect(watch).toHaveBeenNthCalledWith(1, 'input\\backend\\api', { recursive: true });
-      expect(watch).toHaveBeenNthCalledWith(2, 'input\\shared', { recursive: true });
-    }
-    else {
-      expect(remove).toHaveBeenCalledTimes(1);
-      expect(remove).toHaveBeenLastCalledWith('input/node_modules/.tmp/glc');
-      expect(readDir).toHaveBeenCalledTimes(1);
-      expect(readDir).toHaveBeenLastCalledWith('input/backend/api');
-      expect(spawn).toHaveBeenCalledTimes(1);
-      expect(spawn).toHaveBeenLastCalledWith('node input/node_modules/glidelite/lib/apiserver/run.js', { shell: true, cwd: 'input', stdio: 'inherit' });
-      expect(watch).toHaveBeenCalledTimes(2);
-      expect(watch).toHaveBeenNthCalledWith(1, 'input/backend/api', { recursive: true });
-      expect(watch).toHaveBeenNthCalledWith(2, 'input/shared', { recursive: true });
-    }
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(readDir).toHaveBeenCalledTimes(1);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
+    expect(spawn).toHaveBeenCalledTimes(1);
+    expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js'), { shell: true, cwd: 'input', stdio: 'inherit' });
+    expect(watch).toHaveBeenCalledTimes(2);
+    expect(watch).toHaveBeenNthCalledWith(1, path.normalize('input/backend/api'), { recursive: true });
+    expect(watch).toHaveBeenNthCalledWith(2, path.normalize('input/shared'), { recursive: true });
     expect(watchEvent.length).to.equal(2);
     expect(watchEvent[0]).to.equal('change');
     expect(watchEvent[1]).to.equal('change');
@@ -184,32 +141,17 @@ describe('moduleApi.ts', () => {
     readDir.mockReturnValueOnce([{ name: 'test.ts' }, { name: 'test.js' }]);
     execute.mockReturnValueOnce(true);
     run({ name: 'pkg' }, { name: 'cfg', ports: { api: 1234 } }, 'input');
-    if ('win32' === process.platform) {
-      expect(remove).toHaveBeenCalledTimes(2);
-      expect(remove).toHaveBeenLastCalledWith('input\\node_modules\\.tmp\\glc');
-      expect(readDir).toHaveBeenCalledTimes(2);
-      expect(readDir).toHaveBeenLastCalledWith('input\\backend\\api');
-      expect(execute).toHaveBeenCalledTimes(1);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
-      expect(spawn).toHaveBeenCalledTimes(2);
-      expect(spawn).toHaveBeenLastCalledWith('node input\\node_modules\\glidelite\\lib\\apiserver\\run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
-      expect(watch).toHaveBeenCalledTimes(4);
-      expect(watch).toHaveBeenNthCalledWith(3, 'input\\backend\\api', { recursive: true });
-      expect(watch).toHaveBeenNthCalledWith(4, 'input\\shared', { recursive: true });
-    }
-    else {
-      expect(remove).toHaveBeenCalledTimes(2);
-      expect(remove).toHaveBeenLastCalledWith('input/node_modules/.tmp/glc');
-      expect(readDir).toHaveBeenCalledTimes(2);
-      expect(readDir).toHaveBeenLastCalledWith('input/backend/api');
-      expect(execute).toHaveBeenCalledTimes(1);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
-      expect(spawn).toHaveBeenCalledTimes(2);
-      expect(spawn).toHaveBeenLastCalledWith('node input/node_modules/glidelite/lib/apiserver/run.js 1234', { shell: true, cwd: 'input', stdio: 'inherit' });
-      expect(watch).toHaveBeenCalledTimes(4);
-      expect(watch).toHaveBeenNthCalledWith(3, 'input/backend/api', { recursive: true });
-      expect(watch).toHaveBeenNthCalledWith(4, 'input/shared', { recursive: true });
-    }
+    expect(remove).toHaveBeenCalledTimes(2);
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(readDir).toHaveBeenCalledTimes(2);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js 1234'), { shell: true, cwd: 'input', stdio: 'inherit' });
+    expect(watch).toHaveBeenCalledTimes(4);
+    expect(watch).toHaveBeenNthCalledWith(3, path.normalize('input/backend/api'), { recursive: true });
+    expect(watch).toHaveBeenNthCalledWith(4, path.normalize('input/shared'), { recursive: true });
     expect(watchEvent.length).to.equal(4);
     expect(watchEvent[2]).to.equal('change');
     expect(watchEvent[3]).to.equal('change');
@@ -222,25 +164,18 @@ describe('moduleApi.ts', () => {
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.ts' }]);
     execute.mockReturnValueOnce(false);
     watchCallback[2]();
+    expect(remove).toHaveBeenCalledTimes(3);
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(readDir).toHaveBeenCalledTimes(3);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(spawn).toHaveBeenCalledTimes(3);
     if ('win32' === process.platform) {
-      expect(spawn).toHaveBeenCalledTimes(3);
       expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
-      expect(remove).toHaveBeenCalledTimes(3);
-      expect(remove).toHaveBeenLastCalledWith('input\\node_modules\\.tmp\\glc');
-      expect(readDir).toHaveBeenCalledTimes(3);
-      expect(readDir).toHaveBeenLastCalledWith('input\\backend\\api');
-      expect(execute).toHaveBeenCalledTimes(2);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
     }
     else {
-      expect(spawn).toHaveBeenCalledTimes(3);
       expect(spawn).toHaveBeenLastCalledWith('sh', ['-c', `kill -9 1234`]);
-      expect(remove).toHaveBeenCalledTimes(3);
-      expect(remove).toHaveBeenLastCalledWith('input/node_modules/.tmp/glc');
-      expect(readDir).toHaveBeenCalledTimes(3);
-      expect(readDir).toHaveBeenLastCalledWith('input/backend/api');
-      expect(execute).toHaveBeenCalledTimes(2);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
     }
 
     // Test the callback function with TypeScript files available but a failing execute
@@ -248,25 +183,18 @@ describe('moduleApi.ts', () => {
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.ts' }]);
     execute.mockReturnValueOnce(false);
     watchCallback[3]();
+    expect(remove).toHaveBeenCalledTimes(4);
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(readDir).toHaveBeenCalledTimes(4);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
+    expect(execute).toHaveBeenCalledTimes(3);
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(spawn).toHaveBeenCalledTimes(4);
     if ('win32' === process.platform) {
-      expect(spawn).toHaveBeenCalledTimes(4);
       expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
-      expect(remove).toHaveBeenCalledTimes(4);
-      expect(remove).toHaveBeenLastCalledWith('input\\node_modules\\.tmp\\glc');
-      expect(readDir).toHaveBeenCalledTimes(4);
-      expect(readDir).toHaveBeenLastCalledWith('input\\backend\\api');
-      expect(execute).toHaveBeenCalledTimes(3);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input\\node_modules\\.tmp\\glc', 'input');
     }
     else {
-      expect(spawn).toHaveBeenCalledTimes(4);
       expect(spawn).toHaveBeenLastCalledWith('sh', ['-c', `kill -9 1234`]);
-      expect(remove).toHaveBeenCalledTimes(4);
-      expect(remove).toHaveBeenLastCalledWith('input/node_modules/.tmp/glc');
-      expect(readDir).toHaveBeenCalledTimes(4);
-      expect(readDir).toHaveBeenLastCalledWith('input/backend/api');
-      expect(execute).toHaveBeenCalledTimes(3);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc', 'input');
     }
   });
 
@@ -275,17 +203,9 @@ describe('moduleApi.ts', () => {
     const makeFile = vi.spyOn(sysUtilsSrc, 'makeFile').mockImplementation(() => {/*Emtpy*/});
 
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input', 'output');
-    if ('win32' === process.platform) {
-      expect(makeDir).toHaveBeenCalledTimes(1);
-      expect(makeDir).toHaveBeenLastCalledWith('output\\etc\\cron.d');
-      expect(makeFile).toHaveBeenCalledTimes(1);
-      expect(makeFile).toHaveBeenLastCalledWith('output\\etc\\cron.d\\cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
-    }
-    else {
-      expect(makeDir).toHaveBeenCalledTimes(1);
-      expect(makeDir).toHaveBeenLastCalledWith('output/etc/cron.d');
-      expect(makeFile).toHaveBeenCalledTimes(1);
-      expect(makeFile).toHaveBeenLastCalledWith('output/etc/cron.d/cfg_api', '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
-    }
+    expect(makeDir).toHaveBeenCalledTimes(1);
+    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('output/etc/cron.d'));
+    expect(makeFile).toHaveBeenCalledTimes(1);
+    expect(makeFile).toHaveBeenLastCalledWith(path.normalize('output/etc/cron.d/cfg_api'), '@reboot root node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js" || node /opt/cfg/node_modules/glidelite/lib/apiserver/run.js >> /var/log/cfg/api.log &\n');
   });
 });

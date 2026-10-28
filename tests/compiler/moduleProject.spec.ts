@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import path from 'node:path';
 import {
   afterEach,
   describe,
@@ -55,14 +56,8 @@ describe('moduleProject.ts', () => {
     // All required files and directories exist, no homepage available
     exists.mockReturnValueOnce(true);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
-    if ('win32' === process.platform) {
-      expect(exists).toHaveBeenCalledTimes(1);
-      expect(exists).toHaveBeenLastCalledWith('input1\\tsconfig.json');
-    }
-    else {
-      expect(exists).toHaveBeenCalledTimes(1);
-      expect(exists).toHaveBeenLastCalledWith('input1/tsconfig.json');
-    }
+    expect(exists).toHaveBeenCalledTimes(1);
+    expect(exists).toHaveBeenLastCalledWith(path.normalize('input1/tsconfig.json'));
     expect(validateBackend).toHaveBeenCalledTimes(1);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input1');
     expect(validateFrontend).toHaveBeenCalledTimes(1);
@@ -71,18 +66,10 @@ describe('moduleProject.ts', () => {
     // Not all required files and directories exist
     exists.mockReturnValueOnce(false);
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
-    if ('win32' === process.platform) {
-      expect(exists).toHaveBeenCalledTimes(2);
-      expect(exists).toHaveBeenLastCalledWith('input2\\tsconfig.json');
-      expect(consoleError).toHaveBeenCalledTimes(1);
-      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input2', missing file 'input2\\tsconfig.json'.");
-    }
-    else {
-      expect(exists).toHaveBeenCalledTimes(2);
-      expect(exists).toHaveBeenLastCalledWith('input2/tsconfig.json');
-      expect(consoleError).toHaveBeenCalledTimes(1);
-      expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input2', missing file 'input2/tsconfig.json'.");
-    }
+    expect(exists).toHaveBeenCalledTimes(2);
+    expect(exists).toHaveBeenLastCalledWith(path.normalize('input2/tsconfig.json'));
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing file 'input2/tsconfig.json'."));
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
 
@@ -165,20 +152,11 @@ describe('moduleProject.ts', () => {
     expect(cleanBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'output');
     expect(cleanFrontend).toHaveBeenCalledTimes(1);
     expect(cleanFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'output');
-    if ('win32' === process.platform) {
-      expect(remove).toHaveBeenCalledTimes(4);
-      expect(remove).toHaveBeenNthCalledWith(1, 'output\\install');
-      expect(remove).toHaveBeenNthCalledWith(2, 'output\\opt\\cfg');
-      expect(remove).toHaveBeenNthCalledWith(3, 'output\\etc\\logrotate.d');
-      expect(remove).toHaveBeenNthCalledWith(4, 'output\\etc\\nginx');
-    }
-    else {
-      expect(remove).toHaveBeenCalledTimes(4);
-      expect(remove).toHaveBeenNthCalledWith(1, 'output/install');
-      expect(remove).toHaveBeenNthCalledWith(2, 'output/opt/cfg');
-      expect(remove).toHaveBeenNthCalledWith(3, 'output/etc/logrotate.d');
-      expect(remove).toHaveBeenNthCalledWith(4, 'output/etc/nginx');
-    }
+    expect(remove).toHaveBeenCalledTimes(4);
+    expect(remove).toHaveBeenNthCalledWith(1, path.normalize('output/install'));
+    expect(remove).toHaveBeenNthCalledWith(2, path.normalize('output/opt/cfg'));
+    expect(remove).toHaveBeenNthCalledWith(3, path.normalize('output/etc/logrotate.d'));
+    expect(remove).toHaveBeenNthCalledWith(4, path.normalize('output/etc/nginx'));
   });
 
   it('validate running the project', () => {
@@ -205,32 +183,17 @@ describe('moduleProject.ts', () => {
     expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
     expect(compileFrontend).toHaveBeenCalledTimes(1);
     expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
-    if ('win32' === process.platform) {
-      expect(makeDir).toHaveBeenCalledTimes(3);
-      expect(makeFile).toHaveBeenCalledTimes(6);
-      expect(makeDir).toHaveBeenNthCalledWith(1, 'output\\opt\\cfg');
-      expect(makeFile).toHaveBeenNthCalledWith(1, 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      expect(makeFile).toHaveBeenNthCalledWith(2, 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-      expect(makeDir).toHaveBeenNthCalledWith(2, 'output\\etc\\logrotate.d');
-      expect(makeFile).toHaveBeenNthCalledWith(3, 'output\\etc\\logrotate.d\\cfg', expect.any(String)); // Not validating the content of the logrotate file
-      expect(makeDir).toHaveBeenNthCalledWith(3, 'output\\etc\\nginx\\sites-available');
-      expect(makeFile).toHaveBeenNthCalledWith(4, 'output\\etc\\nginx\\sites-available\\cfg.gateway.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(5, 'output\\etc\\nginx\\sites-available\\cfg.proxy.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(6, 'output\\install', expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx > /dev/null 2>&1\n')); // Not validating the full content of the install file
-    }
-    else {
-      expect(makeDir).toHaveBeenCalledTimes(3);
-      expect(makeFile).toHaveBeenCalledTimes(6);
-      expect(makeDir).toHaveBeenNthCalledWith(1, 'output/opt/cfg');
-      expect(makeFile).toHaveBeenNthCalledWith(1, 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      expect(makeFile).toHaveBeenNthCalledWith(2, 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0"}');
-      expect(makeDir).toHaveBeenNthCalledWith(2, 'output/etc/logrotate.d');
-      expect(makeFile).toHaveBeenNthCalledWith(3, 'output/etc/logrotate.d/cfg', expect.any(String)); // Not validating the content of the logrotate file
-      expect(makeDir).toHaveBeenNthCalledWith(3, 'output/etc/nginx/sites-available');
-      expect(makeFile).toHaveBeenNthCalledWith(4, 'output/etc/nginx/sites-available/cfg.gateway.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(5, 'output/etc/nginx/sites-available/cfg.proxy.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(6, 'output/install', expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx > /dev/null 2>&1\n')); // Not validating the full content of the install file
-    }
+    expect(makeDir).toHaveBeenCalledTimes(3);
+    expect(makeFile).toHaveBeenCalledTimes(6);
+    expect(makeDir).toHaveBeenNthCalledWith(1, path.normalize('output/opt/cfg'));
+    expect(makeFile).toHaveBeenNthCalledWith(1, path.normalize('output/opt/cfg/package.json'), '{"name":"cfg","version":"1.0.0","dependencies":{"glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+    expect(makeFile).toHaveBeenNthCalledWith(2, path.normalize('output/opt/cfg/glconfig.json'), '{"name":"cfg","version":"1.0.0"}');
+    expect(makeDir).toHaveBeenNthCalledWith(2, path.normalize('output/etc/logrotate.d'));
+    expect(makeFile).toHaveBeenNthCalledWith(3, path.normalize('output/etc/logrotate.d/cfg'), expect.any(String)); // Not validating the content of the logrotate file
+    expect(makeDir).toHaveBeenNthCalledWith(3, path.normalize('output/etc/nginx/sites-available'));
+    expect(makeFile).toHaveBeenNthCalledWith(4, path.normalize('output/etc/nginx/sites-available/cfg.gateway.conf'), expect.any(String)); // Not validating the content of the nginx config file
+    expect(makeFile).toHaveBeenNthCalledWith(5, path.normalize('output/etc/nginx/sites-available/cfg.proxy.conf'), expect.any(String)); // Not validating the content of the nginx config file
+    expect(makeFile).toHaveBeenNthCalledWith(6, path.normalize('output/install'), expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx > /dev/null 2>&1\n')); // Not validating the full content of the install file
 
     // Dependencies available, packages available, homepage available without subdomain, pre-install script available
     compile({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com/', packages: ['logrotate', 'example'], preinstall: './preinstall' }, 'input', 'output');
@@ -238,42 +201,22 @@ describe('moduleProject.ts', () => {
     expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com/', packages: ['logrotate', 'example'], preinstall: './preinstall' }, 'input', 'output');
     expect(compileFrontend).toHaveBeenCalledTimes(2);
     expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com/', packages: ['logrotate', 'example'], preinstall: './preinstall' }, 'input', 'output');
-    if ('win32' === process.platform) {
-      expect(makeDir).toHaveBeenCalledTimes(7);
-      expect(makeFile).toHaveBeenCalledTimes(12);
-      expect(copyFile).toHaveBeenCalledTimes(1);
-      expect(makeDir).toHaveBeenNthCalledWith(4, 'output\\opt\\cfg');
-      expect(makeFile).toHaveBeenNthCalledWith(7, 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      expect(makeFile).toHaveBeenNthCalledWith(8, 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://example.com/","packages":["logrotate","example"],"preinstall":"./preinstall"}');
-      expect(makeDir).toHaveBeenNthCalledWith(5, 'output\\etc\\logrotate.d');
-      expect(makeFile).toHaveBeenNthCalledWith(9, 'output\\etc\\logrotate.d\\cfg', expect.any(String)); // Not validating the content of the logrotate file
-      expect(makeDir).toHaveBeenNthCalledWith(6, 'output\\etc\\nginx\\sites-available');
-      expect(makeFile).toHaveBeenNthCalledWith(10, 'output\\etc\\nginx\\sites-available\\cfg.gateway.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(11, 'output\\etc\\nginx\\sites-available\\cfg.proxy.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(12, 'output\\install', expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n')); // Not validating the full content of the install file
-      expect(makeFile).toHaveBeenNthCalledWith(12, 'output\\install', expect.stringContaining('certbot --nginx -d example.com -d www.example.com\n')); // Not validating the full content of the install file
-      expect(makeFile).toHaveBeenNthCalledWith(12, 'output\\install', expect.stringContaining('chmod +x ./preinstall\n./preinstall\n\n')); // Not validating the full content of the install file
-      expect(makeDir).toHaveBeenNthCalledWith(7, 'output');
-      expect(copyFile).toHaveBeenLastCalledWith('./preinstall', 'output\\preinstall');
-    }
-    else {
-      expect(makeDir).toHaveBeenCalledTimes(7);
-      expect(makeFile).toHaveBeenCalledTimes(12);
-      expect(copyFile).toHaveBeenCalledTimes(1);
-      expect(makeDir).toHaveBeenNthCalledWith(4, 'output/opt/cfg');
-      expect(makeFile).toHaveBeenNthCalledWith(7, 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      expect(makeFile).toHaveBeenNthCalledWith(8, 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://example.com/","packages":["logrotate","example"],"preinstall":"./preinstall"}');
-      expect(makeDir).toHaveBeenNthCalledWith(5, 'output/etc/logrotate.d');
-      expect(makeFile).toHaveBeenNthCalledWith(9, 'output/etc/logrotate.d/cfg', expect.any(String)); // Not validating the content of the logrotate file
-      expect(makeDir).toHaveBeenNthCalledWith(6, 'output/etc/nginx/sites-available');
-      expect(makeFile).toHaveBeenNthCalledWith(10, 'output/etc/nginx/sites-available/cfg.gateway.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(11, 'output/etc/nginx/sites-available/cfg.proxy.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(12, 'output/install', expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n')); // Not validating the full content of the install file
-      expect(makeFile).toHaveBeenNthCalledWith(12, 'output/install', expect.stringContaining('certbot --nginx -d example.com -d www.example.com\n')); // Not validating the full content of the install file
-      expect(makeFile).toHaveBeenNthCalledWith(12, 'output/install', expect.stringContaining('chmod +x ./preinstall\n./preinstall\n\n')); // Not validating the full content of the install file
-      expect(makeDir).toHaveBeenNthCalledWith(7, 'output');
-      expect(copyFile).toHaveBeenLastCalledWith('./preinstall', 'output/preinstall');
-    }
+    expect(makeDir).toHaveBeenCalledTimes(7);
+    expect(makeFile).toHaveBeenCalledTimes(12);
+    expect(copyFile).toHaveBeenCalledTimes(1);
+    expect(makeDir).toHaveBeenNthCalledWith(4, path.normalize('output/opt/cfg'));
+    expect(makeFile).toHaveBeenNthCalledWith(7, path.normalize('output/opt/cfg/package.json'), '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+    expect(makeFile).toHaveBeenNthCalledWith(8, path.normalize('output/opt/cfg/glconfig.json'), '{"name":"cfg","version":"1.0.0","homepage":"https://example.com/","packages":["logrotate","example"],"preinstall":"./preinstall"}');
+    expect(makeDir).toHaveBeenNthCalledWith(5, path.normalize('output/etc/logrotate.d'));
+    expect(makeFile).toHaveBeenNthCalledWith(9, path.normalize('output/etc/logrotate.d/cfg'), expect.any(String)); // Not validating the content of the logrotate file
+    expect(makeDir).toHaveBeenNthCalledWith(6, path.normalize('output/etc/nginx/sites-available'));
+    expect(makeFile).toHaveBeenNthCalledWith(10, path.normalize('output/etc/nginx/sites-available/cfg.gateway.conf'), expect.any(String)); // Not validating the content of the nginx config file
+    expect(makeFile).toHaveBeenNthCalledWith(11, path.normalize('output/etc/nginx/sites-available/cfg.proxy.conf'), expect.any(String)); // Not validating the content of the nginx config file
+    expect(makeFile).toHaveBeenNthCalledWith(12, path.normalize('output/install'), expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n')); // Not validating the full content of the install file
+    expect(makeFile).toHaveBeenNthCalledWith(12, path.normalize('output/install'), expect.stringContaining('certbot --nginx -d example.com -d www.example.com\n')); // Not validating the full content of the install file
+    expect(makeFile).toHaveBeenNthCalledWith(12, path.normalize('output/install'), expect.stringContaining('chmod +x ./preinstall\n./preinstall\n\n')); // Not validating the full content of the install file
+    expect(makeDir).toHaveBeenNthCalledWith(7, 'output');
+    expect(copyFile).toHaveBeenLastCalledWith('./preinstall', path.normalize('output/preinstall'));
 
     // Dependencies available, packages available, homepage available with subdomain, post-install script available
     compile({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://www.example.com/', packages: ['logrotate', 'example'], postinstall: './sub/postinstall', ports: { proxy: 9999 } }, 'input', 'output');
@@ -281,41 +224,21 @@ describe('moduleProject.ts', () => {
     expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://www.example.com/', packages: ['logrotate', 'example'], postinstall: './sub/postinstall', ports: { proxy: 9999 } }, 'input', 'output');
     expect(compileFrontend).toHaveBeenCalledTimes(3);
     expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', dependencies: { hello: 'world', glidelite: '0.9.0' } }, { name: 'cfg', version: '1.0.0', homepage: 'https://www.example.com/', packages: ['logrotate', 'example'], postinstall: './sub/postinstall', ports: { proxy: 9999 } }, 'input', 'output');
-    if ('win32' === process.platform) {
-      expect(makeDir).toHaveBeenCalledTimes(11);
-      expect(makeFile).toHaveBeenCalledTimes(18);
-      expect(copyFile).toHaveBeenCalledTimes(2);
-      expect(makeDir).toHaveBeenNthCalledWith(8, 'output\\opt\\cfg');
-      expect(makeFile).toHaveBeenNthCalledWith(13, 'output\\opt\\cfg\\package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      expect(makeFile).toHaveBeenNthCalledWith(14, 'output\\opt\\cfg\\glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://www.example.com/","packages":["logrotate","example"],"postinstall":"./sub/postinstall","ports":{"proxy":9999}}');
-      expect(makeDir).toHaveBeenNthCalledWith(9, 'output\\etc\\logrotate.d');
-      expect(makeFile).toHaveBeenNthCalledWith(15, 'output\\etc\\logrotate.d\\cfg', expect.any(String)); // Not validating the content of the logrotate file
-      expect(makeDir).toHaveBeenNthCalledWith(10, 'output\\etc\\nginx\\sites-available');
-      expect(makeFile).toHaveBeenNthCalledWith(16, 'output\\etc\\nginx\\sites-available\\cfg.gateway.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(17, 'output\\etc\\nginx\\sites-available\\cfg.proxy.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(18, 'output\\install', expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n')); // Not validating the full content of the install file
-      expect(makeFile).toHaveBeenNthCalledWith(18, 'output\\install', expect.stringContaining('certbot --nginx -d www.example.com\n')); // Not validating the full content of the install file
-      expect(makeFile).toHaveBeenNthCalledWith(18, 'output\\install', expect.stringContaining('chmod +x ./sub/postinstall\n./sub/postinstall\n\n')); // Not validating the full content of the install file
-      expect(makeDir).toHaveBeenNthCalledWith(11, 'output\\sub');
-      expect(copyFile).toHaveBeenLastCalledWith('./sub/postinstall', 'output\\sub\\postinstall');
-    }
-    else {
-      expect(makeDir).toHaveBeenCalledTimes(11);
-      expect(makeFile).toHaveBeenCalledTimes(18);
-      expect(copyFile).toHaveBeenCalledTimes(2);
-      expect(makeDir).toHaveBeenNthCalledWith(8, 'output/opt/cfg');
-      expect(makeFile).toHaveBeenNthCalledWith(13, 'output/opt/cfg/package.json', '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
-      expect(makeFile).toHaveBeenNthCalledWith(14, 'output/opt/cfg/glconfig.json', '{"name":"cfg","version":"1.0.0","homepage":"https://www.example.com/","packages":["logrotate","example"],"postinstall":"./sub/postinstall","ports":{"proxy":9999}}');
-      expect(makeDir).toHaveBeenNthCalledWith(9, 'output/etc/logrotate.d');
-      expect(makeFile).toHaveBeenNthCalledWith(15, 'output/etc/logrotate.d/cfg', expect.any(String)); // Not validating the content of the logrotate file
-      expect(makeDir).toHaveBeenNthCalledWith(10, 'output/etc/nginx/sites-available');
-      expect(makeFile).toHaveBeenNthCalledWith(16, 'output/etc/nginx/sites-available/cfg.gateway.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(17, 'output/etc/nginx/sites-available/cfg.proxy.conf', expect.any(String)); // Not validating the content of the nginx config file
-      expect(makeFile).toHaveBeenNthCalledWith(18, 'output/install', expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n')); // Not validating the full content of the install file
-      expect(makeFile).toHaveBeenNthCalledWith(18, 'output/install', expect.stringContaining('certbot --nginx -d www.example.com\n')); // Not validating the full content of the install file
-      expect(makeFile).toHaveBeenNthCalledWith(18, 'output/install', expect.stringContaining('chmod +x ./sub/postinstall\n./sub/postinstall\n\n')); // Not validating the full content of the install file
-      expect(makeDir).toHaveBeenNthCalledWith(11, 'output/sub');
-      expect(copyFile).toHaveBeenLastCalledWith('./sub/postinstall', 'output/sub/postinstall');
-    }
+    expect(makeDir).toHaveBeenCalledTimes(11);
+    expect(makeFile).toHaveBeenCalledTimes(18);
+    expect(copyFile).toHaveBeenCalledTimes(2);
+    expect(makeDir).toHaveBeenNthCalledWith(8, path.normalize('output/opt/cfg'));
+    expect(makeFile).toHaveBeenNthCalledWith(13, path.normalize('output/opt/cfg/package.json'), '{"name":"cfg","version":"1.0.0","dependencies":{"hello":"world","glidelite":"github:sanderveldhuis/glidelite#v1.0.0"}}');
+    expect(makeFile).toHaveBeenNthCalledWith(14, path.normalize('output/opt/cfg/glconfig.json'), '{"name":"cfg","version":"1.0.0","homepage":"https://www.example.com/","packages":["logrotate","example"],"postinstall":"./sub/postinstall","ports":{"proxy":9999}}');
+    expect(makeDir).toHaveBeenNthCalledWith(9, path.normalize('output/etc/logrotate.d'));
+    expect(makeFile).toHaveBeenNthCalledWith(15, path.normalize('output/etc/logrotate.d/cfg'), expect.any(String)); // Not validating the content of the logrotate file
+    expect(makeDir).toHaveBeenNthCalledWith(10, path.normalize('output/etc/nginx/sites-available'));
+    expect(makeFile).toHaveBeenNthCalledWith(16, path.normalize('output/etc/nginx/sites-available/cfg.gateway.conf'), expect.any(String)); // Not validating the content of the nginx config file
+    expect(makeFile).toHaveBeenNthCalledWith(17, path.normalize('output/etc/nginx/sites-available/cfg.proxy.conf'), expect.any(String)); // Not validating the content of the nginx config file
+    expect(makeFile).toHaveBeenNthCalledWith(18, path.normalize('output/install'), expect.stringContaining('dpkg -s cron logrotate nodejs nginx certbot python3-certbot-nginx example > /dev/null 2>&1\n')); // Not validating the full content of the install file
+    expect(makeFile).toHaveBeenNthCalledWith(18, path.normalize('output/install'), expect.stringContaining('certbot --nginx -d www.example.com\n')); // Not validating the full content of the install file
+    expect(makeFile).toHaveBeenNthCalledWith(18, path.normalize('output/install'), expect.stringContaining('chmod +x ./sub/postinstall\n./sub/postinstall\n\n')); // Not validating the full content of the install file
+    expect(makeDir).toHaveBeenNthCalledWith(11, path.normalize('output/sub'));
+    expect(copyFile).toHaveBeenLastCalledWith('./sub/postinstall', path.normalize('output/sub/postinstall'));
   });
 });

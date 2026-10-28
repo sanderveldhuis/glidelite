@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import path from 'node:path';
 import {
   afterEach,
   describe,
@@ -88,45 +89,25 @@ describe('moduleBackend.ts', () => {
     // No files available in API directory
     readDir.mockReturnValueOnce([]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input1', 'output1');
-    if ('win32' === process.platform) {
-      expect(readDir).toHaveBeenCalledTimes(1);
-      expect(readDir).toHaveBeenLastCalledWith('input1\\backend');
-    }
-    else {
-      expect(readDir).toHaveBeenCalledTimes(1);
-      expect(readDir).toHaveBeenLastCalledWith('input1/backend');
-    }
+    expect(readDir).toHaveBeenCalledTimes(1);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input1/backend'));
 
     // No files with .ts extension available in API directory
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.js' }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input2', 'output2');
-    if ('win32' === process.platform) {
-      expect(readDir).toHaveBeenCalledTimes(2);
-      expect(readDir).toHaveBeenLastCalledWith('input2\\backend');
-    }
-    else {
-      expect(readDir).toHaveBeenCalledTimes(2);
-      expect(readDir).toHaveBeenLastCalledWith('input2/backend');
-    }
+    expect(readDir).toHaveBeenCalledTimes(2);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input2/backend'));
 
     // Files with .ts extension available in API directory but execution failed
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }]);
     execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
-    if ('win32' === process.platform) {
-      expect(readDir).toHaveBeenCalledTimes(3);
-      expect(readDir).toHaveBeenLastCalledWith('input3\\backend');
-      expect(execute).toHaveBeenCalledTimes(1);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input3 --rootDir input3 --outDir output3\\opt\\cfg', 'input3');
-    }
-    else {
-      expect(readDir).toHaveBeenCalledTimes(3);
-      expect(readDir).toHaveBeenLastCalledWith('input3/backend');
-      expect(execute).toHaveBeenCalledTimes(1);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input3 --rootDir input3 --outDir output3/opt/cfg', 'input3');
-    }
+    expect(readDir).toHaveBeenCalledTimes(3);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input3/backend'));
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input3 --rootDir input3 --outDir output3/opt/cfg'), 'input3');
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3002);
 
@@ -135,18 +116,10 @@ describe('moduleBackend.ts', () => {
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     execute.mockReturnValueOnce(true);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
-    if ('win32' === process.platform) {
-      expect(readDir).toHaveBeenCalledTimes(4);
-      expect(readDir).toHaveBeenLastCalledWith('input4\\backend');
-      expect(execute).toHaveBeenCalledTimes(2);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input4 --rootDir input4 --outDir output4\\opt\\cfg', 'input4');
-    }
-    else {
-      expect(readDir).toHaveBeenCalledTimes(4);
-      expect(readDir).toHaveBeenLastCalledWith('input4/backend');
-      expect(execute).toHaveBeenCalledTimes(2);
-      expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -p input4 --rootDir input4 --outDir output4/opt/cfg', 'input4');
-    }
+    expect(readDir).toHaveBeenCalledTimes(4);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input4/backend'));
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input4 --rootDir input4 --outDir output4/opt/cfg'), 'input4');
     expect(compileWorkers).toHaveBeenCalledTimes(1);
     expect(compileWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
     expect(compileApi).toHaveBeenCalledTimes(1);

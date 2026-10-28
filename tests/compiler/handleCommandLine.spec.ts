@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import path from 'node:path';
 import {
   afterEach,
   describe,
@@ -102,16 +103,9 @@ describe('handleCommandLine.ts', () => {
     const command: Command = { options, paths };
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(2);
-      expect(readJsonFile).toHaveBeenNthCalledWith(1, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(2, process.cwd() + '\\glconfig.json');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(2);
-      expect(readJsonFile).toHaveBeenNthCalledWith(1, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(2, process.cwd() + '/glconfig.json');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(2);
+    expect(readJsonFile).toHaveBeenNthCalledWith(1, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(2, path.normalize(process.cwd() + '/glconfig.json'));
     expect(validateProject).toHaveBeenCalledTimes(1);
     expect(validateProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(runProject).toHaveBeenCalledTimes(1);
@@ -146,20 +140,11 @@ describe('handleCommandLine.ts', () => {
     const command: Command = { options, paths };
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(2);
-      expect(readJsonFile).toHaveBeenNthCalledWith(1, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(2, process.cwd() + '\\glconfig.json');
-      expect(compileFrontend).toHaveBeenCalledTimes(1);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(2);
-      expect(readJsonFile).toHaveBeenNthCalledWith(1, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(2, process.cwd() + '/glconfig.json');
-      expect(compileFrontend).toHaveBeenCalledTimes(1);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(2);
+    expect(readJsonFile).toHaveBeenNthCalledWith(1, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(2, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileFrontend).toHaveBeenCalledTimes(1);
+    expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateFrontend).toHaveBeenCalledTimes(1);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(1);
@@ -168,20 +153,11 @@ describe('handleCommandLine.ts', () => {
     options.clean = false;
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(4);
-      expect(readJsonFile).toHaveBeenNthCalledWith(3, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(4, process.cwd() + '\\glconfig.json');
-      expect(compileFrontend).toHaveBeenCalledTimes(2);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(4);
-      expect(readJsonFile).toHaveBeenNthCalledWith(3, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(4, process.cwd() + '/glconfig.json');
-      expect(compileFrontend).toHaveBeenCalledTimes(2);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(4);
+    expect(readJsonFile).toHaveBeenNthCalledWith(3, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(4, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileFrontend).toHaveBeenCalledTimes(2);
+    expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateFrontend).toHaveBeenCalledTimes(2);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(2);
@@ -190,24 +166,13 @@ describe('handleCommandLine.ts', () => {
     options.clean = true;
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(6);
-      expect(readJsonFile).toHaveBeenNthCalledWith(5, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(6, process.cwd() + '\\glconfig.json');
-      expect(cleanFrontend).toHaveBeenCalledTimes(1);
-      expect(cleanFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd() + '\\output');
-      expect(compileFrontend).toHaveBeenCalledTimes(3);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(6);
-      expect(readJsonFile).toHaveBeenNthCalledWith(5, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(6, process.cwd() + '/glconfig.json');
-      expect(cleanFrontend).toHaveBeenCalledTimes(1);
-      expect(cleanFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd() + '/output');
-      expect(compileFrontend).toHaveBeenCalledTimes(3);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(6);
+    expect(readJsonFile).toHaveBeenNthCalledWith(5, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(6, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(cleanFrontend).toHaveBeenCalledTimes(1);
+    expect(cleanFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, path.normalize(process.cwd() + '/output'));
+    expect(compileFrontend).toHaveBeenCalledTimes(3);
+    expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateFrontend).toHaveBeenCalledTimes(3);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(3);
@@ -217,20 +182,11 @@ describe('handleCommandLine.ts', () => {
     options.outdir = 'hello/../world';
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(8);
-      expect(readJsonFile).toHaveBeenNthCalledWith(7, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(8, process.cwd() + '\\glconfig.json');
-      expect(compileFrontend).toHaveBeenCalledTimes(4);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\world');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(8);
-      expect(readJsonFile).toHaveBeenNthCalledWith(7, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(8, process.cwd() + '/glconfig.json');
-      expect(compileFrontend).toHaveBeenCalledTimes(4);
-      expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/world');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(8);
+    expect(readJsonFile).toHaveBeenNthCalledWith(7, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(8, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileFrontend).toHaveBeenCalledTimes(4);
+    expect(compileFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/world'));
     expect(validateFrontend).toHaveBeenCalledTimes(4);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(4);
@@ -250,20 +206,11 @@ describe('handleCommandLine.ts', () => {
     const command: Command = { options, paths };
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(2);
-      expect(readJsonFile).toHaveBeenNthCalledWith(1, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(2, process.cwd() + '\\glconfig.json');
-      expect(compileBackend).toHaveBeenCalledTimes(1);
-      expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(2);
-      expect(readJsonFile).toHaveBeenNthCalledWith(1, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(2, process.cwd() + '/glconfig.json');
-      expect(compileBackend).toHaveBeenCalledTimes(1);
-      expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(2);
+    expect(readJsonFile).toHaveBeenNthCalledWith(1, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(2, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileBackend).toHaveBeenCalledTimes(1);
+    expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateBackend).toHaveBeenCalledTimes(1);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(1);
@@ -272,20 +219,11 @@ describe('handleCommandLine.ts', () => {
     options.clean = false;
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(4);
-      expect(readJsonFile).toHaveBeenNthCalledWith(3, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(4, process.cwd() + '\\glconfig.json');
-      expect(compileBackend).toHaveBeenCalledTimes(2);
-      expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(4);
-      expect(readJsonFile).toHaveBeenNthCalledWith(3, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(4, process.cwd() + '/glconfig.json');
-      expect(compileBackend).toHaveBeenCalledTimes(2);
-      expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(4);
+    expect(readJsonFile).toHaveBeenNthCalledWith(3, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(4, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileBackend).toHaveBeenCalledTimes(2);
+    expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateBackend).toHaveBeenCalledTimes(2);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(2);
@@ -294,24 +232,13 @@ describe('handleCommandLine.ts', () => {
     options.clean = true;
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(6);
-      expect(readJsonFile).toHaveBeenNthCalledWith(5, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(6, process.cwd() + '\\glconfig.json');
-      expect(cleanBackend).toHaveBeenCalledTimes(1);
-      expect(cleanBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd() + '\\output');
-      expect(compileBackend).toHaveBeenCalledTimes(3);
-      expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(6);
-      expect(readJsonFile).toHaveBeenNthCalledWith(5, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(6, process.cwd() + '/glconfig.json');
-      expect(cleanBackend).toHaveBeenCalledTimes(1);
-      expect(cleanBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd() + '/output');
-      expect(compileBackend).toHaveBeenCalledTimes(3);
-      expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(6);
+    expect(readJsonFile).toHaveBeenNthCalledWith(5, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(6, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(cleanBackend).toHaveBeenCalledTimes(1);
+    expect(cleanBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, path.normalize(process.cwd() + '/output'));
+    expect(compileBackend).toHaveBeenCalledTimes(3);
+    expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateBackend).toHaveBeenCalledTimes(3);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(3);
@@ -321,20 +248,11 @@ describe('handleCommandLine.ts', () => {
     options.outdir = 'hello/../world';
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(8);
-      expect(readJsonFile).toHaveBeenNthCalledWith(7, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(8, process.cwd() + '\\glconfig.json');
-      expect(compileBackend).toHaveBeenCalledTimes(4);
-      expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\world');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(8);
-      expect(readJsonFile).toHaveBeenNthCalledWith(7, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(8, process.cwd() + '/glconfig.json');
-      expect(compileBackend).toHaveBeenCalledTimes(4);
-      expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/world');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(8);
+    expect(readJsonFile).toHaveBeenNthCalledWith(7, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(8, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileBackend).toHaveBeenCalledTimes(4);
+    expect(compileBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/world'));
     expect(validateBackend).toHaveBeenCalledTimes(4);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(4);
@@ -354,20 +272,11 @@ describe('handleCommandLine.ts', () => {
     const command: Command = { options, paths };
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(2);
-      expect(readJsonFile).toHaveBeenNthCalledWith(1, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(2, process.cwd() + '\\glconfig.json');
-      expect(compileProject).toHaveBeenCalledTimes(1);
-      expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(2);
-      expect(readJsonFile).toHaveBeenNthCalledWith(1, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(2, process.cwd() + '/glconfig.json');
-      expect(compileProject).toHaveBeenCalledTimes(1);
-      expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(2);
+    expect(readJsonFile).toHaveBeenNthCalledWith(1, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(2, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileProject).toHaveBeenCalledTimes(1);
+    expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateProject).toHaveBeenCalledTimes(1);
     expect(validateProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'cfg', version: '1.0.0' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(1);
@@ -376,20 +285,11 @@ describe('handleCommandLine.ts', () => {
     options.clean = false;
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }).mockReturnValueOnce({ name: 'cfg', homepage: 'https://example2.com' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(4);
-      expect(readJsonFile).toHaveBeenNthCalledWith(3, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(4, process.cwd() + '\\glconfig.json');
-      expect(compileProject).toHaveBeenCalledTimes(2);
-      expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example2.com' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(4);
-      expect(readJsonFile).toHaveBeenNthCalledWith(3, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(4, process.cwd() + '/glconfig.json');
-      expect(compileProject).toHaveBeenCalledTimes(2);
-      expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example2.com' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(4);
+    expect(readJsonFile).toHaveBeenNthCalledWith(3, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(4, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileProject).toHaveBeenCalledTimes(2);
+    expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example2.com' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateProject).toHaveBeenCalledTimes(2);
     expect(validateProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example1.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example2.com' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(2);
@@ -398,24 +298,13 @@ describe('handleCommandLine.ts', () => {
     options.clean = true;
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }).mockReturnValueOnce({ name: 'cfg' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(6);
-      expect(readJsonFile).toHaveBeenNthCalledWith(5, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(6, process.cwd() + '\\glconfig.json');
-      expect(cleanProject).toHaveBeenCalledTimes(1);
-      expect(cleanProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd() + '\\output');
-      expect(compileProject).toHaveBeenCalledTimes(3);
-      expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd(), process.cwd() + '\\output');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(6);
-      expect(readJsonFile).toHaveBeenNthCalledWith(5, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(6, process.cwd() + '/glconfig.json');
-      expect(cleanProject).toHaveBeenCalledTimes(1);
-      expect(cleanProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd() + '/output');
-      expect(compileProject).toHaveBeenCalledTimes(3);
-      expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd(), process.cwd() + '/output');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(6);
+    expect(readJsonFile).toHaveBeenNthCalledWith(5, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(6, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(cleanProject).toHaveBeenCalledTimes(1);
+    expect(cleanProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, path.normalize(process.cwd() + '/output'));
+    expect(compileProject).toHaveBeenCalledTimes(3);
+    expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd(), path.normalize(process.cwd() + '/output'));
     expect(validateProject).toHaveBeenCalledTimes(3);
     expect(validateProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0', homepage: 'https://example.com' }, { name: 'cfg', version: '1.0.0', homepage: 'https://example.com' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(3);
@@ -425,20 +314,11 @@ describe('handleCommandLine.ts', () => {
     options.outdir = 'hello/../world';
     readJsonFile.mockReturnValueOnce({ name: 'pkg', version: '1.0.0' }).mockReturnValueOnce({ version: '1.0.1', homepage: 'https://example.com' });
     handleCommandLine(command);
-    if ('win32' === process.platform) {
-      expect(readJsonFile).toHaveBeenCalledTimes(8);
-      expect(readJsonFile).toHaveBeenNthCalledWith(7, process.cwd() + '\\package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(8, process.cwd() + '\\glconfig.json');
-      expect(compileProject).toHaveBeenCalledTimes(4);
-      expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1', homepage: 'https://example.com' }, process.cwd(), process.cwd() + '\\world');
-    }
-    else {
-      expect(readJsonFile).toHaveBeenCalledTimes(8);
-      expect(readJsonFile).toHaveBeenNthCalledWith(7, process.cwd() + '/package.json');
-      expect(readJsonFile).toHaveBeenNthCalledWith(8, process.cwd() + '/glconfig.json');
-      expect(compileProject).toHaveBeenCalledTimes(4);
-      expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1', homepage: 'https://example.com' }, process.cwd(), process.cwd() + '/world');
-    }
+    expect(readJsonFile).toHaveBeenCalledTimes(8);
+    expect(readJsonFile).toHaveBeenNthCalledWith(7, path.normalize(process.cwd() + '/package.json'));
+    expect(readJsonFile).toHaveBeenNthCalledWith(8, path.normalize(process.cwd() + '/glconfig.json'));
+    expect(compileProject).toHaveBeenCalledTimes(4);
+    expect(compileProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1', homepage: 'https://example.com' }, process.cwd(), path.normalize(process.cwd() + '/world'));
     expect(validateProject).toHaveBeenCalledTimes(4);
     expect(validateProject).toHaveBeenLastCalledWith({ name: 'pkg', version: '1.0.0' }, { name: 'pkg', version: '1.0.1', homepage: 'https://example.com' }, process.cwd());
     expect(processExit).toHaveBeenCalledTimes(4);
