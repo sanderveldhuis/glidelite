@@ -175,7 +175,8 @@ describe('moduleWorkers.ts', () => {
     }
     else {
       expect(spawn).toHaveBeenLastCalledWith('sh', ['-c', `kill -9 1234`]);
-    }  });
+    }
+  });
 
   it('validate compiling the workers', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
