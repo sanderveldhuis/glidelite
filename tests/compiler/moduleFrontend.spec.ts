@@ -69,7 +69,7 @@ describe('moduleFrontend.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(6, path.normalize('input2/frontend/vite.config.mts'));
     expect(exists).toHaveBeenNthCalledWith(7, path.normalize('input2/frontend/vite.config.cts'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing file 'input2/frontend/vite.config.ts'."));
+    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing file 'input2/frontend/vite.config.mjs'."));
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });
