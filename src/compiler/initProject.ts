@@ -46,7 +46,7 @@ export function initProject(workingDirectory: string): void {
   const workersDir = join(backendDir, 'workers');
   const workersKeep = join(workersDir, '.gitkeep');
   const frontendDir = join(workingDirectory, 'frontend');
-  const frontendViteConfig = join(frontendDir, 'vite.config.ts');
+  const frontendViteConfig = join(frontendDir, 'vite.config.mjs');
   const frontendIndex = join(frontendDir, 'index.html');
   const frontendPublicDir = join(frontendDir, 'public');
   const frontendPublicKeep = join(frontendPublicDir, '.gitkeep');
@@ -63,7 +63,7 @@ export function initProject(workingDirectory: string): void {
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendViteConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'vite.config.ts' file already defined at: '${frontendViteConfig}'.`);
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'vite.config.mjs' file already defined at: '${frontendViteConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendIndex)) {
