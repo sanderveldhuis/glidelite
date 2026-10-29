@@ -125,14 +125,33 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   makeDir(logrotateDir);
   makeFile(
     logrotateCnf,
-    `/var/log/${config.name as string}/*.log {\n` +
-      '    weekly\n' +
-      '    rotate 12\n' +
-      '    maxsize 500M\n' +
+    // For this file the official /etc/logrotate.d/nginx file is used as example
+    `/var/log/${config.name as string}/gateway.access.log\n` +
+      `/var/log/${config.name as string}/gateway.error.log\n` +
+      `/var/log/${config.name as string}/proxy.access.log\n` +
+      `/var/log/${config.name as string}/proxy.error.log {\n` +
+      '    daily\n' +
+      '    missingok\n' +
+      '    rotate 14\n' +
       '    compress\n' +
       '    delaycompress\n' +
-      '    missingok\n' +
       '    notifempty\n' +
+      '    create 0640 www-data adm\n' +
+      '    sharedscripts\n' +
+      '    postrotate\n' +
+      '        invoke-rc.d nginx rotate >/dev/null 2>&1\n' +
+      '    endscript\n' +
+      '}\n\n' +
+      // All other log files are handled here
+      `/var/log/${config.name as string}/workers.log\n` +
+      `/var/log/${config.name as string}/api.log {\n` +
+      '    weekly\n' +
+      '    missingok\n' +
+      '    rotate 12\n' +
+      '    compress\n' +
+      '    delaycompress\n' +
+      '    notifempty\n' +
+      '    maxsize 500M\n' +
       '    copytruncate\n' +
       '}\n'
   );
