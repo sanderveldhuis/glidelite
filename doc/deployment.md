@@ -11,7 +11,7 @@ The following requirements apply on the deployment system:
 * Advanced Packaging Tool (i.e. `apt-get`)
 * Admin privileges (i.e. `sudo`)
 
-## Defining your homepage
+## Configure your project
 
 By default all compiled projects will be deployed and reachable for the local network only. If the project should be reachable on a public domain ensure to set the `homepage` configuration value in the [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) file. In case multiple GlideLite projects are running on the development system or specific ports are reserved by other applications ensure to set the `ports` configuration values in the [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) file.
 
