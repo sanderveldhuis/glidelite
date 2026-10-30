@@ -7,12 +7,12 @@ If you believe you have found a security vulnerability in any repository, please
 
 A security vulnerability could be a weakness in the logic, such as code, which can be exploited resulting in a negative impact of any kind. Any other definition or interpretation of security vulnerability is valid and should be reported.
 
-## Reporting Security Issues
+## Reporting security issues
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
 This section will be filled once a dedicated reporting system is set up.
 
-## Preferred Languages
+## Preferred languages
 
 I prefer all communications to be in English.

@@ -1,11 +1,11 @@
 
 # Inter-Process communication
 
-Inter-process communication (IPC) is a mechanism to allow separate modules or processes, such as workers and APIs, to communicate with each other. In GlideLite the maximum payload size of an IPC message is 1MB. If a message exceeds this threshold it will automatically be dropped without error or warning.
+Inter-process communication (IPC) is a mechanism to allow backend modules and processes, such as workers and APIs, to communicate with each other. In GlideLite the maximum payload size of an IPC message is 1MB. If a message exceeds this threshold it will automatically be dropped without error or warning.
 
 ## Start and stop IPC
 
-IPC in GlideLite is based on endpoint names: each module represents an endpoint, and you provide a name for each endpoint you start.
+IPC in GlideLite is based on endpoint names: each worker or API represents an endpoint, and you provide a name for each endpoint you start.
 
 ```typescript
 import { ipc } from 'glidelite/backend';

@@ -39,7 +39,7 @@ This will create the filesystem structure with required files for a GlideLite pr
 │  └─ index.html        # example index page
 ├─ shared               # contains all shared backend and frontend code
 ├─ glconfig.json        # GlideLite configuration for the project
-└─ tsconfig.json        # TypeScript configuration for backend modules
+└─ tsconfig.json        # TypeScript configuration for backend modules and shared code
 ```
 
 ## Running your code
