@@ -10,7 +10,7 @@ IPC in GlideLite is based on endpoint names: each worker or API represents an en
 ```typescript
 import { ipc } from 'glidelite/backend';
 
-// Start IPC as name 'myapplication' and connect to 'otherapplication1' and 'otherapplication2'
+// Start IPC as name 'myapplication' and connect to 'otherapplication1' and 'otherapplication2' to be able to send messages to the endpoints
 ipc.start('myapplication', 'otherapplication1', 'otherapplication2');
 // Stop IPC
 ipc.stop();
@@ -93,6 +93,66 @@ ipc.to.otherapplication1?.request('null_message', null, (name, payload) => {
 ipc.to.otherapplication1?.request('object_message', { hello: 'world' }, (name, payload) => {
   console.log('Received response with name:', name, 'payload:', payload);
 });
+```
+
+## Reset the counter
+
+You will use IPC indications as example how to use IPC between the API and the task worker. In your editor, add the following TypeScript code in `backend/workers/reset.ts`:
+
+```typescript
+'glc task @daily';
+
+// Import the GlideLite IPC layer
+import { ipc } from 'glidelite/backend';
+
+// Start IPC as name 'reset' and connect to 'api' to be able to send messages to the endpoint
+ipc.start('reset', 'api');
+
+// Send an indication to reset the counter
+ipc.to.api.indication('reset-counter');
+
+// Stop IPC
+ipc.stop();
+```
+
+At this point the `api` endpoint does not yet exist. In your editor, type the following TypeScript code in `backend/api/routers/01_ipc.ts`:
+
+```typescript
+// Import the GlideLite IPC layer
+import { ipc } from 'glidelite/backend';
+
+// Start IPC as name 'api'
+ipc.start('api');
+
+// Stop IPC on interrupt
+process.on('SIGINT', () => {
+  ipc.stop();
+});
+```
+
+Now IPC will be started when the API server starts. Next, you should handle an incoming indication to reset the counter. In your editor, add the following TypeScript code in `backend/api/routers/counter.ts`:
+
+```typescript
+// Import the GlideLite IPC layer
+import { ipc, log } from 'glidelite/backend';
+
+...
+
+// Handle the reset counter indication
+ipc.onIndication((name, _payload) => {
+  if (name === 'reset-counter') {
+    counterMsg.value = 0;
+    log.counter.info('Reset');
+  }
+});
+
+...
+```
+
+To test the reset task, which will run daily in production, execute the command:
+
+```bash
+npx ts-node ./backend/workers/reset.ts
 ```
 
 # Further Reading

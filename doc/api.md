@@ -112,9 +112,7 @@ Once you try to make a POST request to the URL you will see an error message in 
 > [!IMPORTANT]
 > Routers are always executed in alphanumeric sequence. In case a router should be executed before another make use of file names with numbers in front, e.g.: `01_first.ts`, `02_second.ts`, etc.
 
-The counter update router of the previous section needs the ability to read the `increment` property from the request JSON.
-
-In your editor, type the following TypeScript code in `backend/api/routers/00_plugins.ts`:
+The counter update router of the previous section needs the ability to read the `increment` property from the request JSON. In your editor, type the following TypeScript code in `backend/api/routers/00_plugins.ts`:
 
 ```typescript
 import express from 'express';
