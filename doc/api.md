@@ -13,170 +13,124 @@ npx glc -r
 
 ## Build your first router
 
-In your editor, type the following TypeScript code in `backend/api/routers/info.ts`:
+In this first router you will create an API endpoint to get system information. This step consists of the message interface definition and the actual API router.
+
+In your editor, type the following TypeScript code in `shared/types.ts`:
+
+```typescript
+// The info message interface definition
+export interface InfoMsg {
+  id: number;
+  author: string;
+  version: string;
+}
+
+// Type guard function serving as a validator and type predicate
+export function isInfoMsg(payload: object | null): payload is InfoMsg {
+  return payload !== null &&
+    'id' in payload && typeof payload.id === 'number' &&
+    'author' in payload && typeof payload.author === 'string' &&
+    'version' in payload && typeof payload.version === 'string';
+}
+```
+
+Next, type the following TypeScript code in `backend/api/routers/info.ts`:
 
 ```typescript
 import express from 'express';
+import { InfoMsg } from '../../../shared/types';
+
+// Construct the info message
+const infoMsg: InfoMsg = {
+  id: 0,
+  author: 'Anonymous',
+  version: 'None'
+};
 
 // Construct the Express router
 const router = express.Router();
 
 // The router implementation
-router.get('/info', (req, res) => {
-  res.status(200).json({ user: 'unknown' });
+router.get('/', (req, res) => {
+  res.status(200).json(infoMsg);
 });
 
 export default router;
 ```
 
-After saving the TypeScript file, you'll notice that the GlideLite Compiler detects the changes and restarts the API server on its default port `9002`. Use your browser to execute a request to the API via the URL `http://localhost:9002/info`
+After saving the TypeScript file, you'll notice that the GlideLite Compiler detects the changes and restarts the API server on its default port `9002`. Use your browser to execute a request to the API via the URL `http://localhost:9002/`.
+
+## Use another HTTP method
+
+Let's make use of the POST method to update a counter. In your editor, add the following TypeScript code in `shared/types.ts`:
+
+```typescript
+// The counter message interface definition
+export interface CounterMsg {
+  value: number;
+}
+
+// Type guard function serving as a validator with type predicate
+export function isCounterMsg(payload: object | null): payload is CounterMsg {
+  return payload !== null &&
+    'value' in payload && typeof payload.value === 'number';
+}
+```
+
+Next, type the following TypeScript code in `backend/api/routers/counter.ts`:
+
+```typescript
+import express from 'express';
+import { CounterMsg } from '../../../shared/types';
+
+// Construct the counter message
+const counterMsg: CounterMsg = { value: 0 };
+
+// Construct the Express router
+const router = express.Router();
+
+// The router implementation to get the value
+router.get('/counter', (req, res) => {
+  res.status(200).json(counterMsg);
+});
+
+// The router implementation to update the value
+router.post('/counter', (req, res, _next) => {
+  counterMsg.value += req.body.increment;
+  res.status(201).end();
+});
+
+export default router;
+```
+
+After saving the TypeScript file, wait for the GlideLite Compiler to restarts the API server. Use your browser to execute a request to the API via the URL `http://localhost:9002/counter`.
+
+Once you try to make a POST request to the URL you will see an error message in the API server indicating it is not able to read the `increment` property. This is because it is not yet able to parse parameters in the request. In the next section this will be resolved.
+
+## Router execution sequence
 
 > [!IMPORTANT]
 > Routers are always executed in alphanumeric sequence. In case a router should be executed before another make use of file names with numbers in front, e.g.: `01_first.ts`, `02_second.ts`, etc.
 
-## Build your first middleware
+The counter update router of the previous section needs the ability to read the `increment` property from the request JSON.
 
-In your editor, type the following TypeScript code in `backend/api/middleware/checker.ts`:
-
-```typescript
-import express from 'express';
-
-// Construct the Express router
-const checker = express.Router();
-
-// The router implementation
-checker.use((req, res, next) => {
-  console.log('Nothing to check');
-  next();
-});
-
-export default checker;
-```
-
-After saving the TypeScript file, the GlideLite Compiler detects changes and will restart the API server. However, the middleware is not yet used. Let's change this.
-
-In your editor, type the following TypeScript code in `backend/api/routers/info.ts`:
+In your editor, type the following TypeScript code in `backend/api/routers/00_plugins.ts`:
 
 ```typescript
 import express from 'express';
-import checker from '../middleware/checker';
 
 // Construct the Express router
 const router = express.Router();
 
-// The router implementation
-router.get('/info', checker, (req, res) => {
-  res.status(200).json({ user: 'unknown' });
-});
+// The router plugin to be executed before all other routers
+router.use(express.json());
 
 export default router;
 ```
 
-Use your browser to execute a request to the API via the URL `http://localhost:9002/info`. You will see that the middleware is executed and printing a line to the console.
+## Advanced Express
 
-## Use configuration values
-
-The `glconfig.json` configuration file can be used to define global configuration values used throughout the project.
-
-In your editor, type the following JSON in `glconfig.json`:
-
-```json
-{
-  "user": "John Doe"
-}
-```
-
-Now make use of this configuration value, update `backend/api/routers/info.ts` with the following TypeScript code:
-
-```typescript
-import { glconfig } from 'glidelite/backend';
-import express from 'express';
-import checker from '../middleware/checker';
-
-// Construct the Express router
-const router = express.Router();
-
-// The router implementation
-router.get('/info', checker, (req, res) => {
-  res.status(200).json({ user: glconfig.user });
-});
-
-export default router;
-```
-
-By importing the `glidelite/backend` module, it is possible to directly use the values from the `glconfig.json` via the provided `glconfig` object. The GlideLite Compiler will ensure it is linked correctly.
-
-## Use a logger
-
-GlideLite provides a generic logger ensuring uniform output is written to the `/var/log/[project]` directory on the deployment system. These log files are automatically rotated and cleaned up to prevent overflooding the memory. To use a logger you should give it a dedicated name for the application you are working on:
-
-```typescript
-log.[name].debug('message');
-log.[name].info('message');
-log.[name].warn('message');
-log.[name].error('message');
-```
-
-Update `backend/api/middleware/checker.ts` with the following TypeScript code:
-
-```typescript
-import { glconfig, log } from 'glidelite/backend';
-import express from 'express';
-
-// Construct the Express router
-const checker = express.Router();
-
-// The router implementation
-checker.use((req, res, next) => {
-  if (glconfig.user && glconfig.user === 'John Doe') {
-    log.checker.info('Valid user found:', glconfig.user);
-    next();
-  } else {
-    next(new Error('No valid user found'));
-  }
-});
-
-export default checker;
-```
-
-## Use dependency packages
-
-To use packages as dependency in your TypeScript code, you must list them as `dependencies` or `devDependencies` in your project's `package.json` file.
-
-> [!WARNING]
-> Make sure to add the dependencies required in runtime to the `dependencies` attribute and dependencies required only for local development and testing in the `devDependencies` attribute.
-
-In your editor, add the following dependencies to your `package.json`:
-
-```json
-{
-  "dependencies": {
-    "d3-random": "latest"
-  },
-  "devDependencies": {
-    "@types/d3-random": "latest"
-  }
-}
-```
-
-Stop the local development run by pressing `Ctrl+C`, install the newly added dependencies by running `npm install` and use it in the `backend/api/routers/info.ts` TypeScript code:
-
-```typescript
-import { randomInt } from 'd3-random';
-import { glconfig } from 'glidelite/backend';
-import express from 'express';
-import checker from '../middleware/checker';
-
-// Construct the Express router
-const router = express.Router();
-
-// The router implementation
-router.get('/info', checker, (req, res) => {
-  res.status(200).json({ user: glconfig.user, id: randomInt(1000)() });
-});
-
-export default router;
-```
+To dive deeper in Express please refer to the [Express documentation](https://expressjs.com/) for advanced examples such as Middlewares.
 
 # Further Reading
 
