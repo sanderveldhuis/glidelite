@@ -3,7 +3,7 @@
 
 Workers are small applications with a specific purpose running in the background. Such workers can be used to automate administration, cleanup, maintenance, or any other job. There are two types of workers:
 
-* _Service_: runs continuously and is started at each boot of the deployment system. When exited or crashed the system will automatically restart the service.
+* _Service_: runs continuously and is started at each boot of the deployment system. When exited or crashed the system will automatically restart the service within a minute.
 * _Task_: runs periodically at fixed time, date, or interval.
 
 ## Running your code
