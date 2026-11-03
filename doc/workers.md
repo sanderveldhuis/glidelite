@@ -16,19 +16,21 @@ npx glc -r
 
 ## Build your first worker
 
-In your editor, type the following TypeScript code in `backend/workers/writer.ts`:
+In your editor, type the following TypeScript code in `backend/workers/heartbeat.ts`:
 
 ```typescript
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+// Log a heartbeat each 10 seconds
+const heartbeatTimer = setInterval(() => {
+  console.log('Heartbeat expired');
+}, 10000);
 
-function writeFile(data: string): void {
-  const filePath = join(process.cwd(), Date.now().toString());
-  writeFileSync(filePath, data);
-  console.log('Written file:', filePath);
-}
+// Stop the heartbeat on interrupt
+process.on('SIGINT', () => {
+  console.log('Heartbeat stopped');
+  clearInterval(heartbeatTimer);
+});
 
-writeFile('Hello, World!');
+console.log('Heartbeat started');
 ```
 
 You will notice that this TypeScript file is not yet started by the GlideLite Compiler because it is not defined as a worker. Let's change this.
@@ -79,27 +81,35 @@ To define the TypeScript file as a task:
 > [!WARNING]
 > Non-existent times, such as the _missing hours_ during the daylight savings time conversion, will never match, causing workers scheduled during the _missing times_ not to be executed.  Similarly, times that occur more than once (again, during the daylight savings time conversion) will cause matching workers to be executed twice.
 
-Open your editor and update `backend/workers/writer.ts` with the following TypeScript code:
+Open your editor and update `backend/workers/heartbeat.ts` with the following TypeScript code:
 
 ```typescript
 'glc service';
 
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-
-function writeFile(data: string): void {
-  const filePath = join(process.cwd(), Date.now().toString());
-  writeFileSync(filePath, data);
-  console.log('Written file:', filePath);
-}
-
-writeFile('Hello, World!');
+...
 ```
 
-After saving the TypeScript file, you'll notice that the GlideLite Compiler detects the changes and starts the worker causing a file to be written in your project root directory.
+After saving the TypeScript file, you'll notice that the GlideLite Compiler detects the changes and starts the worker causing a heartbeat log to be written to the console continuously.
 
 > [!IMPORTANT]
 > Only workers defined as a service will be started by the GlideLite Compiler. Workers defined as a task will not run automatically and should be executed manually.
+
+## Manually execute a task
+
+In your editor, type the following TypeScript code in `backend/workers/reset.ts`:
+
+```typescript
+// In production this task will be executed once a day
+'glc task @daily';
+
+console.log('Nothing to be done');
+```
+
+After saving the TypeScript file, you'll notice that the GlideLite Compiler warns that the worker is skipped and should be run manually, which is useful to test the application during development:
+
+```bash
+npx ts-node ./backend/workers/reset.ts
+```
 
 # Further Reading
 
