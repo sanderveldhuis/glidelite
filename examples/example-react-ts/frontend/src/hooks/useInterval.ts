@@ -7,14 +7,10 @@ function useInterval(handler: () => void, timeout: number) {
   const onTimeout = useEffectEvent(handler);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      onTimeout();
-    }, timeout);
+    const id = setInterval(() => onTimeout(), timeout);
     onTimeout();
 
-    return () => {
-      clearInterval(id);
-    };
+    return () => clearInterval(id);
   }, [timeout]);
 }
 
