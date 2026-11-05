@@ -3,6 +3,14 @@
 
 To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, `npm`, `Vite`, and `Express`.
 
+## Setup a project
+
+Initialize a new project or define an existing project to interpret `.js` files as ES module:
+
+```bash
+npm init --init-type module
+```
+
 ## Installing GlideLite
 
 For the latest stable version:
