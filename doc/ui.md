@@ -41,18 +41,17 @@ function App() {
 
   return (
     <>
-      <div style={{'textAlign': 'center'}}>
+      <div style={{ textAlign: 'center' }}>
         <h1>Counter</h1>
         <button
           type='button'
-          className='counter'
           onClick={() => setCount((count) => count + 1)}
         >
           <code>Count is {count}</code>
         </button>
       </div>
 
-      <div style={{'textAlign': 'center'}}>
+      <div style={{ textAlign: 'center' }}>
         <h2>Information</h2>
         <div>Random ID: {id}</div>
         <div>Author: {author}</div>
@@ -70,9 +69,9 @@ For now this `App` is not yet used so type the following TypeScript code in `fro
 ```typescript
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.jsx';
+import App from './App.tsx';
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
   </StrictMode>

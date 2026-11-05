@@ -7,8 +7,8 @@ import {
 import {
   isCounterMsg,
   isInfoMsg
-} from '../../shared/types';
-import useInterval from './hooks/useInterval';
+} from '../../shared/types.js';
+import useInterval from './hooks/useInterval.js';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -38,16 +38,16 @@ function App() {
 
   const incrementCounter = useCallback(() => {
     api.post({ path: '/counter', responseType: 'json', params: { increment: 1 } }).then(() => {
-      getInfo();
+      getCounter();
     });
-  }, []);
+  }, [getCounter]);
 
-  useEffect(() => getCounter(), []);
+  useEffect(() => getCounter(), [getCounter]);
   useInterval(() => getInfo(), 1000);
 
   return (
     <>
-      <div style={{'textAlign': 'center'}}>
+      <div style={{ textAlign: 'center' }}>
         <h1>Counter</h1>
         <button
           type='button'
@@ -57,7 +57,7 @@ function App() {
         </button>
       </div>
 
-      <div style={{'textAlign': 'center'}}>
+      <div style={{ textAlign: 'center' }}>
         <h2>Information</h2>
         <div>Random ID: {id}</div>
         <div>Author: {author}</div>

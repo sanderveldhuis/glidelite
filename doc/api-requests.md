@@ -15,14 +15,10 @@ function useInterval(handler: () => void, timeout: number) {
   const onTimeout = useEffectEvent(handler);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      onTimeout();
-    }, timeout);
+    const id = setInterval(() => onTimeout(), timeout);
     onTimeout();
 
-    return () => {
-      clearInterval(id);
-    };
+    return () => clearInterval(id);
   }, [timeout]);
 }
 
@@ -32,19 +28,17 @@ export default useInterval;
 Now make use of the API, update the following TypeScript code in `frontend/src/App.tsx`:
 
 ```typescript
-// Import the GlideLite API provider
 import { api } from 'glidelite/frontend';
 import {
+  useCallback,
   useEffect,
   useState
 } from 'react';
-// Import type guard functions
 import {
   isCounterMsg,
   isInfoMsg
-} from '../../shared/types';
-// Import the hook function for cyclic API requests
-import useInterval from './hooks/useInterval';
+} from '../../shared/types.ts';
+import useInterval from './hooks/useInterval.ts';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -52,58 +46,56 @@ function App() {
   const [author, setAuthor] = useState('Unknown');
   const [version, setVersion] = useState('Unknown');
 
-  // On startup of the page request the counter value
-  useEffect(() => {
-    api.get({ path: '/counter', responseType: 'json', timeout: 500 }).then(payload => {
-      // Check if the received payload is valid
-      if (!isCounterMsg(payload)) {
-        throw new Error();
-      }
-      // Set the value on the screen
-      setCount(payload.value);
-    });
-  }, []);
-
-  // Cyclic request the information
-  useInterval(() => {
+  // Function executing API request to get the information
+  const getInfo = useCallback(() => {
     api.get({ path: '/', responseType: 'json', timeout: 800 }).then(payload => {
       // Check if the received payload is valid
       if (!isInfoMsg(payload)) {
         throw new Error();
       }
-      // Set the values on the screen
       setId(payload.id);
       setAuthor(payload.author);
       setVersion(payload.version);
     });
-  }, 1000);
+  }, []);
+
+  // Function executing API request to get the counter value
+  const getCounter = useCallback(() => {
+    api.get({ path: '/counter', responseType: 'json', timeout: 500 }).then(payload => {
+      // Check if the received payload is valid
+      if (!isCounterMsg(payload)) {
+        throw new Error();
+      }
+      setCount(payload.value);
+    });
+  }, []);
+
+  // Function executing API request to increment the counter value
+  const incrementCounter = useCallback(() => {
+    api.post({ path: '/counter', responseType: 'json', params: { increment: 1 } }).then(() => {
+      getCounter();
+    });
+  }, [getCounter]);
+
+  // On load request the counter value
+  useEffect(() => getCounter(), [getCounter]);
+
+  // Request the information each second
+  useInterval(() => getInfo(), 1000);
 
   return (
     <>
-      <div style={{'textAlign': 'center'}}>
+      <div style={{ textAlign: 'center' }}>
         <h1>Counter</h1>
         <button
           type='button'
-          className='counter'
-          onClick={() => {
-            // On click update the counter and request the updated counter value
-            api.post({ path: '/counter', responseType: 'json', params: { increment: 1 } }).then(() => {
-              api.get({ path: '/counter', responseType: 'json', timeout: 500 }).then(payload => {
-                // Check if the received payload is valid
-                if (!isCounterMsg(payload)) {
-                  throw new Error();
-                }
-                // Set the values on the screen
-                setCount(payload.value);
-              });
-            });
-          }}
+          onClick={() => incrementCounter()}
         >
           <code>Count is {count}</code>
         </button>
       </div>
 
-      <div style={{'textAlign': 'center'}}>
+      <div style={{ textAlign: 'center' }}>
         <h2>Information</h2>
         <div>Random ID: {id}</div>
         <div>Author: {author}</div>

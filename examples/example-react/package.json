@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "glc -r",
-    "build": "glc"
+    "build": "glc",
+    "lint": "oxlint"
   },
   "dependencies": {
     "d3-random": "^3.0.2",
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.2.1",
-    "glidelite": "github:sanderveldhuis/glidelite#next"
+    "glidelite": "github:sanderveldhuis/glidelite#next",
+    "oxlint": "^1.91.0"
   }
 }
