@@ -128,21 +128,8 @@ export default router;
 
 ## Advanced Express
 
-To dive deeper in Express please refer to the [Express documentation](https://expressjs.com/) for advanced examples such as Middlewares.
+For a more extensive knowledge about Express and learn about `Middlewares` please refer to the [Express documentation](https://expressjs.com/).
 
 # Further Reading
 
-Continue your journey into GlideLite:
-
-* [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
-* Backend
-  * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
-  * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
-  * [Use configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md)
-  * [Use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md)
-  * [Logging](https://github.com/sanderveldhuis/glidelite/blob/main/doc/logging.md)
-  * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
-* Frontend
-  * [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md)
-  * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
-* [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)
+Continue your journey into GlideLite and start coding your first [workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md).

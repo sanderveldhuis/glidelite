@@ -37,7 +37,7 @@ Follow the instructions given by the installer. Once the installer is finished i
 
 # Further Reading
 
-Continue your journey into GlideLite:
+That's it, you are familiar with all features of GlideLite!
 
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
 * Backend
