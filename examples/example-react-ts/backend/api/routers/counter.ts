@@ -1,5 +1,8 @@
 import express from 'express';
-import { ipc, log } from 'glidelite/backend';
+import {
+  ipc,
+  log
+} from 'glidelite/backend';
 import { CounterMsg } from '../../../shared/types.js';
 
 const counterMsg: CounterMsg = { value: 0 };

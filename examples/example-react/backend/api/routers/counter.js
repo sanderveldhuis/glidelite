@@ -1,5 +1,8 @@
 import express from 'express';
-import { ipc, log } from 'glidelite/backend';
+import {
+  ipc,
+  log
+} from 'glidelite/backend';
 
 const counterMsg = { value: 0 };
 

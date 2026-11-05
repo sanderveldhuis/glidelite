@@ -1,4 +1,3 @@
-
 export function isInfoMsg(payload) {
   return payload !== null &&
     'id' in payload && typeof payload.id === 'number' &&

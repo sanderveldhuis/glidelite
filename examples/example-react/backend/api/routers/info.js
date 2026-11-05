@@ -1,5 +1,5 @@
-import express from 'express';
 import { randomInt } from 'd3-random';
+import express from 'express';
 import { glconfig } from 'glidelite/backend';
 
 const infoMsg = {
