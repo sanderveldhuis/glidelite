@@ -157,4 +157,4 @@ npx ts-node ./backend/workers/reset.ts
 
 ## Further Reading
 
-Continue your journey and start coding your first [user interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md).
+Continue your journey and start coding your first [user interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/user-interface.md).

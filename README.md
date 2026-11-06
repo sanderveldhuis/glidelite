@@ -41,14 +41,14 @@ New to GlideLite? Start here:
 
 * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
-* [Using configuration values](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md)
-* [Using dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md)
+* [Using configuration values](https://github.com/sanderveldhuis/glidelite/blob/main/doc/using-configuration-values.md)
+* [Using dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/using-dependencies.md)
 * [Logging](https://github.com/sanderveldhuis/glidelite/blob/main/doc/logging.md)
-* [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
+* [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/inter-process-communication.md)
 
 **Frontend**
 
-* [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md)
+* [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/user-interface.md)
 * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
 
 **Shipping your app**

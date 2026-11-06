@@ -54,4 +54,4 @@ const infoMsg: InfoMsg = {
 
 ## Further Reading
 
-Get even more out of GlideLite and learn how to [use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md) in your code.
+Get even more out of GlideLite and learn how to [use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/using-dependencies.md) in your code.

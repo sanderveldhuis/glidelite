@@ -113,4 +113,4 @@ npx ts-node ./backend/workers/reset.ts
 
 ## Further Reading
 
-Get more out of GlideLite and learn how to [use configuration values](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md) in your code.
+Get more out of GlideLite and learn how to [use configuration values](https://github.com/sanderveldhuis/glidelite/blob/main/doc/using-configuration-values.md) in your code.

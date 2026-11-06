@@ -41,4 +41,4 @@ The `glidelite/backend` module exposes the logger through the `log` object, and 
 
 ## Further Reading
 
-Build a more capable backend with GlideLite's [inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md).
+Build a more capable backend with GlideLite's [inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/inter-process-communication.md).
