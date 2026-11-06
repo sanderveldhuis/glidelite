@@ -1,27 +1,27 @@
 
 # Configuration
 
-The presence of a `glconfig.json` file in a directory indicates that the directory is the root of a GlideLite project. The file must be actual JSON and contains the configuration used by GlideLite to compile and run your code.
+A `glconfig.json` file marks the root of a GlideLite project. It must be valid JSON, and it holds the configuration GlideLite uses to compile and run your code.
 
-See [getting started](https://github.com/sanderveldhuis/glidelite/blob/main/doc/getting-started.md) for information on how to compile your code.
+See [getting started](https://github.com/sanderveldhuis/glidelite/blob/main/doc/getting-started.md) to learn how to compile your code.
 
-## Name - `name`
+## `name`
 
-**Default:** inherit from `package.json`
+**Default:** inherited from `package.json`
 
-Specifies the name of the project and ends up being part of multiple directory names. Therefore, the name can't contain any non-URL-safe characters. Make sure that the name is unique to ensure it does not interfere with other directories on your deployment system.
+The name of your project. It's used as part of several directory names, so it can only contain URL-safe characters. Make sure it's unique so it doesn't clash with other directories on your deployment system.
 
-## Version - `version`
+## `version`
 
-**Default:** inherit from `package.json`
+**Default:** inherited from `package.json`
 
-Specifies the version of your code. The name and version together form an identifier that is assumed to be completely unique. It is advised to increment the version for each release of your code to ensure your project will run flawless without using unintended old version code cached by systems such as a client browser.
+The version of your code. Together, the name and version form an identifier that's assumed to be unique. Increment the version with every release so clients don't keep running an old version of your code cached by, for example, a browser.
 
-## Homepage - `homepage`
+## `homepage`
 
-**Default:** inherit from `package.json`
+**Default:** inherited from `package.json`
 
-Specifies the URL to the project homepage. This URL should containing the protocol and domain where a subdomain is optional. It is advised to use HTTPS to have a secure connection for which the certificates are installed on deployment.
+The URL of your project's homepage, including the protocol and domain (a subdomain is optional). Use HTTPS to keep the connection secure, for which the certificates are installed on your deployment system by GlideLite automatically.
 
 ```json
 {
@@ -29,11 +29,11 @@ Specifies the URL to the project homepage. This URL should containing the protoc
 }
 ```
 
-## Packages - `packages`
+## `packages`
 
 **Default:** `[]`
 
-Specifies an array of additional Linux APT packages which are required to run the project on your deployment system. These packages are only installed on deployment and not available for local testing.
+Additional Linux APT packages required to run the project on your deployment system. These are only installed during deployment, not for local development.
 
 ```json
 {
@@ -41,11 +41,11 @@ Specifies an array of additional Linux APT packages which are required to run th
 }
 ```
 
-## Pre-install script - `preinstall`
+## `preinstall`
 
 **Default:** none
 
-Specifies a `/bin/bash` script which will be executed at the start of the installation on your deployment system. This should be a relative path from the root directory in the project.
+A `/bin/bash` script that runs at the start of the installation on your deployment system. Use a path relative to the project's root directory.
 
 ```json
 {
@@ -53,11 +53,11 @@ Specifies a `/bin/bash` script which will be executed at the start of the instal
 }
 ```
 
-## Post-install script - `postinstall`
+## `postinstall`
 
 **Default:** none
 
-Specifies a `/bin/bash` script which will be executed at the end of the installation on your deployment system. This should be a relative path from the root directory in the project.
+A `/bin/bash` script that runs at the end of the installation on your deployment system. Use a path relative to the project's root directory.
 
 ```json
 {
@@ -65,18 +65,18 @@ Specifies a `/bin/bash` script which will be executed at the end of the installa
 }
 ```
 
-## Ports - `ports`
+## `ports`
 
-Specifies the ports used for running the project on your deployment system. These ports should be set in case multiple GlideLite projects are running on the deployment system or if the ports are reserved by other applications.
+The ports used when running the project on your deployment system. Set these if you're running multiple GlideLite projects on the same machine, or if the default ports are already taken by other applications.
 
-### Gateway server - `gateway`
+### `ports.gateway`
 
 **Default:** `80`
 
-Specifies the port for the gateway server which is the entrypoint webserver of the project.
+The port for the gateway server, the entry point of your project.
 
 > [!IMPORTANT]
-> This configuration only works for GlideLite projects which are reachable for the local network only, i.e. no `homepage` configuration value is set.
+> This setting only applies to GlideLite projects reachable from the local network, i.e. projects without a `homepage` value configured.
 
 ```json
 {
@@ -86,11 +86,11 @@ Specifies the port for the gateway server which is the entrypoint webserver of t
 }
 ```
 
-### Proxy server - `proxy`
+### `ports.proxy`
 
 **Default:** `9001`
 
-Specifies the port for the proxy server which passes requests towards the dedicated API or asset.
+The port for the proxy server, which forwards requests to the right API or asset.
 
 ```json
 {
@@ -100,11 +100,11 @@ Specifies the port for the proxy server which passes requests towards the dedica
 }
 ```
 
-### API server - `api`
+### `ports.api`
 
 **Default:** `9002`
 
-Specifies the port for the API server which is responsible for all custom designed actions.
+The port for the API server, which handles all your custom logic.
 
 ```json
 {
@@ -114,6 +114,6 @@ Specifies the port for the API server which is responsible for all custom design
 }
 ```
 
-# Further Reading
+## Further Reading
 
-To dive deeper into GlideLite it is time to start coding your first [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md).
+Ready to dive in? Start building your first [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md).

@@ -1,31 +1,31 @@
 
 # Getting Started
 
-To get started you have to install GlideLite and initialize a project. For this, the assumption is made that you are familiar with `JavaScript`, `TypeScript`, `Node.js`, `npm`, `Vite`, and `Express`.
+This guide walks you through installing GlideLite and setting up your first project. It assumes you're already comfortable with `JavaScript`, `TypeScript`, `Node.js`, `npm`, `Vite`, and `Express`.
 
-## Setup a project
+## Set up a project
 
-Initialize a new project or define an existing project to interpret `.js` files as ES module:
+Create a new project, or update an existing one, so Node.js treats `.js` files as ES modules:
 
 ```bash
 npm init --init-type module
 ```
 
-## Installing GlideLite
+## Install GlideLite
 
-For the latest stable version:
+Install the latest stable release:
 
 ```bash
 npm install -D sanderveldhuis/glidelite#stable
 ```
 
-For our nightly builds:
+Or try our nightly build for the newest features:
 
 ```bash
 npm install -D sanderveldhuis/glidelite#next
 ```
 
-## Initialize your first GlideLite project
+## Initialize your first project
 
 Run the initialize command:
 
@@ -33,7 +33,7 @@ Run the initialize command:
 npx glc -i
 ```
 
-This will create the filesystem structure with required files for a GlideLite project:
+This creates the file structure for a GlideLite project:
 
 ```bash
 ├─ backend              # contains all backend modules
@@ -45,35 +45,35 @@ This will create the filesystem structure with required files for a GlideLite pr
 │  ├─ public            # contains public assets
 │  ├─ vite.config.ts    # Vite configuration for frontend code
 │  └─ index.html        # example index page
-├─ shared               # contains all shared backend and frontend code
-├─ glconfig.json        # GlideLite configuration for the project
-└─ tsconfig.json        # TypeScript configuration for backend modules and shared code
+├─ shared               # contains code shared between backend and frontend
+├─ glconfig.json        # GlideLite project configuration
+└─ tsconfig.json        # TypeScript configuration for backend and shared code
 ```
 
-## Running your code
+## Run your code
 
-To run your project for local development use the run command:
+To run your project for local development, use the run command:
 
 ```bash
 npx glc -r
 ```
 
-Until you hit `Ctrl+C` this command remains active and you can make changes to your code. The GlideLite Compiler will handle changes and restart or update the modules accordingly.
+This command keeps running until you press `Ctrl+C`. While it's active you can keep editing your code — the GlideLite Compiler picks up the changes automatically and restarts or updates the affected modules.
 
-## Compiling your code
+## Compile your code
 
-It is possible to compile the full project or only specific parts, called modules. Let's first compile the full project:
+You can compile the entire project, or just a single part of it, called a module. To compile everything:
 
 ```bash
 npx glc
 ```
 
-Now compile a specific module of the project, in this example the `backend` module:
+To compile a single module instead — the `backend` module, in this example:
 
 ```bash
 npx glc -m backend
 ```
 
-# What's Next?
+## Further Reading
 
-Let's first learn about how to use [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) in GlideLite.
+Learn how to use the [configuration](./configuration.md) file to customize your project.
