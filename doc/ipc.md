@@ -1,11 +1,11 @@
 
 # Inter-Process Communication
 
-Inter-process communication (IPC) is a mechanism to allow backend modules and processes, such as workers and APIs, to communicate with each other. In GlideLite the maximum payload size of an IPC message is 1MB. If a message exceeds this threshold it will automatically be dropped without error or warning.
+Inter-process communication (IPC) lets backend modules — such as workers and APIs — talk to each other. In GlideLite, an IPC message can't be larger than 1MB; larger messages are dropped silently, without any error or warning.
 
 ## Start and stop IPC
 
-IPC in GlideLite is based on endpoint names: each worker or API represents an endpoint, and you provide a name for each endpoint you start.
+IPC in GlideLite is based on endpoint names. Each worker or API is an endpoint, and you give it a name when you start IPC.
 
 ```typescript
 import { ipc } from 'glidelite/backend';
@@ -18,7 +18,7 @@ ipc.stop();
 
 ## Subscribe, unsubscribe, and publish
 
-Publish messages are transmitted asynchronous to all endpoints which are subscribed to that message name. GlideLite caches the latest published message for each message name and will deliver that cached latest message to endpoints that subscribe later. Therefore publish messages are always guaranteed to be delivered.
+Publish messages are sent asynchronously to every endpoint subscribed to that message name. GlideLite caches the latest published message for each name and delivers it to endpoints that subscribe later — so publish messages are always guaranteed to arrive eventually.
 
 ```typescript
 import { ipc } from 'glidelite/backend';
@@ -42,7 +42,7 @@ ipc.publish('object_message', { hello: 'world' });
 
 ## Indication
 
-Indication messages are transmitted asynchronous to a specified endpoint as a fire-and-forget message; delivery is not guaranteed.
+Indication messages are sent asynchronously to a single endpoint as a fire-and-forget message — delivery isn't guaranteed.
 
 ```typescript
 import { ipc } from 'glidelite/backend';
@@ -63,7 +63,7 @@ ipc.to.otherapplication1?.indication('object_message', { hello: 'world' });
 
 ## Request and response
 
-Request and response messages are transmitted asynchronous to a specified endpoint. Delivery is not guaranteed; there is no default timeout for requests. Once a response is received the specified callback will be invoked. GlideLite currently limits simultaneous open IPC requests to 100. If the limit is reached, the oldest pending requests will be dropped.
+Request and response messages are sent asynchronously to a single endpoint. Delivery isn't guaranteed, and there's no default timeout for requests. When a response arrives, the callback you provided is invoked. GlideLite limits the number of simultaneous open requests to 100 — once that limit is reached, the oldest pending request is dropped.
 
 ```typescript
 import { ipc } from 'glidelite/backend';
@@ -95,9 +95,9 @@ ipc.to.otherapplication1?.request('object_message', { hello: 'world' }, (name, p
 });
 ```
 
-## Reset the counter
+## Resetting the counter
 
-You will use IPC indications as example how to use IPC between the API and the task worker. In your editor, add the following TypeScript code in `backend/workers/reset.ts`:
+Let's use an IPC indication to reset the counter of the worker created in [previous steps](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md). In your editor, add the following TypeScript code to `backend/workers/reset.ts`:
 
 ```typescript
 'glc task @daily';
@@ -115,7 +115,7 @@ ipc.to.api.indication('reset-counter');
 ipc.stop();
 ```
 
-At this point the `api` endpoint does not yet exist. In your editor, type the following TypeScript code in `backend/api/routers/01_ipc.ts`:
+The `api` endpoint doesn't exist yet. Add the following TypeScript code to `backend/api/routers/01_ipc.ts`:
 
 ```typescript
 // Import the GlideLite IPC layer
@@ -130,7 +130,7 @@ process.on('SIGINT', () => {
 });
 ```
 
-Now IPC will be started when the API server starts. Next, you should handle an incoming indication to reset the counter. In your editor, add the following TypeScript code in `backend/api/routers/counter.ts`:
+This starts IPC whenever the API server starts. Next, handle the incoming indication and reset the counter. Add the following TypeScript code to `backend/api/routers/counter.ts`:
 
 ```typescript
 // Import the GlideLite IPC layer
@@ -149,12 +149,12 @@ ipc.onIndication((name, _payload) => {
 ...
 ```
 
-To test the reset task, which will run daily in production, execute the command:
+In production, this task runs once a day. To test it right now, run:
 
 ```bash
 npx ts-node ./backend/workers/reset.ts
 ```
 
-# Further Reading
+## Further Reading
 
-Continue your journey into GlideLite and start coding your first [user interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md).
+Continue your journey and start coding your first [user interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md).

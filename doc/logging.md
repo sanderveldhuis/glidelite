@@ -1,11 +1,11 @@
 
 # Logging
 
-GlideLite provides a generic logger for the backend ensuring uniform output is written to the `/var/log/[project]` directory on the deployment system. These log files are automatically rotated and cleaned up to prevent overflooding the memory.
+GlideLite includes a built-in logger for the backend that writes uniform log output to the `/var/log/[project]` directory on your deployment system. These log files are rotated and cleaned up automatically, so they won't fill up your disk.
 
 ## Write logs
 
-To use a logger you should give it a dedicated name for the worker or API you are working on:
+Give each worker or API a dedicated logger name, then log messages at the level that fits:
 
 ```typescript
 log.[name].debug('message', params);
@@ -14,7 +14,7 @@ log.[name].warn('message', params);
 log.[name].error('message', params);
 ```
 
-Let's name your service worker `heartbeat` and update `backend/workers/heartbeat.ts` with the following TypeScript code:
+Let's name your service worker `heartbeat`. Update `backend/workers/heartbeat.ts` with the following TypeScript code:
 
 ```typescript
 'glc service';
@@ -37,8 +37,8 @@ process.on('SIGINT', () => {
 log.heartbeat.info('Started');
 ```
 
-The imported `glidelite/backend` module contains the logger via the provided `log` object. The GlideLite Compiler will ensure a new logger is initiated for your worker.
+The `glidelite/backend` module exposes the logger through the `log` object, and the GlideLite Compiler automatically sets up a dedicated logger for your worker.
 
-# Further Reading
+## Further Reading
 
-Make a professional backend using the [inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md) layer of GlideLite.
+Build a more capable backend with GlideLite's [inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md).

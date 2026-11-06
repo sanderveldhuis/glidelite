@@ -1,13 +1,13 @@
 
 # User Interface
 
-For frontend development GlideLite relies on [Vite](https://vite.dev/) as builder. When initializing a new project, by default GlideLite uses (but is not limited to) [React](https://react.dev/) as library to create interactive and dynamic user interfaces.
+GlideLite uses [Vite](https://vite.dev/) to build the frontend. New projects are set up with [React](https://react.dev/) by default to help you build interactive, dynamic user interfaces — though you're not limited to React alone.
 
-All frontend code development should be made in the `frontend` directory. Feel free to update your `Vite` configuration at `frontend/vite.config.ts` as desired.
+All frontend code lives in the `frontend` directory. Feel free to adjust the Vite configuration in `frontend/vite.config.ts` as needed.
 
 ## Build your first user interface
 
-This user interface will make use of React as library. In your editor, add the following dependencies to your `package.json`:
+This interface uses React. In your editor, add the following dependencies to your `package.json`:
 
 ```json
 {
@@ -22,13 +22,13 @@ This user interface will make use of React as library. In your editor, add the f
 }
 ```
 
-Stop the local development run by pressing `Ctrl+C`, install the newly added dependencies by running `npm install` and restart your project:
+Stop the local development run (`Ctrl+C`), install the new dependencies with `npm install`, and restart your project:
 
 ```bash
 npx glc -r
 ```
 
-In your editor, type the following TypeScript code in `frontend/src/App.tsx`:
+In your editor, add the following TypeScript code to `frontend/src/App.tsx`:
 
 ```typescript
 import { useState } from 'react';
@@ -64,7 +64,7 @@ function App() {
 export default App;
 ```
 
-For now this `App` is not yet used so type the following TypeScript code in `frontend/src/main.tsx`:
+This `App` component isn't used anywhere yet, so add the following TypeScript code to `frontend/src/main.tsx`:
 
 ```typescript
 import { StrictMode } from 'react';
@@ -78,7 +78,7 @@ createRoot(document.getElementById('root')!).render(
 );
 ```
 
-As last step, update the `frontend/index.html`:
+Finally, update `frontend/index.html`:
 
 ```html
 ...
@@ -91,8 +91,8 @@ As last step, update the `frontend/index.html`:
 ...
 ```
 
-After saving the TypeScript files, you'll notice that Vite automatically restarts the served website. Use your browser to open the URL `http://localhost:5173/`.
+After saving the files, Vite automatically reloads the page. Open your browser at `http://localhost:5173/` to see it in action.
 
-# Further Reading
+## Further Reading
 
-Make simple and safe [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md) from the user interface to your backend API.
+Learn how to make simple, safe [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md) from your user interface to the backend.

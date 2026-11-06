@@ -1,12 +1,12 @@
 
 # Workers
 
-Workers are small applications with a specific purpose running in the background. Such workers can be used to automate administration, cleanup, maintenance, or any other job. There are two types of workers:
+Workers are small applications with a specific purpose that run in the background. You can use them to automate administration, cleanup, maintenance, or any other job. There are two types:
 
-* _Service_: runs continuously and is started at each boot of the deployment system. When exited or crashed the system will automatically restart the service within a minute.
-* _Task_: runs periodically at fixed time, date, or interval.
+* _Service_: runs continuously and starts automatically when the deployment system boots. If it exits or crashes, the system restarts it within a minute.
+* _Task_: runs periodically, at a fixed time, date, or interval.
 
-## Running your code
+## Run your code
 
 First, run your project for local development:
 
@@ -16,7 +16,7 @@ npx glc -r
 
 ## Build your first worker
 
-In your editor, type the following TypeScript code in `backend/workers/heartbeat.ts`:
+In your editor, add the following TypeScript code to `backend/workers/heartbeat.ts`:
 
 ```typescript
 // Log a heartbeat each 10 seconds
@@ -33,19 +33,19 @@ process.on('SIGINT', () => {
 console.log('Heartbeat started');
 ```
 
-You will notice that this TypeScript file is not yet started by the GlideLite Compiler because it is not defined as a worker. Let's change this.
+The GlideLite Compiler won't start this file yet, because it isn't defined as a worker. Let's fix that.
 
-## Define as service or task
+## Define a service or task
 
-To ensure your code will be run as an actual worker, either service or task, you should give the GlideLite Compiler some instructions. This can be done by adding the instruction to the top of the TypeScript file.
+To have the GlideLite Compiler run your code as an actual worker — either a service or a task — add an instruction to the top of the TypeScript file.
 
-To define the TypeScript file as a service:
+To define the file as a service:
 
 ```javascript
 'glc service';
 ```
 
-To define the TypeScript file as a task:
+To define the file as a task:
 
 ```javascript
 'glc task * * * * *';     // Asterisk (*) means: any value and range
@@ -79,7 +79,7 @@ To define the TypeScript file as a task:
 ```
 
 > [!WARNING]
-> Non-existent times, such as the _missing hours_ during the daylight savings time conversion, will never match, causing workers scheduled during the _missing times_ not to be executed.  Similarly, times that occur more than once (again, during the daylight savings time conversion) will cause matching workers to be executed twice.
+> Non-existent times, such as the _missing hours_ during the daylight savings time conversion, will never match, causing workers scheduled during the _missing times_ not to be executed. Similarly, times that occur more than once (again, during the daylight savings time conversion) will cause matching workers to be executed twice.
 
 Open your editor and update `backend/workers/heartbeat.ts` with the following TypeScript code:
 
@@ -89,14 +89,14 @@ Open your editor and update `backend/workers/heartbeat.ts` with the following Ty
 ...
 ```
 
-After saving the TypeScript file, you'll notice that the GlideLite Compiler detects the changes and starts the worker causing a heartbeat log to be written to the console continuously.
+After saving the file, the GlideLite Compiler detects the change and starts the worker, writing a heartbeat log to the console continuously.
 
 > [!IMPORTANT]
-> Only workers defined as a service will be started by the GlideLite Compiler. Workers defined as a task will not run automatically and should be executed manually.
+> Only workers defined as a service are started automatically by the GlideLite Compiler. Workers defined as a task need to be run manually.
 
-## Manually execute a task
+## Manually run a task
 
-In your editor, type the following TypeScript code in `backend/workers/reset.ts`:
+In your editor, add the following TypeScript code to `backend/workers/reset.ts`:
 
 ```typescript
 // In production this task will be executed once a day
@@ -105,12 +105,12 @@ In your editor, type the following TypeScript code in `backend/workers/reset.ts`
 console.log('Nothing to be done');
 ```
 
-After saving the TypeScript file, you'll notice that the GlideLite Compiler warns that the worker is skipped and should be run manually, which is useful to test the application during development:
+After saving the file, the GlideLite Compiler warns that the worker is skipped and needs to be run manually — handy for testing it during development:
 
 ```bash
 npx ts-node ./backend/workers/reset.ts
 ```
 
-# Further Reading
+## Further Reading
 
-Get more out of GlideLite and [use configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md) in your code.
+Get more out of GlideLite and learn how to [use configuration values](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md) in your code.

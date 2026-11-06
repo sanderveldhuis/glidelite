@@ -1,9 +1,9 @@
 
 # API Requests
 
-GlideLite provides a frontend API request helper ensuring easy access to the backend API is provided.
+GlideLite includes a frontend API request helper that makes it easy to talk to your backend API.
 
-First, write a hook function which will be used for cyclic API requests. In your editor, type the following TypeScript code in `frontend/src/hooks/useInterval.ts`:
+First, write a hook that lets you poll data at a fixed interval. In your editor, add the following TypeScript code to `frontend/src/hooks/useInterval.ts`:
 
 ```typescript
 import {
@@ -25,7 +25,7 @@ function useInterval(handler: () => void, timeout: number) {
 export default useInterval;
 ```
 
-Now make use of the API, update the following TypeScript code in `frontend/src/App.tsx`:
+Now put the API to use. Update `frontend/src/App.tsx` with the following TypeScript code:
 
 ```typescript
 import { api } from 'glidelite/frontend';
@@ -108,8 +108,8 @@ function App() {
 export default App;
 ```
 
-After saving the TypeScript files, use your browser to open the URL `http://localhost:5173/`. Previously, when clicking on the counter button it incremented the value locally in the browser. After this change it is updated in the API and a refresh of the page will not clean the value as it is stored remotely. Next to that the information is requested each second which is easily seen due to the random ID.
+After saving the files, open `http://localhost:5173/`. Previously, clicking the counter button only updated the value locally in the browser. Now it updates the value through the API, so refreshing the page won't reset it. You'll also notice the information updates every second — the random ID makes this easy to spot.
 
-# Further Reading
+## Further Reading
 
-The project is ready for [deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md) for the public.
+Your project is ready for [deployment](./deployment.md).

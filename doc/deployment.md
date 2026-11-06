@@ -1,11 +1,11 @@
 
 # Deployment
 
-Deployment is the process of installing your compiled project on a Linux-based operating system to make it operational.
+Deployment is the process of installing your compiled project on a Linux-based system and getting it up and running.
 
 ## Requirements
 
-The following requirements apply on the deployment system:
+Your deployment system needs:
 
 * Linux Debian/Ubuntu, or a derivative (e.g. Raspberry Pi OS)
 * Advanced Packaging Tool (i.e. `apt-get`)
@@ -13,19 +13,19 @@ The following requirements apply on the deployment system:
 
 ## Configure your project
 
-By default all compiled projects will be deployed and reachable for the local network only. If the project should be reachable on a public domain ensure to set the `homepage` configuration value in the [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) file. In case multiple GlideLite projects are running on the development system or specific ports are reserved by other applications ensure to set the `ports` configuration values in the [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) file.
+By default, compiled projects are only reachable from the local network. To make your project reachable on a public domain, set the `homepage` value in [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md). If you're running multiple GlideLite projects on the same deployment system, or some ports are already taken by other applications, set the `ports` values in [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) too.
 
-## Compiling your code
+## Compile your code
 
-At the command line, run the GlideLite Compiler to compile the full project:
+Run the GlideLite Compiler to compile the full project:
 
 ```bash
 npx glc
 ```
 
-## Installing your project
+## Install your project
 
-Copy the `output` directory to your deployment machine. Run the installer using the command line on the deployment machine:
+Copy the `output` directory to your deployment machine, then run the installer:
 
 ```bash
 cd /path/to/copied/output
@@ -33,21 +33,29 @@ chmod +x install
 sudo ./install
 ```
 
-Follow the instructions given by the installer. Once the installer is finished it will indicate how long it takes to boot up your project.
+Follow the instructions from the installer. When it finishes, it tells you how long your project takes to boot up.
 
-# Further Reading
+## Further Reading
 
-That's it, you are familiar with all features of GlideLite!
+That's it — you now know your way around GlideLite! Here's everything you explored:
 
+* [Getting started](https://github.com/sanderveldhuis/glidelite/blob/main/doc/getting-started.md)
 * [Configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md)
-* Backend
-  * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
-  * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
-  * [Use configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md)
-  * [Use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md)
-  * [Logging](https://github.com/sanderveldhuis/glidelite/blob/main/doc/logging.md)
-  * [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
-* Frontend
-  * [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md)
-  * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
+
+**Backend**
+
+* [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
+* [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
+* [Using configuration values](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-configurations.md)
+* [Using dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md)
+* [Logging](https://github.com/sanderveldhuis/glidelite/blob/main/doc/logging.md)
+* [Inter-process communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ipc.md)
+
+**Frontend**
+
+* [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/ui.md)
+* [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
+
+**Shipping your app**
+
 * [Deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md)

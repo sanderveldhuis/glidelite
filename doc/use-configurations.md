@@ -1,11 +1,11 @@
 
-# Use Configurations
+# Using Configuration Values
 
-The `glconfig.json` configuration file can be used to define global configuration values used throughout the project. Besides the predefined [configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) it also allows custom configurations.
+The `glconfig.json` file isn't limited to the predefined [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) values — you can also use it to define your own custom, project-wide configuration values.
 
-## Custom configurations
+## Custom configuration values
 
-In your editor, type the following JSON in `glconfig.json`:
+In your editor, add the following JSON to `glconfig.json`:
 
 ```json
 {
@@ -13,7 +13,7 @@ In your editor, type the following JSON in `glconfig.json`:
 }
 ```
 
-Now make use of this configuration value, update `backend/api/routers/info.ts` with the following TypeScript code:
+Now use this value. Update `backend/api/routers/info.ts` with the following TypeScript code:
 
 ```typescript
 // Import the GlideLite configuration
@@ -21,7 +21,7 @@ import { glconfig } from 'glidelite/backend';
 
 ...
 
-// Replace the hardcoded string 'Anonymous' by the configuration value
+// Replace the hardcoded string 'Anonymous' with the configuration value
 const infoMsg: InfoMsg = {
   id: 0,
   author: glconfig.author,
@@ -31,18 +31,18 @@ const infoMsg: InfoMsg = {
 ...
 ```
 
-By importing the `glidelite/backend` module, it is possible to directly use the values from the `glconfig.json` via the provided `glconfig` object. The GlideLite Compiler will ensure it is linked correctly.
+Importing the `glidelite/backend` module gives you direct access to the values from `glconfig.json` via the `glconfig` object. The GlideLite Compiler wires this up for you automatically.
 
-## Special configurations
+## Values inherited from `package.json`
 
-Inherited [configurations](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) from the `package.json` are only usable in the released version of the project. This can be used to check whether the project runs in development or production mode.
+Values [inherited](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) from `package.json`, such as `version`, are only available in the released version of your project. You can use this to detect whether your code is running in development or production.
 
-In your editor, update the following TypeScript code in `backend/api/routers/info.ts`:
+In your editor, update `backend/api/routers/info.ts` with the following TypeScript code:
 
 ```typescript
 ...
 
-// Replace the hardcoded string 'None' by the configuration value
+// Replace the hardcoded string 'None' with the configuration value
 const infoMsg: InfoMsg = {
   id: 0,
   author: glconfig.author,
@@ -52,6 +52,6 @@ const infoMsg: InfoMsg = {
 ...
 ```
 
-# Further Reading
+## Further Reading
 
-Get even more out of GlideLite and [use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md) in your code.
+Get even more out of GlideLite and learn how to [use dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/use-dependencies.md) in your code.
