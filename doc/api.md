@@ -1,9 +1,9 @@
 
 # API
 
-The purpose of the API is to make communication between the frontend, controlled by the client, and backend simple, consistent, scalable, and secure. The API is a dedicated server on which the client can request data using HTTP methods such as GET, POST, PUT, and DELETE. For API development GlideLite relies on [Express](https://expressjs.com/) as framework.
+The API makes communication between the frontend (the client) and the backend simple, consistent, scalable, and secure. It runs as its own server, and the client talks to it over HTTP using methods like GET, POST, PUT, and DELETE. GlideLite uses [Express](https://expressjs.com/) as its API framework.
 
-## Running your code
+## Run your code
 
 First, run your project for local development:
 
@@ -13,9 +13,9 @@ npx glc -r
 
 ## Build your first router
 
-In this first router you will create an API endpoint to get system information. This step consists of the message interface definition and the actual API router.
+You'll create an API endpoint that returns system information. This involves two things: a shared message type, and the router that serves it.
 
-In your editor, type the following TypeScript code in `shared/types.ts`:
+In your editor, add the following TypeScript code to `shared/types.ts`:
 
 ```typescript
 // The info message interface definition
@@ -34,7 +34,7 @@ export function isInfoMsg(payload: object | null): payload is InfoMsg {
 }
 ```
 
-Next, type the following TypeScript code in `backend/api/routers/info.ts`:
+Next, add the following TypeScript code to `backend/api/routers/info.ts`:
 
 ```typescript
 import express from 'express';
@@ -58,11 +58,11 @@ router.get('/', (req, res) => {
 export default router;
 ```
 
-After saving the TypeScript file, you'll notice that the GlideLite Compiler detects the changes and restarts the API server on its default port `9002`. Use your browser to execute a request to the API via the URL `http://localhost:9002/`.
+After saving the file, the GlideLite Compiler detects the change and restarts the API server on its default port, `9002`. Open your browser and visit `http://localhost:9002/` to see the response.
 
 ## Use another HTTP method
 
-Let's make use of the POST method to update a counter. In your editor, add the following TypeScript code in `shared/types.ts`:
+Let's use the POST method to update a counter. Add the following TypeScript code to `shared/types.ts`:
 
 ```typescript
 // The counter message interface definition
@@ -77,7 +77,7 @@ export function isCounterMsg(payload: object | null): payload is CounterMsg {
 }
 ```
 
-Next, type the following TypeScript code in `backend/api/routers/counter.ts`:
+Next, add the following TypeScript code to `backend/api/routers/counter.ts`:
 
 ```typescript
 import express from 'express';
@@ -103,16 +103,16 @@ router.post('/counter', (req, res, _next) => {
 export default router;
 ```
 
-After saving the TypeScript file, wait for the GlideLite Compiler to restarts the API server. Use your browser to execute a request to the API via the URL `http://localhost:9002/counter`.
+After saving the file, wait for the GlideLite Compiler to restart the API server, then visit `http://localhost:9002/counter` in your browser.
 
-Once you try to make a POST request to the URL you will see an error message in the API server indicating it is not able to read the `increment` property. This is because it is not yet able to parse parameters in the request. In the next section this will be resolved.
+If you try to make a POST request now, the API server logs an error saying it can't read the `increment` property. That's because it doesn't yet know how to parse the request body — the next step fixes that.
 
-## Router execution sequence
+## Router execution order
 
 > [!IMPORTANT]
-> Routers are always executed in alphanumeric sequence. In case a router should be executed before another make use of file names with numbers in front, e.g.: `01_first.ts`, `02_second.ts`, etc.
+> Routers always run in alphanumeric order. If one router needs to run before another, prefix the file names with numbers, e.g. `01_first.ts`, `02_second.ts`, etc.
 
-The counter update router of the previous section needs the ability to read the `increment` property from the request JSON. In your editor, type the following TypeScript code in `backend/api/routers/00_plugins.ts`:
+The counter router needs to read the `increment` property from the request body. Add the following TypeScript code to `backend/api/routers/00_plugins.ts`:
 
 ```typescript
 import express from 'express';
@@ -126,10 +126,12 @@ router.use(express.json());
 export default router;
 ```
 
+Now the POST request should work and increment the counter value.
+
 ## Advanced Express
 
-For a more extensive knowledge about Express and learn about `Middlewares` please refer to the [Express documentation](https://expressjs.com/).
+To learn more about Express and middleware, see the [Express documentation](https://expressjs.com/).
 
-# Further Reading
+## Further Reading
 
-Continue your journey into GlideLite and start coding your first [workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md).
+Continue your journey and start coding your first [worker](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md).
