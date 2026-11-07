@@ -1,7 +1,7 @@
 
 # Instructions for Logging Issues
 
-## 1. Search for Duplicates
+## 1. Search for duplicates
 
 [Search the existing issues in GitHub](https://github.com/sanderveldhuis/glidelite/search?type=Issues) or by the query `site:github.com/sanderveldhuis/glidelite <your keywords>` in your favorite search engine before logging a new one. Search engines generally list more relevant and accurate results at the top than the GitHub searching feature.
 
@@ -35,7 +35,7 @@ In general, things we find useful when reviewing suggestions are:
 
 # Instructions for Contributing Code
 
-## What You'll Need
+## What you'll need
 
 1. [A bug or feature you want to work on](https://github.com/sanderveldhuis/glidelite/issues?q=is%3Aissue%20label%3A%22Help%20Wanted%22)!
 2. [A GitHub account](https://github.com/join).
@@ -43,7 +43,7 @@ In general, things we find useful when reviewing suggestions are:
 4. [Node](https://nodejs.org), which runs JavaScript locally. Current or LTS will both work.
 5. An editor. [VS Code](https://code.visualstudio.com) is the best place to start for GlideLite.
 
-## Get Started
+## Get started
 
 1. Install node using the version you downloaded from [nodejs.org](https://nodejs.org).
 2. Open a terminal.
@@ -98,7 +98,7 @@ Your pull request should:
 
 Avoid force-pushing your changes, especially when updating your PR based on review feedback. Force-pushed changes are not easily viewable on GitHub, and not at all viewable if a force-push also rebases against main. GlideLite PRs are squash merged, so the specific commits on your PR branch do not matter, only the PR title itself. Don't worry about having a perfect commit history; instead focus on making your changes as easy to review and merge as possible.
 
-## Running the Tests
+## Running the tests
 
 To run all tests, invoke the `test` script using npm:
 
@@ -124,7 +124,7 @@ or to run a specific test:
 npx vitest run version.spec.ts -t 'validate the version variable'
 ```
 
-## Adding a Test
+## Adding a test
 
 To add a new test case, add a `.spec.ts` file in `tests` with code that shows the bug is now fixed, or your new feature now works.
 

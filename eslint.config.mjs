@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   { files: ['**/*.{ts,tsx,cts,mts,js,cjs,mjs}'] },
-  { ignores: ['lib', 'built', 'node_modules'] },
+  { ignores: ['lib', 'built', 'examples', 'node_modules'] },
   {
     extends: [eslint.configs.recommended, ...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
     files: ['src/**'],
