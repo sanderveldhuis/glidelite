@@ -38,7 +38,7 @@ Next, add the following TypeScript code to `backend/api/routers/info.ts`:
 
 ```typescript
 import express from 'express';
-import { InfoMsg } from '../../../shared/types';
+import { InfoMsg } from '../../../shared/types.js';
 
 // Construct the info message
 const infoMsg: InfoMsg = {
@@ -81,7 +81,7 @@ Next, add the following TypeScript code to `backend/api/routers/counter.ts`:
 
 ```typescript
 import express from 'express';
-import { CounterMsg } from '../../../shared/types';
+import { CounterMsg } from '../../../shared/types.js';
 
 // Construct the counter message
 const counterMsg: CounterMsg = { value: 0 };

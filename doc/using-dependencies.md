@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
 ...
 ```
 
-Restart the local development run and try it again — you should see a random ID in the API response.
+Restart the local development run and visit `http://localhost:9002/` again — you should see a random ID in the API response.
 
 ## Further Reading
 
