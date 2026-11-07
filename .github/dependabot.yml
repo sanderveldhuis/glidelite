@@ -16,6 +16,16 @@ updates:
           - '*'
 
   - package-ecosystem: 'npm'
-    directory: '/**'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+
+  - package-ecosystem: 'npm'
+    directory: '/examples/example-react'
+    schedule:
+      interval: 'weekly'
+
+  - package-ecosystem: 'npm'
+    directory: '/examples/example-react-ts'
     schedule:
       interval: 'weekly'
