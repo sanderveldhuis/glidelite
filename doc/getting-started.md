@@ -76,4 +76,4 @@ npx glc -m backend
 
 ## Further Reading
 
-Learn how to use the [configuration](./configuration.md) file to customize your project.
+Learn how to use the [configuration](https://github.com/sanderveldhuis/glidelite/blob/main/doc/configuration.md) file to customize your project.

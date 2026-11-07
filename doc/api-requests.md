@@ -112,4 +112,4 @@ After saving the files, open `http://localhost:5173/`. Previously, clicking the 
 
 ## Further Reading
 
-Your project is ready for [deployment](./deployment.md).
+Your project is ready for [deployment](https://github.com/sanderveldhuis/glidelite/blob/main/doc/deployment.md).
