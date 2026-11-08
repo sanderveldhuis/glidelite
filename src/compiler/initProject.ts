@@ -47,6 +47,9 @@ export function initProject(workingDirectory: string): void {
   const workersKeep = join(workersDir, '.gitkeep');
   const frontendDir = join(workingDirectory, 'frontend');
   const frontendViteConfig = join(frontendDir, 'vite.config.ts');
+  const frontendTsConfig = join(frontendDir, 'tsconfig.json');
+  const frontendAppTsConfig = join(frontendDir, 'tsconfig.app.json');
+  const frontendNodeTsConfig = join(frontendDir, 'tsconfig.node.json');
   const frontendIndex = join(frontendDir, 'index.html');
   const frontendPublicDir = join(frontendDir, 'public');
   const frontendPublicKeep = join(frontendPublicDir, '.gitkeep');
@@ -66,6 +69,18 @@ export function initProject(workingDirectory: string): void {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'vite.config.ts' file already defined at: '${frontendViteConfig}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
   }
+  if (exists(frontendTsConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${frontendTsConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
+  if (exists(frontendAppTsConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.app.json' file already defined at: '${frontendAppTsConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
+  if (exists(frontendNodeTsConfig)) {
+    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.node.json' file already defined at: '${frontendNodeTsConfig}'.`);
+    return process.exit(ExitStatus.FileAlreadyExists);
+  }
   if (exists(frontendIndex)) {
     console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'index.html' file already defined at: '${frontendIndex}'.`);
     return process.exit(ExitStatus.FileAlreadyExists);
@@ -83,6 +98,9 @@ export function initProject(workingDirectory: string): void {
   makeFile(workersKeep, '');
   makeDir(frontendDir);
   makeFile(frontendViteConfig, "import react from '@vitejs/plugin-react';\nimport { glConfig } from 'glidelite/vite';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  ...glConfig,\n  plugins: [react()]\n});\n");
+  makeFile(frontendTsConfig, '{\n  "files": [],\n  "references": [\n    { "path": "./tsconfig.app.json" },\n    { "path": "./tsconfig.node.json" }\n  ]\n}\n');
+  makeFile(frontendAppTsConfig, '{\n  "compilerOptions": {\n    "target": "es2023",\n    "lib": ["ES2023", "DOM"],\n    "module": "esnext",\n    "types": ["vite/client"],\n    "allowArbitraryExtensions": true,\n    "skipLibCheck": true,\n\n    /* Bundler mode */\n    "moduleResolution": "bundler",\n    "allowImportingTsExtensions": true,\n    "verbatimModuleSyntax": true,\n    "moduleDetection": "force",\n    "noEmit": true,\n    "jsx": "react-jsx",\n\n    /* Linting */\n    "noUnusedLocals": true,\n    "noUnusedParameters": true,\n    "erasableSyntaxOnly": true,\n    "noFallthroughCasesInSwitch": true\n  },\n  "include": ["src"]\n}\n');
+  makeFile(frontendNodeTsConfig, '{\n  "compilerOptions": {\n    "target": "es2023",\n    "lib": ["ES2023"],\n    "types": ["node"],\n    "skipLibCheck": true,\n\n    /* Bundler mode */\n    "module": "nodenext",\n    "allowImportingTsExtensions": true,\n    "verbatimModuleSyntax": true,\n    "moduleDetection": "force",\n    "noEmit": true,\n\n    /* Linting */\n    "noUnusedLocals": true,\n    "noUnusedParameters": true,\n    "erasableSyntaxOnly": true,\n    "noFallthroughCasesInSwitch": true\n  },\n  "include": ["vite.config.ts"]\n}\n');
   makeFile(frontendIndex, '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
   makeDir(frontendPublicDir);
   makeFile(frontendPublicKeep, '');
