@@ -176,6 +176,23 @@ describe('moduleWorkers.ts', () => {
     else {
       expect(spawn).toHaveBeenLastCalledWith('sh', ['-c', `kill -9 1234`]);
     }
+
+    // Files with .js extension available in workers directory, valid instructions found, JavaScript workers are run with node directly
+    // Validating all regexes are not part of this test, it will be done in another test
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test1.js', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.js', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
+    readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc service"\nconsole.log("done")');
+    watchCallback[1]();
+    expect(readDir).toHaveBeenCalledTimes(5);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
+    expect(readFile).toHaveBeenCalledTimes(7);
+    expect(readFile).toHaveBeenNthCalledWith(6, path.normalize('input/backend/workers/sub1/sub2/test1.js'));
+    expect(readFile).toHaveBeenNthCalledWith(7, path.normalize('input/backend/workers/sub2/sub3/test2.js'));
+    expect(consoleLog).toHaveBeenCalledTimes(6);
+    expect(consoleLog).toHaveBeenNthCalledWith(5, path.normalize("\x1b[93mSkipped worker: 'input/backend/workers/sub1/sub2/test1.js', only service workers are executed.\x1b[39m"));
+    expect(consoleLog).toHaveBeenNthCalledWith(6, path.normalize("\x1b[93mUse the following command to run the worker manually: 'node input/backend/workers/sub1/sub2/test1.js'.\x1b[39m"));
+    expect(spawn).toHaveBeenCalledTimes(3);
+    expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/backend/workers/sub2/sub3/test2.js'), { shell: true, cwd: 'input', stdio: 'inherit' });
   });
 
   it('validate compiling the workers', () => {
@@ -193,9 +210,9 @@ describe('moduleWorkers.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(1);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
 
-    // No files with .ts extension available in workers directory
+    // No files with .ts or .js extension available in workers directory
     // @ts-expect-error because object has missing types which are not used in the test
-    readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.js' }]);
+    readDir.mockReturnValueOnce([{ name: 'test.tsx' }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input', 'output');
     expect(readDir).toHaveBeenCalledTimes(2);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
@@ -240,6 +257,22 @@ describe('moduleWorkers.ts', () => {
     expect(makeDir).toHaveBeenCalledTimes(1);
     expect(makeDir).toHaveBeenLastCalledWith(path.normalize('output/etc/cron.d'));
     expect(makeFile).toHaveBeenCalledTimes(1);
+    expect(makeFile).toHaveBeenLastCalledWith(path.normalize('output/etc/cron.d/cfg_workers'), '@yearly root node /opt/cfg/backend/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/backend/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/backend/workers/sub2/sub3/test2.js" || node /opt/cfg/backend/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
+
+    // Files with .js extension available in workers directory, valid instructions found, and no compilation required
+    // Validating all regexes are not part of this test, it will be done in another test
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test1.js', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.js', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
+    readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc service"\nconsole.log("done")');
+    compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
+    expect(readDir).toHaveBeenCalledTimes(6);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
+    expect(readFile).toHaveBeenCalledTimes(7);
+    expect(readFile).toHaveBeenNthCalledWith(6, path.normalize('input/backend/workers/sub1/sub2/test1.js'));
+    expect(readFile).toHaveBeenNthCalledWith(7, path.normalize('input/backend/workers/sub2/sub3/test2.js'));
+    expect(makeDir).toHaveBeenCalledTimes(2);
+    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('output/etc/cron.d'));
+    expect(makeFile).toHaveBeenCalledTimes(2);
     expect(makeFile).toHaveBeenLastCalledWith(path.normalize('output/etc/cron.d/cfg_workers'), '@yearly root node /opt/cfg/backend/workers/sub1/sub2/test1.js >> /var/log/cfg/workers.log &\n@reboot root node /opt/cfg/backend/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n* * * * * root ps aux | grep -v grep | grep -c "node /opt/cfg/backend/workers/sub2/sub3/test2.js" || node /opt/cfg/backend/workers/sub2/sub3/test2.js >> /var/log/cfg/workers.log &\n');
   });
 

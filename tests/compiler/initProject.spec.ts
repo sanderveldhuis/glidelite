@@ -88,7 +88,7 @@ describe('initProject.ts', () => {
     expect(processExit).toHaveBeenLastCalledWith(2010);
   });
 
-  it('validate when the index HTML already exists', () => {
+  it('validate when the frontend TypeScript config already exists', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
@@ -100,7 +100,70 @@ describe('initProject.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(1, path.normalize('test/glconfig.json'));
     expect(exists).toHaveBeenNthCalledWith(2, path.normalize('test/tsconfig.json'));
     expect(exists).toHaveBeenNthCalledWith(3, path.normalize('test/frontend/vite.config.ts'));
-    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/index.html'));
+    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/tsconfig.json'));
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'tsconfig.json' file already defined at: 'test/frontend/tsconfig.json'."));
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2010);
+  });
+
+  it('validate when the application TypeScript config already exists', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const exists = vi.spyOn(sysUtils, 'exists');
+
+    exists.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true);
+    initProject('test');
+    expect(exists).toHaveBeenCalledTimes(5);
+    expect(exists).toHaveBeenNthCalledWith(1, path.normalize('test/glconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(2, path.normalize('test/tsconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(3, path.normalize('test/frontend/vite.config.ts'));
+    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/tsconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(5, path.normalize('test/frontend/tsconfig.app.json'));
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'tsconfig.app.json' file already defined at: 'test/frontend/tsconfig.app.json'."));
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2010);
+  });
+
+  it('validate when the node TypeScript config already exists', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const exists = vi.spyOn(sysUtils, 'exists');
+
+    exists.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true);
+    initProject('test');
+    expect(exists).toHaveBeenCalledTimes(6);
+    expect(exists).toHaveBeenNthCalledWith(1, path.normalize('test/glconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(2, path.normalize('test/tsconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(3, path.normalize('test/frontend/vite.config.ts'));
+    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/tsconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(5, path.normalize('test/frontend/tsconfig.app.json'));
+    expect(exists).toHaveBeenNthCalledWith(6, path.normalize('test/frontend/tsconfig.node.json'));
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'tsconfig.node.json' file already defined at: 'test/frontend/tsconfig.node.json'."));
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(2010);
+  });
+
+  it('validate when the index HTML already exists', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type never
+    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    const exists = vi.spyOn(sysUtils, 'exists');
+
+    exists.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true);
+    initProject('test');
+    expect(exists).toHaveBeenCalledTimes(7);
+    expect(exists).toHaveBeenNthCalledWith(1, path.normalize('test/glconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(2, path.normalize('test/tsconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(3, path.normalize('test/frontend/vite.config.ts'));
+    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/tsconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(5, path.normalize('test/frontend/tsconfig.app.json'));
+    expect(exists).toHaveBeenNthCalledWith(6, path.normalize('test/frontend/tsconfig.node.json'));
+    expect(exists).toHaveBeenNthCalledWith(7, path.normalize('test/frontend/index.html'));
     expect(consoleError).toHaveBeenCalledTimes(1);
     expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'index.html' file already defined at: 'test/frontend/index.html'."));
     expect(processExit).toHaveBeenCalledTimes(1);
@@ -115,12 +178,15 @@ describe('initProject.ts', () => {
 
     exists.mockReturnValue(false);
     initProject('test');
-    expect(exists).toHaveBeenCalledTimes(4);
+    expect(exists).toHaveBeenCalledTimes(7);
     expect(exists).toHaveBeenNthCalledWith(1, path.normalize('test/glconfig.json'));
     expect(exists).toHaveBeenNthCalledWith(2, path.normalize('test/tsconfig.json'));
     expect(exists).toHaveBeenNthCalledWith(3, path.normalize('test/frontend/vite.config.ts'));
-    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/index.html'));
-    expect(makeFile).toHaveBeenCalledTimes(9);
+    expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/tsconfig.json'));
+    expect(exists).toHaveBeenNthCalledWith(5, path.normalize('test/frontend/tsconfig.app.json'));
+    expect(exists).toHaveBeenNthCalledWith(6, path.normalize('test/frontend/tsconfig.node.json'));
+    expect(exists).toHaveBeenNthCalledWith(7, path.normalize('test/frontend/index.html'));
+    expect(makeFile).toHaveBeenCalledTimes(12);
     expect(makeDir).toHaveBeenCalledTimes(7);
     expect(makeFile).toHaveBeenNthCalledWith(1, path.normalize('test/glconfig.json'), '{\n}\n');
     expect(makeFile).toHaveBeenNthCalledWith(2, path.normalize('test/tsconfig.json'), '{\n  "extends": "@tsconfig/node-lts/tsconfig.json",\n  "include": ["backend/**/*", "shared/**/*"]\n}\n');
@@ -133,11 +199,14 @@ describe('initProject.ts', () => {
     expect(makeFile).toHaveBeenNthCalledWith(5, path.normalize('test/backend/workers/.gitkeep'), '');
     expect(makeDir).toHaveBeenNthCalledWith(5, path.normalize('test/frontend'));
     expect(makeFile).toHaveBeenNthCalledWith(6, path.normalize('test/frontend/vite.config.ts'), "import react from '@vitejs/plugin-react';\nimport { glConfig } from 'glidelite/vite';\nimport { defineConfig } from 'vite';\n\n// https://vite.dev/config/\nexport default defineConfig({\n  ...glConfig,\n  plugins: [react()]\n});\n");
-    expect(makeFile).toHaveBeenNthCalledWith(7, path.normalize('test/frontend/index.html'), '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
+    expect(makeFile).toHaveBeenNthCalledWith(7, path.normalize('test/frontend/tsconfig.json'), '{\n  "files": [],\n  "references": [\n    { "path": "./tsconfig.app.json" },\n    { "path": "./tsconfig.node.json" }\n  ]\n}\n');
+    expect(makeFile).toHaveBeenNthCalledWith(8, path.normalize('test/frontend/tsconfig.app.json'), '{\n  "compilerOptions": {\n    "target": "es2023",\n    "lib": ["ES2023", "DOM"],\n    "module": "esnext",\n    "types": ["vite/client"],\n    "allowArbitraryExtensions": true,\n    "skipLibCheck": true,\n\n    /* Bundler mode */\n    "moduleResolution": "bundler",\n    "allowImportingTsExtensions": true,\n    "verbatimModuleSyntax": true,\n    "moduleDetection": "force",\n    "noEmit": true,\n    "jsx": "react-jsx",\n\n    /* Linting */\n    "noUnusedLocals": true,\n    "noUnusedParameters": true,\n    "erasableSyntaxOnly": true,\n    "noFallthroughCasesInSwitch": true\n  },\n  "include": ["src"]\n}\n');
+    expect(makeFile).toHaveBeenNthCalledWith(9, path.normalize('test/frontend/tsconfig.node.json'), '{\n  "compilerOptions": {\n    "target": "es2023",\n    "lib": ["ES2023"],\n    "types": ["node"],\n    "skipLibCheck": true,\n\n    /* Bundler mode */\n    "module": "nodenext",\n    "allowImportingTsExtensions": true,\n    "verbatimModuleSyntax": true,\n    "moduleDetection": "force",\n    "noEmit": true,\n\n    /* Linting */\n    "noUnusedLocals": true,\n    "noUnusedParameters": true,\n    "erasableSyntaxOnly": true,\n    "noFallthroughCasesInSwitch": true\n  },\n  "include": ["vite.config.ts"]\n}\n');
+    expect(makeFile).toHaveBeenNthCalledWith(10, path.normalize('test/frontend/index.html'), '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>GlideLite · An end-to-end CLI for modern web apps</title>\n  </head>\n  <body>\n    Welcome to GlideLite!\n  </body>\n</html>\n');
     expect(makeDir).toHaveBeenNthCalledWith(6, path.normalize('test/frontend/public'));
-    expect(makeFile).toHaveBeenNthCalledWith(8, path.normalize('test/frontend/public/.gitkeep'), '');
+    expect(makeFile).toHaveBeenNthCalledWith(11, path.normalize('test/frontend/public/.gitkeep'), '');
     expect(makeDir).toHaveBeenNthCalledWith(7, path.normalize('test/shared'));
-    expect(makeFile).toHaveBeenNthCalledWith(9, path.normalize('test/shared/.gitkeep'), '');
+    expect(makeFile).toHaveBeenNthCalledWith(12, path.normalize('test/shared/.gitkeep'), '');
     expect(consoleLog).toHaveBeenCalledTimes(1);
     expect(consoleLog).toHaveBeenLastCalledWith("Created a new GlideLite project at: 'test'.");
   });

@@ -95,6 +95,8 @@ describe('moduleApi.ts', () => {
   it('validate running the API', () => {
     const execute = vi.spyOn(sysUtilsSrc, 'execute');
     const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
+    const makeDir = vi.spyOn(sysUtilsSrc, 'makeDir').mockImplementation(() => {/*Emtpy*/});
+    const copyFile = vi.spyOn(sysUtilsSrc, 'copyFile').mockImplementation(() => {/*Emtpy*/});
     const remove = vi.spyOn(sysUtilsSrc, 'remove').mockImplementation(() => {/*Emtpy*/});
     const spawn = vi.spyOn(child_process, 'spawn');
     const watch = vi.spyOn(fs, 'watch');
@@ -117,7 +119,7 @@ describe('moduleApi.ts', () => {
       }
     });
 
-    // Without API port in GlideLite configuration and no TypeScript files available
+    // Without API port in GlideLite configuration and no JavaScript/TypeScript files available
     readDir.mockReturnValueOnce([]);
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     expect(remove).toHaveBeenCalledTimes(1);
@@ -136,15 +138,19 @@ describe('moduleApi.ts', () => {
     expect(watchCallback[0]).to.not.equal(undefined);
     expect(watchCallback[1]).to.not.equal(undefined);
 
-    // With API port in GlideLite configuration, TypeScript files available, and a sucessful execute
+    // With API port in GlideLite configuration, JavaScript/TypeScript files available, and a sucessful execute
     // @ts-expect-error because object has missing types which are not used in the test
-    readDir.mockReturnValueOnce([{ name: 'test.ts' }, { name: 'test.js' }]);
+    readDir.mockReturnValueOnce([{ name: 'test.ts' }, { name: 'test.js', parentPath: path.normalize('input/backend/api') }]);
     execute.mockReturnValueOnce(true);
     run({ name: 'pkg' }, { name: 'cfg', ports: { api: 1234 } }, 'input');
     expect(remove).toHaveBeenCalledTimes(2);
     expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
     expect(readDir).toHaveBeenCalledTimes(2);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
+    expect(makeDir).toHaveBeenCalledTimes(1);
+    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/backend/api'));
+    expect(copyFile).toHaveBeenCalledTimes(1);
+    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/api/test.js'), path.normalize('input/node_modules/.tmp/glc/backend/api/test.js'));
     expect(execute).toHaveBeenCalledTimes(1);
     expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
     expect(spawn).toHaveBeenCalledTimes(2);
@@ -178,24 +184,26 @@ describe('moduleApi.ts', () => {
       expect(spawn).toHaveBeenLastCalledWith('sh', ['-c', `kill -9 1234`]);
     }
 
-    // Test the callback function with TypeScript files available but a failing execute
+    // Test the callback function with JavaScript files available
     // @ts-expect-error because object has missing types which are not used in the test
-    readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.ts' }]);
-    execute.mockReturnValueOnce(false);
+    readDir.mockReturnValueOnce([{ name: 'test.js', parentPath: path.normalize('input/backend/api') }]);
     watchCallback[3]();
     expect(remove).toHaveBeenCalledTimes(4);
     expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
     expect(readDir).toHaveBeenCalledTimes(4);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
-    expect(execute).toHaveBeenCalledTimes(3);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
-    expect(spawn).toHaveBeenCalledTimes(4);
+    expect(makeDir).toHaveBeenCalledTimes(2);
+    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/backend/api'));
+    expect(copyFile).toHaveBeenCalledTimes(2);
+    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/api/test.js'), path.normalize('input/node_modules/.tmp/glc/backend/api/test.js'));
+    expect(spawn).toHaveBeenCalledTimes(5);
     if ('win32' === process.platform) {
-      expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
+      expect(spawn).toHaveBeenNthCalledWith(4, 'taskkill', ['/pid', '1234', '/f', '/t']);
     }
     else {
-      expect(spawn).toHaveBeenLastCalledWith('sh', ['-c', `kill -9 1234`]);
+      expect(spawn).toHaveBeenNthCalledWith(4, 'sh', ['-c', `kill -9 1234`]);
     }
+    expect(spawn).toHaveBeenNthCalledWith(5, path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js 1234'), { shell: true, cwd: 'input', stdio: 'inherit' });
   });
 
   it('validate compiling the API', () => {

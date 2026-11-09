@@ -36,18 +36,21 @@ npx glc -i
 This creates the file structure for a GlideLite project:
 
 ```bash
-├─ backend              # contains all backend modules
-│  ├─ api               # contains code for the API
-│  │  ├─ middleware     # contains Express middleware
-│  │  └─ routers        # contains Express routers
-│  └─ workers           # contains code for workers
-├─ frontend             # contains all frontend modules
-│  ├─ public            # contains public assets
-│  ├─ vite.config.ts    # Vite configuration for frontend code
-│  └─ index.html        # example index page
-├─ shared               # contains code shared between backend and frontend
-├─ glconfig.json        # GlideLite project configuration
-└─ tsconfig.json        # TypeScript configuration for backend and shared code
+├─ backend                  # contains all backend modules
+│  ├─ api                   # contains code for the API
+│  │  ├─ middleware         # contains Express middleware
+│  │  └─ routers            # contains Express routers
+│  └─ workers               # contains code for workers
+├─ frontend                 # contains all frontend modules
+│  ├─ public                # contains public assets
+│  ├─ vite.config.ts        # Vite configuration for frontend code
+│  ├─ tsconfig.json         # TypeScript configuration for frontend
+│  ├─ tsconfig.app.json     # TypeScript configuration for frontend code
+│  ├─ tsconfig.node.json    # TypeScript configuration for vite.config.ts
+│  └─ index.html            # example index page
+├─ shared                   # contains code shared between backend and frontend
+├─ glconfig.json            # GlideLite project configuration
+└─ tsconfig.json            # TypeScript configuration for backend and shared code
 ```
 
 ## Run your code

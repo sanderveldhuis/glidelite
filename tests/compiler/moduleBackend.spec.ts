@@ -83,46 +83,65 @@ describe('moduleBackend.ts', () => {
     const compileApi = vi.spyOn(moduleApiSrc, 'compile').mockImplementation(() => {/*Emtpy*/});
     const execute = vi.spyOn(sysUtilsSrc, 'execute');
     const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
+    const makeDir = vi.spyOn(sysUtilsSrc, 'makeDir').mockImplementation(() => {/*Emtpy*/});
+    const copyFile = vi.spyOn(sysUtilsSrc, 'copyFile').mockImplementation(() => {/*Emtpy*/});
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
 
-    // No files available in API directory
+    // No files available in backend directory
     readDir.mockReturnValueOnce([]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input1', 'output1');
     expect(readDir).toHaveBeenCalledTimes(1);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input1/backend'));
 
-    // No files with .ts extension available in API directory
+    // No files with .ts or .js extension available in backend directory
     // @ts-expect-error because object has missing types which are not used in the test
-    readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.js' }]);
+    readDir.mockReturnValueOnce([{ name: 'test.tsx' }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input2', 'output2');
     expect(readDir).toHaveBeenCalledTimes(2);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input2/backend'));
 
-    // Files with .ts extension available in API directory but execution failed
+    // Only files with .js extension available in backend directory, no TypeScript compilation required
     // @ts-expect-error because object has missing types which are not used in the test
-    readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }]);
-    execute.mockReturnValueOnce(false);
+    readDir.mockReturnValueOnce([{ name: 'test1.js', parentPath: path.normalize('input3/backend/api') }, { name: 'test2.js', parentPath: path.normalize('input3/backend/workers') }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
     expect(readDir).toHaveBeenCalledTimes(3);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input3/backend'));
-    expect(execute).toHaveBeenCalledTimes(1);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input3 --rootDir input3 --outDir output3/opt/cfg'), 'input3');
-    expect(processExit).toHaveBeenCalledTimes(1);
-    expect(processExit).toHaveBeenLastCalledWith(3002);
+    expect(makeDir).toHaveBeenCalledTimes(2);
+    expect(makeDir).toHaveBeenNthCalledWith(1, path.normalize('output3/opt/cfg/backend/api'));
+    expect(makeDir).toHaveBeenNthCalledWith(2, path.normalize('output3/opt/cfg/backend/workers'));
+    expect(copyFile).toHaveBeenCalledTimes(2);
+    expect(copyFile).toHaveBeenNthCalledWith(1, path.normalize('input3/backend/api/test1.js'), path.normalize('output3/opt/cfg/backend/api/test1.js'));
+    expect(copyFile).toHaveBeenNthCalledWith(2, path.normalize('input3/backend/workers/test2.js'), path.normalize('output3/opt/cfg/backend/workers/test2.js'));
+    expect(compileWorkers).toHaveBeenCalledTimes(1);
+    expect(compileWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
+    expect(compileApi).toHaveBeenCalledTimes(1);
+    expect(compileApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
 
-    // Files with .ts extension available in API directory and execution succeeded
+    // Files with .ts extension available in backend directory but execution failed
     // @ts-expect-error because object has missing types which are not used in the test
-    readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
-    execute.mockReturnValueOnce(true);
+    readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }]);
+    execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
     expect(readDir).toHaveBeenCalledTimes(4);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input4/backend'));
-    expect(execute).toHaveBeenCalledTimes(2);
+    expect(execute).toHaveBeenCalledTimes(1);
     expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input4 --rootDir input4 --outDir output4/opt/cfg'), 'input4');
-    expect(compileWorkers).toHaveBeenCalledTimes(1);
-    expect(compileWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
-    expect(compileApi).toHaveBeenCalledTimes(1);
-    expect(compileApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
+    expect(processExit).toHaveBeenCalledTimes(1);
+    expect(processExit).toHaveBeenLastCalledWith(3002);
+
+    // Files with .ts extension available in backend directory and execution succeeded
+    // @ts-expect-error because object has missing types which are not used in the test
+    readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
+    execute.mockReturnValueOnce(true);
+    compile({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
+    expect(readDir).toHaveBeenCalledTimes(5);
+    expect(readDir).toHaveBeenLastCalledWith(path.normalize('input5/backend'));
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input5 --rootDir input5 --outDir output5/opt/cfg'), 'input5');
+    expect(compileWorkers).toHaveBeenCalledTimes(2);
+    expect(compileWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
+    expect(compileApi).toHaveBeenCalledTimes(2);
+    expect(compileApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
   });
 });

@@ -51,94 +51,73 @@ describe('moduleProject.ts', () => {
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const validateBackend = vi.spyOn(moduleBackendSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
     const validateFrontend = vi.spyOn(moduleFrontendSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
-    const exists = vi.spyOn(sysUtilsSrc, 'exists');
 
-    // All required files and directories exist, no homepage available
-    exists.mockReturnValueOnce(true);
+    // No homepage available
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
-    expect(exists).toHaveBeenCalledTimes(1);
-    expect(exists).toHaveBeenLastCalledWith(path.normalize('input1/tsconfig.json'));
     expect(validateBackend).toHaveBeenCalledTimes(1);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input1');
     expect(validateFrontend).toHaveBeenCalledTimes(1);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input1');
 
-    // Not all required files and directories exist
-    exists.mockReturnValueOnce(false);
-    validate({ name: 'pkg' }, { name: 'cfg' }, 'input2');
-    expect(exists).toHaveBeenCalledTimes(2);
-    expect(exists).toHaveBeenLastCalledWith(path.normalize('input2/tsconfig.json'));
-    expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing file 'input2/tsconfig.json'."));
-    expect(processExit).toHaveBeenCalledTimes(1);
-    expect(processExit).toHaveBeenLastCalledWith(3001);
-
-    // All required files and directories exist, valid homepage
-    exists.mockReturnValueOnce(true);
+    // Valid homepage
     validate({ name: 'pkg' }, { name: 'cfg', homepage: 'http://example.com' }, 'input');
     expect(validateBackend).toHaveBeenCalledTimes(2);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 'http://example.com' }, 'input');
     expect(validateFrontend).toHaveBeenCalledTimes(2);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 'http://example.com' }, 'input');
-    exists.mockReturnValueOnce(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: 'https://example.com' }, 'input');
     expect(validateBackend).toHaveBeenCalledTimes(3);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 'https://example.com' }, 'input');
     expect(validateFrontend).toHaveBeenCalledTimes(3);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 'https://example.com' }, 'input');
 
-    // All required files and directories exist, invalid homepage type
-    exists.mockReturnValueOnce(true);
+    // Invalid homepage type
     validate({ name: 'pkg' }, { name: 'cfg', homepage: 1 }, 'input');
     expect(validateBackend).toHaveBeenCalledTimes(4);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 1 }, 'input');
     expect(validateFrontend).toHaveBeenCalledTimes(4);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 1 }, 'input');
-    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenCalledTimes(1);
     expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input', invalid homepage '1'.");
-    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
-    exists.mockReturnValueOnce(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: true }, 'input');
     expect(validateBackend).toHaveBeenCalledTimes(5);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: true }, 'input');
     expect(validateFrontend).toHaveBeenCalledTimes(5);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: true }, 'input');
-    expect(consoleError).toHaveBeenCalledTimes(3);
+    expect(consoleError).toHaveBeenCalledTimes(2);
     expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input', invalid homepage 'true'.");
-    expect(processExit).toHaveBeenCalledTimes(3);
+    expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(3001);
-    exists.mockReturnValueOnce(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: null }, 'input');
     expect(validateBackend).toHaveBeenCalledTimes(6);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: null }, 'input');
     expect(validateFrontend).toHaveBeenCalledTimes(6);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: null }, 'input');
-    expect(consoleError).toHaveBeenCalledTimes(4);
+    expect(consoleError).toHaveBeenCalledTimes(3);
     expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input', invalid homepage 'null'.");
-    expect(processExit).toHaveBeenCalledTimes(4);
+    expect(processExit).toHaveBeenCalledTimes(3);
     expect(processExit).toHaveBeenLastCalledWith(3001);
-    exists.mockReturnValueOnce(true);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: { url: 'https://example.com/' } }, 'input');
     expect(validateBackend).toHaveBeenCalledTimes(7);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: { url: 'https://example.com/' } }, 'input');
     expect(validateFrontend).toHaveBeenCalledTimes(7);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: { url: 'https://example.com/' } }, 'input');
-    expect(consoleError).toHaveBeenCalledTimes(5);
+    expect(consoleError).toHaveBeenCalledTimes(4);
     expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', 'No valid project found at: \'input\', invalid homepage \'{"url":"https://example.com/"}\'.');
-    expect(processExit).toHaveBeenCalledTimes(5);
+    expect(processExit).toHaveBeenCalledTimes(4);
     expect(processExit).toHaveBeenLastCalledWith(3001);
 
-    // All required files and directories exist, invalid homepage format
-    exists.mockReturnValueOnce(true);
+    // Invalid homepage format
     validate({ name: 'pkg' }, { name: 'cfg', homepage: 'example.com' }, 'input');
     expect(validateBackend).toHaveBeenCalledTimes(8);
     expect(validateBackend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 'example.com' }, 'input');
     expect(validateFrontend).toHaveBeenCalledTimes(8);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 'example.com' }, 'input');
-    expect(consoleError).toHaveBeenCalledTimes(6);
+    expect(consoleError).toHaveBeenCalledTimes(5);
     expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input', invalid homepage 'example.com'.");
-    expect(processExit).toHaveBeenCalledTimes(6);
+    expect(processExit).toHaveBeenCalledTimes(5);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });
 
