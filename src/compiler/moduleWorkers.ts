@@ -65,21 +65,21 @@ const regex = `["']glc (service|task (` +
 const restartDelay = 1000;
 
 /**
- * Searches for all TypeScript files with a valid compiler instruction.
+ * Searches for all TypeScript and JavaScript files with a valid compiler instruction.
  * @details this function will search directories recursively
- * @param workersDir the directory containing the TypeScript files
+ * @param workersDir the directory containing the TypeScript and JavaScript files
  * @returns the list of worker files, or `undefined` on error
  */
 function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> | undefined {
   const workerFiles: Record<string, RegExpExecArray> = {};
 
-  // Get a list of all TypeScript files
+  // Get a list of all TypeScript and JavaScript files
   const allFiles = readDir(workersDir);
-  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
+  const sourceFiles = allFiles.filter(file => new RegExp('(\\.ts|\\.js)$').test(file.name));
 
-  // Check for compiler instruction in each TypeScript file
-  for (const file of tsFiles) {
-    // Read the TypeScript file content
+  // Check for compiler instruction in each file
+  for (const file of sourceFiles) {
+    // Read the file content
     const filePath = join(file.parentPath, file.name);
     const content = readFile(filePath);
 
@@ -149,20 +149,23 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       return;
     }
 
-    // Run workers based on compiler instructions in the TypeScript files
+    // Run workers based on compiler instructions in the TypeScript and JavaScript files
     for (const [filePath, instruction] of Object.entries(workerFiles)) {
+      // Determine if the file is a TypeScript or JavaScript file
+      const isTypeScript = new RegExp('.ts$').test(filePath);
+
       // Only run service workers
       if (instruction[1] !== 'service') {
         if (!skippedWorkers.includes(filePath)) {
           console.log(yellow(`Skipped worker: '${filePath}', only service workers are executed.`));
-          console.log(yellow(`Use the following command to run the worker manually: 'npx ts-node ${filePath}'.`));
+          console.log(yellow(`Use the following command to run the worker manually: '${isTypeScript ? `npx ts-node ${filePath}` : `node ${filePath}`}'.`));
         }
         skippedWorkers.push(filePath);
         continue;
       }
 
       // Run the worker and restart if the file has changed
-      const child = spawn(`npm exec -- ts-node ${filePath}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
+      const child = spawn(isTypeScript ? `npm exec -- ts-node ${filePath}` : `node ${filePath}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
       children.push(child);
     }
   };
@@ -216,10 +219,10 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
     return;
   }
 
-  // Construct Crontab content based on compiler instructions in the TypeScript files
+  // Construct Crontab content based on compiler instructions in the TypeScript and JavaScript files
   let crontab = '';
   for (const [filePath, instruction] of Object.entries(workerFiles)) {
-    // Construct Crontab content for either a task or a service
+    // Construct Crontab content for either a task or a service, the compiled TypeScript files end up as JavaScript files
     const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
     if (instruction[1] === 'service') {
       crontab += `@reboot root node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
