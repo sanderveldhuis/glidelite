@@ -22,11 +22,17 @@
  * SOFTWARE.
  */
 
-import { join } from 'node:path';
+import {
+  dirname,
+  join,
+  relative
+} from 'node:path';
 import * as moduleApi from './moduleApi';
 import * as moduleWorkers from './moduleWorkers';
 import {
+  copyFile,
   execute,
+  makeDir,
   readDir
 } from './sysUtils';
 import {
@@ -78,16 +84,25 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   const backendDir = join(workingDirectory, 'backend');
   const outputDir = join(outputDirectory, 'opt', config.name as string);
 
-  // Get a list of all TypeScript files
+  // Get a list of all TypeScript and JavaScript files
   const allFiles = readDir(backendDir);
   const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
-  if (tsFiles.length <= 0) {
+  const jsFiles = allFiles.filter(file => new RegExp('.js$').test(file.name));
+  if (tsFiles.length <= 0 && jsFiles.length <= 0) {
     // Nothing to compile
     return;
   }
 
-  // Compile the TypeScript files and modules afterwards
-  if (execute(`npm exec -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${outputDir}`, workingDirectory)) {
+  // Copy the JavaScript files as-is since they do not require compilation
+  for (const file of jsFiles) {
+    const filePath = join(file.parentPath, file.name);
+    const destPath = join(outputDir, relative(workingDirectory, filePath));
+    makeDir(dirname(destPath));
+    copyFile(filePath, destPath);
+  }
+
+  // Compile the TypeScript files, if any, and modules afterwards
+  if (tsFiles.length <= 0 || execute(`npm exec -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${outputDir}`, workingDirectory)) {
     moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
     moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
   }
