@@ -27,8 +27,13 @@ import {
   spawn
 } from 'node:child_process';
 import { watch } from 'node:fs';
-import { join } from 'node:path';
 import {
+  dirname,
+  join,
+  relative
+} from 'node:path';
+import {
+  copyFile,
   execute,
   exists,
   makeDir,
@@ -107,13 +112,24 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
 
   // Internal function to start running the API server
   const runApiServer = () => {
-    // Because dynamic imports are used the TypeScript files first have to be compiled
+    // Because dynamic imports are used the TypeScript files first have to be compiled, JavaScript files can be used as-is
 
     // Cleanup to prevent running old files
     remove(tmpDir);
 
-    // Get a list of all TypeScript files
+    // Read all files in the API directory
     const allFiles = readDir(apiDir);
+
+    // Copy JavaScript files to the temporary directory
+    const jsFiles = allFiles.filter(file => new RegExp('.js$').test(file.name));
+    for (const file of jsFiles) {
+      const filePath = join(file.parentPath, file.name);
+      const destPath = join(tmpDir, relative(workingDirectory, filePath));
+      makeDir(dirname(destPath));
+      copyFile(filePath, destPath);
+    }
+
+    // Compile TypeScript files to the temporary directory
     const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
     if (tsFiles.length > 0) {
       // Compile the TypeScript files
