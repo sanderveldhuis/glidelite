@@ -30,7 +30,6 @@ import * as moduleBackend from './moduleBackend';
 import * as moduleFrontend from './moduleFrontend';
 import {
   copyFile,
-  exists,
   makeDir,
   makeFile,
   remove
@@ -71,13 +70,6 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
  * @param workingDirectory the working directory to be validated
  */
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
-  const tsConfig = join(workingDirectory, 'tsconfig.json');
-
-  if (!exists(tsConfig)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${tsConfig}'.`);
-    return process.exit(ExitStatus.ProjectInvalid);
-  }
-
   moduleBackend.validate(pkg, config, workingDirectory);
   moduleFrontend.validate(pkg, config, workingDirectory);
 
