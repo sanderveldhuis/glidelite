@@ -152,7 +152,7 @@ describe('moduleApi.ts', () => {
     expect(copyFile).toHaveBeenCalledTimes(1);
     expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/api/test.js'), path.normalize('input/node_modules/.tmp/glc/backend/api/test.js'));
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js 1234'), { shell: true, cwd: 'input', stdio: 'inherit' });
     expect(watch).toHaveBeenCalledTimes(4);
@@ -175,7 +175,7 @@ describe('moduleApi.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(3);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
     expect(spawn).toHaveBeenCalledTimes(3);
     if ('win32' === process.platform) {
       expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);

@@ -75,7 +75,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const frontendDir = join(workingDirectory, 'frontend');
 
   // Run the frontend
-  spawn('npm exec -- vite', { shell: true, cwd: frontendDir, stdio: 'inherit' });
+  spawn('npm exec --silent -- vite', { shell: true, cwd: frontendDir, stdio: 'inherit' });
 }
 
 /**
@@ -93,7 +93,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
   // Validate TypeScript only if the frontend uses TypeScript
   if (exists(tsConfig)) {
-    successful = execute(`npm exec -- tsc -b --noEmit`, frontendDir);
+    successful = execute(`npm exec --silent -- tsc -b --noEmit`, frontendDir);
 
     // Always cleanup generated build info files
     const allFiles = readDir(frontendDir);
@@ -104,7 +104,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Compile the frontend
-  if (!successful || !execute(`npm exec -- vite build --outDir ${outputDir} --emptyOutDir`, frontendDir)) {
+  if (!successful || !execute(`npm exec --silent -- vite build --outDir ${outputDir} --emptyOutDir`, frontendDir)) {
     // No need to log the error to the console because the output of the command will already be logged to the console
     process.exit(ExitStatus.ProjectCompileFailed);
   }

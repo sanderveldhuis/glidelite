@@ -126,7 +126,7 @@ describe('moduleBackend.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(4);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input4/backend'));
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input4 --rootDir input4 --outDir output4/opt/cfg'), 'input4');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input4 --rootDir input4 --outDir output4/opt/cfg'), 'input4');
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3002);
 
@@ -138,7 +138,7 @@ describe('moduleBackend.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(5);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input5/backend'));
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input5 --rootDir input5 --outDir output5/opt/cfg'), 'input5');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input5 --rootDir input5 --outDir output5/opt/cfg'), 'input5');
     expect(compileWorkers).toHaveBeenCalledTimes(2);
     expect(compileWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
     expect(compileApi).toHaveBeenCalledTimes(2);

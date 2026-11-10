@@ -133,7 +133,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
     if (tsFiles.length > 0) {
       // Compile the TypeScript files
-      if (!execute(`npm exec -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${tmpDir}`, workingDirectory)) {
+      if (!execute(`npm exec --silent -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${tmpDir}`, workingDirectory)) {
         return;
       }
     }

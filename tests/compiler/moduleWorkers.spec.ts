@@ -153,7 +153,7 @@ describe('moduleWorkers.ts', () => {
     expect(consoleLog).toHaveBeenNthCalledWith(1, path.normalize("\x1b[93mSkipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed.\x1b[39m"));
     expect(consoleLog).toHaveBeenNthCalledWith(2, path.normalize("\x1b[93mUse the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'.\x1b[39m"));
     expect(spawn).toHaveBeenCalledTimes(1);
-    expect(spawn).toHaveBeenLastCalledWith(path.normalize('npm exec -- ts-node input/backend/workers/sub2/sub3/test2.ts'), { shell: true, cwd: 'input', stdio: 'inherit' });
+    expect(spawn).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- ts-node input/backend/workers/sub2/sub3/test2.ts'), { shell: true, cwd: 'input', stdio: 'inherit' });
 
     // Files with .ts extension available in workers directory, valid instructions found, and spawned processes should be killed
     // Validating all regexes are not part of this test, it will be done in another test

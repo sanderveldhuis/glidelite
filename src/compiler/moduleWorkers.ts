@@ -165,7 +165,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       }
 
       // Run the worker and restart if the file has changed
-      const child = spawn(isTypeScript ? `npm exec -- ts-node ${filePath}` : `node ${filePath}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
+      const child = spawn(isTypeScript ? `npm exec --silent -- ts-node ${filePath}` : `node ${filePath}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
       children.push(child);
     }
   };

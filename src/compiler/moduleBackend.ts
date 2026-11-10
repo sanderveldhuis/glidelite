@@ -102,7 +102,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Compile the TypeScript files, if any, and modules afterwards
-  if (tsFiles.length <= 0 || execute(`npm exec -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${outputDir}`, workingDirectory)) {
+  if (tsFiles.length <= 0 || execute(`npm exec --silent -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${outputDir}`, workingDirectory)) {
     moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
     moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
   }

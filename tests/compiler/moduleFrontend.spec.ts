@@ -88,7 +88,7 @@ describe('moduleFrontend.ts', () => {
 
     run({ name: 'pkg' }, { name: 'cfg' }, 'output');
     expect(spawn).toHaveBeenCalledTimes(1);
-    expect(spawn).toHaveBeenLastCalledWith('npm exec -- vite', { shell: true, cwd: path.normalize('output/frontend'), stdio: 'inherit' });
+    expect(spawn).toHaveBeenLastCalledWith('npm exec --silent -- vite', { shell: true, cwd: path.normalize('output/frontend'), stdio: 'inherit' });
   });
 
   it('validate compiling the frontend', () => {
@@ -106,7 +106,7 @@ describe('moduleFrontend.ts', () => {
     expect(exists).toHaveBeenCalledTimes(1);
     expect(exists).toHaveBeenLastCalledWith(path.normalize('input1/frontend/tsconfig.json'));
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input1/frontend'));
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input1/frontend'));
 
     // No TypeScript validation needed and execution failed
     exists.mockReturnValueOnce(false);
@@ -115,7 +115,7 @@ describe('moduleFrontend.ts', () => {
     expect(exists).toHaveBeenCalledTimes(2);
     expect(exists).toHaveBeenLastCalledWith(path.normalize('input2/frontend/tsconfig.json'));
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input2/frontend'));
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input2/frontend'));
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3002);
 
@@ -129,8 +129,8 @@ describe('moduleFrontend.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(1);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input3/frontend'));
     expect(execute).toHaveBeenCalledTimes(4);
-    expect(execute).toHaveBeenNthCalledWith(3, 'npm exec -- tsc -b --noEmit', path.normalize('input3/frontend'));
-    expect(execute).toHaveBeenNthCalledWith(4, path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input3/frontend'));
+    expect(execute).toHaveBeenNthCalledWith(3, 'npm exec --silent -- tsc -b --noEmit', path.normalize('input3/frontend'));
+    expect(execute).toHaveBeenNthCalledWith(4, path.normalize('npm exec --silent -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input3/frontend'));
 
     // TypeScript validation needed, no generated files available, execution failed
     exists.mockReturnValueOnce(true);
@@ -142,7 +142,7 @@ describe('moduleFrontend.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(2);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input4/frontend'));
     expect(execute).toHaveBeenCalledTimes(5);
-    expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -b --noEmit', path.normalize('input4/frontend'));
+    expect(execute).toHaveBeenLastCalledWith('npm exec --silent -- tsc -b --noEmit', path.normalize('input4/frontend'));
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(3002);
 
@@ -159,7 +159,7 @@ describe('moduleFrontend.ts', () => {
     expect(remove).toHaveBeenCalledTimes(1);
     expect(remove).toHaveBeenLastCalledWith(path.normalize('path2/test.app.tsbuildinfo'));
     expect(execute).toHaveBeenCalledTimes(6);
-    expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -b --noEmit', path.normalize('input5/frontend'));
+    expect(execute).toHaveBeenLastCalledWith('npm exec --silent -- tsc -b --noEmit', path.normalize('input5/frontend'));
     expect(processExit).toHaveBeenCalledTimes(3);
     expect(processExit).toHaveBeenLastCalledWith(3002);
   });
