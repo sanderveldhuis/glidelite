@@ -8,12 +8,20 @@
   "keywords": [
     "GlideLite",
     "compiler",
+    "api",
+    "frontend",
+    "backend",
+    "worker",
+    "service",
+    "task",
     "web",
     "webapp",
     "website",
     "webpage",
     "JavaScript",
-    "TypeScript"
+    "TypeScript",
+    "Vite",
+    "Express"
   ],
   "bugs": {
     "url": "https://github.com/sanderveldhuis/glidelite/issues"
