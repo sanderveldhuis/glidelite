@@ -25,6 +25,7 @@
 import child_process from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -94,6 +95,7 @@ describe('moduleWorkers.ts', () => {
       cb();
       return 0;
     });
+    vi.spyOn(picocolors, 'yellow').mockImplementation(input => input as string);
 
     const watchEvent: string[] = [];
     const watchCallback: (() => void)[] = [];
@@ -150,8 +152,8 @@ describe('moduleWorkers.ts', () => {
     expect(readFile).toHaveBeenNthCalledWith(2, path.normalize('input/backend/workers/sub1/sub2/test1.ts'));
     expect(readFile).toHaveBeenNthCalledWith(3, path.normalize('input/backend/workers/sub2/sub3/test2.ts'));
     expect(consoleLog).toHaveBeenCalledTimes(2);
-    expect(consoleLog).toHaveBeenNthCalledWith(1, path.normalize("\x1b[93mSkipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed.\x1b[39m"));
-    expect(consoleLog).toHaveBeenNthCalledWith(2, path.normalize("\x1b[93mUse the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'.\x1b[39m"));
+    expect(consoleLog).toHaveBeenNthCalledWith(1, path.normalize("Skipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed."));
+    expect(consoleLog).toHaveBeenNthCalledWith(2, path.normalize("Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'."));
     expect(spawn).toHaveBeenCalledTimes(1);
     expect(spawn).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- ts-node input/backend/workers/sub2/sub3/test2.ts'), { shell: true, cwd: 'input', stdio: 'inherit' });
 
@@ -167,8 +169,8 @@ describe('moduleWorkers.ts', () => {
     expect(readFile).toHaveBeenNthCalledWith(4, path.normalize('input/backend/workers/sub1/sub2/test1.ts'));
     expect(readFile).toHaveBeenNthCalledWith(5, path.normalize('input/backend/workers/sub2/sub3/test2.ts'));
     expect(consoleLog).toHaveBeenCalledTimes(4);
-    expect(consoleLog).toHaveBeenNthCalledWith(3, path.normalize("\x1b[93mSkipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed.\x1b[39m"));
-    expect(consoleLog).toHaveBeenNthCalledWith(4, path.normalize("\x1b[93mUse the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'.\x1b[39m"));
+    expect(consoleLog).toHaveBeenNthCalledWith(3, path.normalize("Skipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed."));
+    expect(consoleLog).toHaveBeenNthCalledWith(4, path.normalize("Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'."));
     expect(spawn).toHaveBeenCalledTimes(2);
     if ('win32' === process.platform) {
       expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
@@ -189,8 +191,8 @@ describe('moduleWorkers.ts', () => {
     expect(readFile).toHaveBeenNthCalledWith(6, path.normalize('input/backend/workers/sub1/sub2/test1.js'));
     expect(readFile).toHaveBeenNthCalledWith(7, path.normalize('input/backend/workers/sub2/sub3/test2.js'));
     expect(consoleLog).toHaveBeenCalledTimes(6);
-    expect(consoleLog).toHaveBeenNthCalledWith(5, path.normalize("\x1b[93mSkipped worker: 'input/backend/workers/sub1/sub2/test1.js', only service workers are executed.\x1b[39m"));
-    expect(consoleLog).toHaveBeenNthCalledWith(6, path.normalize("\x1b[93mUse the following command to run the worker manually: 'node input/backend/workers/sub1/sub2/test1.js'.\x1b[39m"));
+    expect(consoleLog).toHaveBeenNthCalledWith(5, path.normalize("Skipped worker: 'input/backend/workers/sub1/sub2/test1.js', only service workers are executed."));
+    expect(consoleLog).toHaveBeenNthCalledWith(6, path.normalize("Use the following command to run the worker manually: 'node input/backend/workers/sub1/sub2/test1.js'."));
     expect(spawn).toHaveBeenCalledTimes(3);
     expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/backend/workers/sub2/sub3/test2.js'), { shell: true, cwd: 'input', stdio: 'inherit' });
   });

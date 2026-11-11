@@ -22,10 +22,7 @@
  * SOFTWARE.
  */
 
-import {
-  blue,
-  bold
-} from './color';
+import picocolors from 'picocolors';
 import { version } from './version';
 
 /**
@@ -34,27 +31,27 @@ import { version } from './version';
 export function printHelp(): void {
   console.log('glc: The GlideLite Compiler - Version', version, '\n');
 
-  console.log(`${bold('COMMAND LINE FLAGS')}\n`);
-  console.log(`     ${blue('--help, -h')}  Print this message.\n`);
-  console.log(`  ${blue('--version, -v')}  Print the compiler's version.\n`);
-  console.log(`     ${blue('--init, -i')}  Initializes a GlideLite project and creates all required files.\n`);
-  console.log(`      ${blue('--run, -r')}  Runs a GlideLite project locally for development.\n`);
-  console.log(`    ${blue('--clean, -c')}  Deletes the output of a project or module before compiling.\n`);
-  console.log(`   ${blue('--module, -m')}  Select a module to clean and/or compile.`);
+  console.log(`${picocolors.bold('COMMAND LINE FLAGS')}\n`);
+  console.log(`     ${picocolors.blue('--help, -h')}  Print this message.\n`);
+  console.log(`  ${picocolors.blue('--version, -v')}  Print the compiler's version.\n`);
+  console.log(`     ${picocolors.blue('--init, -i')}  Initializes a GlideLite project and creates all required files.\n`);
+  console.log(`      ${picocolors.blue('--run, -r')}  Runs a GlideLite project locally for development.\n`);
+  console.log(`    ${picocolors.blue('--clean, -c')}  Deletes the output of a project or module before compiling.\n`);
+  console.log(`   ${picocolors.blue('--module, -m')}  Select a module to clean and/or compile.`);
   console.log(`        one of:  backend, frontend\n`);
-  console.log(`   ${blue('--outDir, -o')}  Specify an output directory.\n`);
+  console.log(`   ${picocolors.blue('--outDir, -o')}  Specify an output directory.\n`);
 
-  console.log(`${bold('COMMON COMMANDS')}\n`);
-  console.log(blue('  glc'));
+  console.log(`${picocolors.bold('COMMON COMMANDS')}\n`);
+  console.log(picocolors.blue('  glc'));
   console.log('  Compiles the project in the working directory.\n');
-  console.log(blue('  glc -c'));
+  console.log(picocolors.blue('  glc -c'));
   console.log('  Cleans and compiles the project in the working directory.\n');
-  console.log(blue('  glc -m backend'));
+  console.log(picocolors.blue('  glc -m backend'));
   console.log('  Compiles the backend module in the working directory.\n');
-  console.log(blue('  glc -c -m backend'));
+  console.log(picocolors.blue('  glc -c -m backend'));
   console.log('  Cleans and compiles the backend module in the working directory.\n');
-  console.log(blue('  glc -r'));
+  console.log(picocolors.blue('  glc -r'));
   console.log('  Runs the project in the working directory.\n');
-  console.log(blue('  glc -i'));
+  console.log(picocolors.blue('  glc -i'));
   console.log('  Initializes a GlideLite project in the working directory.\n');
 }

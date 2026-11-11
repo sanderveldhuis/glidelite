@@ -28,7 +28,7 @@ import {
 } from 'node:child_process';
 import { watch } from 'node:fs';
 import { join } from 'node:path';
-import { yellow } from './color';
+import picocolors from 'picocolors';
 import {
   exists,
   makeDir,
@@ -157,8 +157,8 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       // Only run service workers
       if (instruction[1] !== 'service') {
         if (!skippedWorkers.includes(filePath)) {
-          console.log(yellow(`Skipped worker: '${filePath}', only service workers are executed.`));
-          console.log(yellow(`Use the following command to run the worker manually: '${isTypeScript ? `npx ts-node ${filePath}` : `node ${filePath}`}'.`));
+          console.log(picocolors.yellow(`Skipped worker: '${filePath}', only service workers are executed.`));
+          console.log(picocolors.yellow(`Use the following command to run the worker manually: '${isTypeScript ? `npx ts-node ${filePath}` : `node ${filePath}`}'.`));
         }
         skippedWorkers.push(filePath);
         continue;
