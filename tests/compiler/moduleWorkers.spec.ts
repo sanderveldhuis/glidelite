@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
+import chokidar from 'chokidar';
 import child_process from 'node:child_process';
-import fs from 'node:fs';
 import path from 'node:path';
 import picocolors from 'picocolors';
 import {
@@ -88,17 +88,22 @@ describe('moduleWorkers.ts', () => {
     const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
     const readFile = vi.spyOn(sysUtilsSrc, 'readFile');
     const spawn = vi.spyOn(child_process, 'spawn');
-    const watch = vi.spyOn(fs, 'watch');
+    const watch = vi.spyOn(chokidar, 'watch');
     // @ts-expect-error because function has return type Timeout
     vi.spyOn(global, 'setTimeout').mockImplementation((cb: () => void) => {
       cb();
       return 0;
     });
     vi.spyOn(picocolors, 'yellow').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'green').mockImplementation(input => input as string);
     vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'gray').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'cyan').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'bold').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'dim').mockImplementation(input => input as string);
 
     const watchEvent: string[] = [];
-    const watchCallback: (() => void)[] = [];
+    const watchCallback: ((a?: string | number | Error, b?: string) => void)[] = [];
     // @ts-expect-error because object has missing types which are not used in the test
     spawn.mockReturnValue({ pid: 1234 });
     watch.mockReturnValue({
@@ -116,26 +121,56 @@ describe('moduleWorkers.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(1);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
     expect(watch).toHaveBeenCalledTimes(2);
-    expect(watch).toHaveBeenNthCalledWith(1, path.normalize('input/backend/workers'), { recursive: true });
-    expect(watch).toHaveBeenNthCalledWith(2, path.normalize('input/shared'), { recursive: true });
+    expect(watch).toHaveBeenNthCalledWith(1, path.normalize('input/backend/workers'));
+    expect(watch).toHaveBeenNthCalledWith(2, path.normalize('input/shared'));
     expect(watchEvent.length).to.equal(2);
-    expect(watchEvent[0]).to.equal('change');
-    expect(watchEvent[1]).to.equal('change');
+    expect(watchEvent[0]).to.equal('ready');
+    expect(watchEvent[1]).to.equal('ready');
     expect(watchCallback.length).to.equal(2);
     expect(watchCallback[0]).to.not.equal(undefined);
     expect(watchCallback[1]).to.not.equal(undefined);
+
+    // Handle 'ready' event for both watchers
+    watchCallback[0]();
+    expect(watchEvent.length).to.equal(4);
+    expect(watchEvent[2]).to.equal('all');
+    expect(watchEvent[3]).to.equal('error');
+    expect(watchCallback.length).to.equal(4);
+    expect(watchCallback[2]).to.not.equal(undefined);
+    expect(watchCallback[3]).to.not.equal(undefined);
+    watchCallback[1]();
+    expect(watchEvent.length).to.equal(6);
+    expect(watchEvent[4]).to.equal('all');
+    expect(watchEvent[5]).to.equal('error');
+    expect(watchCallback.length).to.equal(6);
+    expect(watchCallback[4]).to.not.equal(undefined);
+    expect(watchCallback[5]).to.not.equal(undefined);
+
+    // Handle 'all' event with directories for both watchers
+    watchCallback[2]('changeDir', '');
+    watchCallback[4]('changeDir', '');
+
+    // Handle 'error' event for both watchers
+    watchCallback[3](new Error('Test error'));
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2003: ${path.normalize("Failed watching files at: 'input/backend/workers', Test error.")}`);
+    watchCallback[5](12);
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2003: ${path.normalize("Failed watching files at: 'input/shared'.")}`);
 
     // Files with .ts extension available in workers directory, invalid instructions found
     // Validating all regexes are not part of this test, it will be done in another test
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @test"\nconsole.log("done")');
-    watchCallback[0]();
+    watchCallback[2]('change', 'input/backend/workers/path');
     expect(readDir).toHaveBeenCalledTimes(2);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
     expect(readFile).toHaveBeenCalledTimes(1);
     expect(readFile).toHaveBeenLastCalledWith(path.normalize('path1/test1.ts'));
-    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleLog).toHaveBeenCalledTimes(1);
+    expect(consoleLog).toHaveBeenLastCalledWith(expect.any(String), '[glidelite]', '(worker)', 'source change', 'path');
+    expect(consoleError).toHaveBeenCalledTimes(3);
     expect(consoleError).toHaveBeenLastCalledWith(`error GL3002: ${path.normalize("Invalid compiler instruction found in: 'path1/test1.ts'.")}`);
 
     // Files with .ts extension available in workers directory, valid instructions found
@@ -143,15 +178,16 @@ describe('moduleWorkers.ts', () => {
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.ts', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc service"\nconsole.log("done")');
-    watchCallback[1]();
+    watchCallback[4]('change', 'input/shared/path');
     expect(readDir).toHaveBeenCalledTimes(3);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
     expect(readFile).toHaveBeenCalledTimes(3);
     expect(readFile).toHaveBeenNthCalledWith(2, path.normalize('input/backend/workers/sub1/sub2/test1.ts'));
     expect(readFile).toHaveBeenNthCalledWith(3, path.normalize('input/backend/workers/sub2/sub3/test2.ts'));
-    expect(consoleLog).toHaveBeenCalledTimes(2);
-    expect(consoleLog).toHaveBeenNthCalledWith(1, path.normalize("Skipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed."));
-    expect(consoleLog).toHaveBeenNthCalledWith(2, path.normalize("Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'."));
+    expect(consoleLog).toHaveBeenCalledTimes(4);
+    expect(consoleLog).toHaveBeenNthCalledWith(2, expect.any(String), '[glidelite]', '(shared)', 'source change', 'path');
+    expect(consoleLog).toHaveBeenNthCalledWith(3, path.normalize("Skipped worker: 'input/backend/workers/sub1/sub2/test1.ts', only service workers are executed."));
+    expect(consoleLog).toHaveBeenNthCalledWith(4, path.normalize("Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub1/sub2/test1.ts'."));
     expect(spawn).toHaveBeenCalledTimes(1);
     expect(spawn).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- ts-node input/backend/workers/sub2/sub3/test2.ts'), { shell: true, cwd: 'input', stdio: 'inherit' });
 
@@ -160,15 +196,16 @@ describe('moduleWorkers.ts', () => {
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.ts', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc task @monthly"\nconsole.log("done")');
-    watchCallback[1]();
+    watchCallback[4]('change', 'input/shared/path');
     expect(readDir).toHaveBeenCalledTimes(4);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
     expect(readFile).toHaveBeenCalledTimes(5);
     expect(readFile).toHaveBeenNthCalledWith(4, path.normalize('input/backend/workers/sub1/sub2/test1.ts'));
     expect(readFile).toHaveBeenNthCalledWith(5, path.normalize('input/backend/workers/sub2/sub3/test2.ts'));
-    expect(consoleLog).toHaveBeenCalledTimes(4);
-    expect(consoleLog).toHaveBeenNthCalledWith(3, path.normalize("Skipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed."));
-    expect(consoleLog).toHaveBeenNthCalledWith(4, path.normalize("Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'."));
+    expect(consoleLog).toHaveBeenCalledTimes(7);
+    expect(consoleLog).toHaveBeenNthCalledWith(5, expect.any(String), '[glidelite]', '(shared)', 'source change', 'path');
+    expect(consoleLog).toHaveBeenNthCalledWith(6, path.normalize("Skipped worker: 'input/backend/workers/sub2/sub3/test2.ts', only service workers are executed."));
+    expect(consoleLog).toHaveBeenNthCalledWith(7, path.normalize("Use the following command to run the worker manually: 'npx ts-node input/backend/workers/sub2/sub3/test2.ts'."));
     expect(spawn).toHaveBeenCalledTimes(2);
     if ('win32' === process.platform) {
       expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
@@ -182,15 +219,16 @@ describe('moduleWorkers.ts', () => {
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test1.js', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.js', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc service"\nconsole.log("done")');
-    watchCallback[1]();
+    watchCallback[4]('change', 'input/shared/path');
     expect(readDir).toHaveBeenCalledTimes(5);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/workers'));
     expect(readFile).toHaveBeenCalledTimes(7);
     expect(readFile).toHaveBeenNthCalledWith(6, path.normalize('input/backend/workers/sub1/sub2/test1.js'));
     expect(readFile).toHaveBeenNthCalledWith(7, path.normalize('input/backend/workers/sub2/sub3/test2.js'));
-    expect(consoleLog).toHaveBeenCalledTimes(6);
-    expect(consoleLog).toHaveBeenNthCalledWith(5, path.normalize("Skipped worker: 'input/backend/workers/sub1/sub2/test1.js', only service workers are executed."));
-    expect(consoleLog).toHaveBeenNthCalledWith(6, path.normalize("Use the following command to run the worker manually: 'node input/backend/workers/sub1/sub2/test1.js'."));
+    expect(consoleLog).toHaveBeenCalledTimes(10);
+    expect(consoleLog).toHaveBeenNthCalledWith(8, expect.any(String), '[glidelite]', '(shared)', 'source change', 'path');
+    expect(consoleLog).toHaveBeenNthCalledWith(9, path.normalize("Skipped worker: 'input/backend/workers/sub1/sub2/test1.js', only service workers are executed."));
+    expect(consoleLog).toHaveBeenNthCalledWith(10, path.normalize("Use the following command to run the worker manually: 'node input/backend/workers/sub1/sub2/test1.js'."));
     expect(spawn).toHaveBeenCalledTimes(3);
     expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/backend/workers/sub2/sub3/test2.js'), { shell: true, cwd: 'input', stdio: 'inherit' });
   });

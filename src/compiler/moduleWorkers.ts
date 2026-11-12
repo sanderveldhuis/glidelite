@@ -22,12 +22,15 @@
  * SOFTWARE.
  */
 
+import chokidar from 'chokidar';
 import {
   ChildProcess,
   spawn
 } from 'node:child_process';
-import { watch } from 'node:fs';
-import { join } from 'node:path';
+import {
+  join,
+  relative
+} from 'node:path';
 import picocolors from 'picocolors';
 import {
   exists,
@@ -188,17 +191,50 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     }, restartDelay);
   };
 
+  // Internal function to handle watch events
+  const handleWatchEvent = (event: string, path: string, type: string) => {
+    // Ignore all directory events
+    if (event.endsWith('Dir')) {
+      return;
+    }
+
+    // Restart workers
+    console.log(
+      picocolors.dim(new Date().toLocaleTimeString()),
+      picocolors.cyan(picocolors.bold('[glidelite]')),
+      picocolors.gray(picocolors.dim(`(${type})`)),
+      picocolors.green(`source ${event}`),
+      picocolors.dim(path)
+    );
+    restartWorkers();
+  };
+
+  // Internal function to handle watch errors
+  const handleWatchError = (error: unknown, path: string) => {
+    console.error(picocolors.red(`error GL${String(ExitStatus.DirectoryWatchFailed)}: Failed watching files at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`));
+  };
+
   // Start running all workers
   runWorkers();
 
   // Watch for changes in files and restart workers when files changed
-  const workersWatcher = watch(workersDir, { recursive: true });
-  const sharedWatcher = watch(sharedDir, { recursive: true });
-  workersWatcher.on('change', () => {
-    restartWorkers();
+  const workersWatcher = chokidar.watch(workersDir);
+  const sharedWatcher = chokidar.watch(sharedDir);
+  workersWatcher.on('ready', () => {
+    workersWatcher.on('all', (event, path) => {
+      handleWatchEvent(event, relative(workersDir, path), 'worker');
+    });
+    workersWatcher.on('error', error => {
+      handleWatchError(error, workersDir);
+    });
   });
-  sharedWatcher.on('change', () => {
-    restartWorkers();
+  sharedWatcher.on('ready', () => {
+    sharedWatcher.on('all', (event, path) => {
+      handleWatchEvent(event, relative(sharedDir, path), 'shared');
+    });
+    sharedWatcher.on('error', error => {
+      handleWatchError(error, sharedDir);
+    });
   });
 }
 

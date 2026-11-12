@@ -75,6 +75,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "latest",
     "@vitejs/plugin-react": "^6.1.2",
+    "chokidar": "^6.0.0",
     "directory-import": "^3.3.2",
     "express": "^5.3.0",
     "http-graceful-shutdown": "^4.0.0",
