@@ -23,6 +23,7 @@
  */
 
 import { join } from 'node:path';
+import picocolors from 'picocolors';
 import {
   exists,
   makeDir,
@@ -58,31 +59,31 @@ export function initProject(workingDirectory: string): void {
 
   // Check if all required files are not yet available to prevent overwriting existing user data
   if (exists(glConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'glconfig.json' file already defined at: '${glConfig}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileAlreadyExists)}: A 'glconfig.json' file already defined at: '${glConfig}'.`));
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(tsConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${tsConfig}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileAlreadyExists)}: A 'tsconfig.json' file already defined at: '${tsConfig}'.`));
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendViteConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'vite.config.ts' file already defined at: '${frontendViteConfig}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileAlreadyExists)}: A 'vite.config.ts' file already defined at: '${frontendViteConfig}'.`));
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendTsConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.json' file already defined at: '${frontendTsConfig}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileAlreadyExists)}: A 'tsconfig.json' file already defined at: '${frontendTsConfig}'.`));
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendAppTsConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.app.json' file already defined at: '${frontendAppTsConfig}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileAlreadyExists)}: A 'tsconfig.app.json' file already defined at: '${frontendAppTsConfig}'.`));
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendNodeTsConfig)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'tsconfig.node.json' file already defined at: '${frontendNodeTsConfig}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileAlreadyExists)}: A 'tsconfig.node.json' file already defined at: '${frontendNodeTsConfig}'.`));
     return process.exit(ExitStatus.FileAlreadyExists);
   }
   if (exists(frontendIndex)) {
-    console.error(`error GL${String(ExitStatus.FileAlreadyExists)}:`, `A 'index.html' file already defined at: '${frontendIndex}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileAlreadyExists)}: A 'index.html' file already defined at: '${frontendIndex}'.`));
     return process.exit(ExitStatus.FileAlreadyExists);
   }
 

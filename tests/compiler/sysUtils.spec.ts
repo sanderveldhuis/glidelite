@@ -24,6 +24,7 @@
 
 import child_process from 'node:child_process';
 import fs from 'node:fs';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -79,6 +80,7 @@ describe('sysUtils.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const mkdirSync = vi.spyOn(fs, 'mkdirSync').mockImplementation((): undefined => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     makeDir('test');
     expect(mkdirSync).toHaveBeenCalledTimes(1);
@@ -89,7 +91,7 @@ describe('sysUtils.ts', () => {
     expect(mkdirSync).toHaveBeenCalledTimes(2);
     expect(mkdirSync).toHaveBeenLastCalledWith('test', { recursive: true });
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2001:', "Failed creating directory at: 'test', unknown.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2001: Failed creating directory at: 'test', unknown.`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2001);
 
@@ -98,7 +100,7 @@ describe('sysUtils.ts', () => {
     expect(mkdirSync).toHaveBeenCalledTimes(3);
     expect(mkdirSync).toHaveBeenLastCalledWith('test', { recursive: true });
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2001:', "Failed creating directory at: 'test'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2001: Failed creating directory at: 'test'.`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(2001);
   });
@@ -108,6 +110,7 @@ describe('sysUtils.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const writeFileSync = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     makeFile('test', 'content');
     expect(writeFileSync).toHaveBeenCalledTimes(1);
@@ -118,7 +121,7 @@ describe('sysUtils.ts', () => {
     expect(writeFileSync).toHaveBeenCalledTimes(2);
     expect(writeFileSync).toHaveBeenLastCalledWith('test', 'content');
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2011:', "Failed creating file at: 'test', unknown.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2011: Failed creating file at: 'test', unknown.`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2011);
 
@@ -127,7 +130,7 @@ describe('sysUtils.ts', () => {
     expect(writeFileSync).toHaveBeenCalledTimes(3);
     expect(writeFileSync).toHaveBeenLastCalledWith('test', 'content');
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2011:', "Failed creating file at: 'test'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2011: Failed creating file at: 'test'.`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(2011);
   });
@@ -137,6 +140,7 @@ describe('sysUtils.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const copyFileSync = vi.spyOn(fs, 'copyFileSync').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     copyFile('source', 'dest');
     expect(copyFileSync).toHaveBeenCalledTimes(1);
@@ -147,7 +151,7 @@ describe('sysUtils.ts', () => {
     expect(copyFileSync).toHaveBeenCalledTimes(2);
     expect(copyFileSync).toHaveBeenLastCalledWith('source', 'dest');
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2013:', "Failed copying file from: 'source', to: 'dest', unknown.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2013: Failed copying file from: 'source', to: 'dest', unknown.`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2013);
 
@@ -156,7 +160,7 @@ describe('sysUtils.ts', () => {
     expect(copyFileSync).toHaveBeenCalledTimes(3);
     expect(copyFileSync).toHaveBeenLastCalledWith('source', 'dest');
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2013:', "Failed copying file from: 'source', to: 'dest'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2013: Failed copying file from: 'source', to: 'dest'.`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(2013);
   });
@@ -166,6 +170,7 @@ describe('sysUtils.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const readdirSync = vi.spyOn(fs, 'readdirSync');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     readdirSync.mockReturnValueOnce([]);
     const result = readDir('test');
@@ -178,7 +183,7 @@ describe('sysUtils.ts', () => {
     expect(readdirSync).toHaveBeenCalledTimes(2);
     expect(readdirSync).toHaveBeenLastCalledWith('test', { withFileTypes: true, recursive: true });
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2002:', "Failed reading directory at: 'test', unknown.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2002: Failed reading directory at: 'test', unknown.`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2002);
 
@@ -187,7 +192,7 @@ describe('sysUtils.ts', () => {
     expect(readdirSync).toHaveBeenCalledTimes(3);
     expect(readdirSync).toHaveBeenLastCalledWith('test', { withFileTypes: true, recursive: true });
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2002:', "Failed reading directory at: 'test'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2002: Failed reading directory at: 'test'.`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(2002);
   });
@@ -197,6 +202,7 @@ describe('sysUtils.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const readFileSync = vi.spyOn(fs, 'readFileSync');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     readFileSync.mockReturnValueOnce(Buffer.from('content'));
     const result = readFile('test');
@@ -209,7 +215,7 @@ describe('sysUtils.ts', () => {
     expect(readFileSync).toHaveBeenCalledTimes(2);
     expect(readFileSync).toHaveBeenLastCalledWith('test');
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading file at: 'test', unknown.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2012: Failed reading file at: 'test', unknown.`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2012);
 
@@ -218,7 +224,7 @@ describe('sysUtils.ts', () => {
     expect(readFileSync).toHaveBeenCalledTimes(3);
     expect(readFileSync).toHaveBeenLastCalledWith('test');
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading file at: 'test'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2012: Failed reading file at: 'test'.`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(2012);
   });
@@ -228,6 +234,7 @@ describe('sysUtils.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const readFileSync = vi.spyOn(fs, 'readFileSync');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     readFileSync.mockReturnValueOnce(Buffer.from('{"hello":"world"}'));
     const result = readJsonFile('test');
@@ -240,7 +247,7 @@ describe('sysUtils.ts', () => {
     expect(readFileSync).toHaveBeenCalledTimes(2);
     expect(readFileSync).toHaveBeenLastCalledWith('test');
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading JSON at: 'test', Unexpected token 'i', \"invalid-json\" is not valid JSON.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2012: Failed reading JSON at: 'test', Unexpected token 'i', "invalid-json" is not valid JSON.`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2012);
 
@@ -249,7 +256,7 @@ describe('sysUtils.ts', () => {
     expect(readFileSync).toHaveBeenCalledTimes(3);
     expect(readFileSync).toHaveBeenLastCalledWith('test');
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading JSON at: 'test', unknown.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2012: Failed reading JSON at: 'test', unknown.`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(2012);
 
@@ -258,7 +265,7 @@ describe('sysUtils.ts', () => {
     expect(readFileSync).toHaveBeenCalledTimes(4);
     expect(readFileSync).toHaveBeenLastCalledWith('test');
     expect(consoleError).toHaveBeenCalledTimes(3);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2012:', "Failed reading JSON at: 'test'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2012: Failed reading JSON at: 'test'.`);
     expect(processExit).toHaveBeenCalledTimes(3);
     expect(processExit).toHaveBeenLastCalledWith(2012);
   });

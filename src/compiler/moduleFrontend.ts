@@ -24,6 +24,7 @@
 
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
+import picocolors from 'picocolors';
 import {
   execute,
   exists,
@@ -60,7 +61,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
   const viteConfigCts = join(workingDirectory, 'frontend', 'vite.config.cts');
 
   if (!exists(viteConfigJs) && !exists(viteConfigMjs) && !exists(viteConfigCjs) && !exists(viteConfigTs) && !exists(viteConfigMts) && !exists(viteConfigCts)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${viteConfigTs}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid project found at: '${workingDirectory}', missing file '${viteConfigTs}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }

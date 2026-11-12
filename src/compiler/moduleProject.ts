@@ -26,6 +26,7 @@ import {
   dirname,
   join
 } from 'node:path';
+import picocolors from 'picocolors';
 import * as moduleBackend from './moduleBackend';
 import * as moduleFrontend from './moduleFrontend';
 import {
@@ -75,7 +76,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 
   // Validate homepage
   if (typeof config.homepage !== 'undefined' && (typeof config.homepage !== 'string' || !new RegExp(regexUrl).test(config.homepage))) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', invalid homepage '${typeof config.homepage === 'string' ? config.homepage : JSON.stringify(config.homepage)}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid project found at: '${workingDirectory}', invalid homepage '${typeof config.homepage === 'string' ? config.homepage : JSON.stringify(config.homepage)}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }

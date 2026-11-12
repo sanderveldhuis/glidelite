@@ -23,6 +23,7 @@
  */
 
 import path from 'node:path';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -43,13 +44,14 @@ describe('initProject.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtils, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     exists.mockReturnValueOnce(true);
     initProject('test');
     expect(exists).toHaveBeenCalledTimes(1);
     expect(exists).toHaveBeenLastCalledWith(path.normalize('test/glconfig.json'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'glconfig.json' file already defined at: 'test/glconfig.json'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2010: ${path.normalize("A 'glconfig.json' file already defined at: 'test/glconfig.json'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2010);
   });
@@ -59,13 +61,14 @@ describe('initProject.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtils, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     exists.mockReturnValueOnce(false).mockReturnValueOnce(true);
     initProject('test');
     expect(exists).toHaveBeenNthCalledWith(1, path.normalize('test/glconfig.json'));
     expect(exists).toHaveBeenNthCalledWith(2, path.normalize('test/tsconfig.json'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'tsconfig.json' file already defined at: 'test/tsconfig.json'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2010: ${path.normalize("A 'tsconfig.json' file already defined at: 'test/tsconfig.json'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2010);
   });
@@ -75,6 +78,7 @@ describe('initProject.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtils, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     exists.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true);
     initProject('test');
@@ -83,7 +87,7 @@ describe('initProject.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(2, path.normalize('test/tsconfig.json'));
     expect(exists).toHaveBeenNthCalledWith(3, path.normalize('test/frontend/vite.config.ts'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'vite.config.ts' file already defined at: 'test/frontend/vite.config.ts'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2010: ${path.normalize("A 'vite.config.ts' file already defined at: 'test/frontend/vite.config.ts'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2010);
   });
@@ -93,6 +97,7 @@ describe('initProject.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtils, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     exists.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true);
     initProject('test');
@@ -102,7 +107,7 @@ describe('initProject.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(3, path.normalize('test/frontend/vite.config.ts'));
     expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/tsconfig.json'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'tsconfig.json' file already defined at: 'test/frontend/tsconfig.json'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2010: ${path.normalize("A 'tsconfig.json' file already defined at: 'test/frontend/tsconfig.json'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2010);
   });
@@ -112,6 +117,7 @@ describe('initProject.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtils, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     exists.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true);
     initProject('test');
@@ -122,7 +128,7 @@ describe('initProject.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(4, path.normalize('test/frontend/tsconfig.json'));
     expect(exists).toHaveBeenNthCalledWith(5, path.normalize('test/frontend/tsconfig.app.json'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'tsconfig.app.json' file already defined at: 'test/frontend/tsconfig.app.json'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2010: ${path.normalize("A 'tsconfig.app.json' file already defined at: 'test/frontend/tsconfig.app.json'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2010);
   });
@@ -132,6 +138,7 @@ describe('initProject.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtils, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     exists.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true);
     initProject('test');
@@ -143,7 +150,7 @@ describe('initProject.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(5, path.normalize('test/frontend/tsconfig.app.json'));
     expect(exists).toHaveBeenNthCalledWith(6, path.normalize('test/frontend/tsconfig.node.json'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'tsconfig.node.json' file already defined at: 'test/frontend/tsconfig.node.json'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2010: ${path.normalize("A 'tsconfig.node.json' file already defined at: 'test/frontend/tsconfig.node.json'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2010);
   });
@@ -153,6 +160,7 @@ describe('initProject.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtils, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     exists.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true);
     initProject('test');
@@ -165,7 +173,7 @@ describe('initProject.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(6, path.normalize('test/frontend/tsconfig.node.json'));
     expect(exists).toHaveBeenNthCalledWith(7, path.normalize('test/frontend/index.html'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL2010:', path.normalize("A 'index.html' file already defined at: 'test/frontend/index.html'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2010: ${path.normalize("A 'index.html' file already defined at: 'test/frontend/index.html'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(2010);
   });

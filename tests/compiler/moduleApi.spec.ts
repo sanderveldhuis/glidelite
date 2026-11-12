@@ -25,6 +25,7 @@
 import child_process from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -53,6 +54,7 @@ describe('moduleApi.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtilsSrc, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     // All required files and directories exist
     exists.mockReturnValueOnce(true).mockReturnValueOnce(true);
@@ -67,7 +69,7 @@ describe('moduleApi.ts', () => {
     expect(exists).toHaveBeenCalledTimes(3);
     expect(exists).toHaveBeenLastCalledWith(path.normalize('input2/backend/api/routers'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing directory 'input2/backend/api/routers'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3001: ${path.normalize("No valid project found at: 'input2', missing directory 'input2/backend/api/routers'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
 
@@ -78,7 +80,7 @@ describe('moduleApi.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(4, path.normalize('input3/backend/api/routers'));
     expect(exists).toHaveBeenNthCalledWith(5, path.normalize('input3/node_modules/glidelite/lib/apiserver/run.js'));
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3001: ${path.normalize("No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'.")}`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });

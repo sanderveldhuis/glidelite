@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import picocolors from 'picocolors';
 import {
   Command,
   CommandOptions,
@@ -92,7 +93,7 @@ function getOptionDeclarationFromName(optionName: string): CommandLineOption | u
 function parseOptionValue(commandLineArgs: readonly string[], i: number, option: CommandLineOption, options: CommandOptions): number {
   // Only booleans do not require a value
   if (!commandLineArgs[i] && 'boolean' !== option.type) {
-    console.error(`error GL${String(ExitStatus.CommandLineArgumentMissing)}:`, `Compiler option '${option.name}' expects an argument.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.CommandLineArgumentMissing)}: Compiler option '${option.name}' expects an argument.`));
     return process.exit(ExitStatus.CommandLineArgumentMissing);
   }
 
@@ -112,7 +113,7 @@ function parseOptionValue(commandLineArgs: readonly string[], i: number, option:
     }
     default: {
       if (option.values && !option.values.includes(value)) {
-        console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Argument for '${option.name}' option must be: '${option.values.join("', '")}'.`);
+        console.error(picocolors.red(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}: Argument for '${option.name}' option must be: '${option.values.join("', '")}'.`));
         return process.exit(ExitStatus.CommandLineArgumentInvalid);
       }
       else {
@@ -151,7 +152,7 @@ export function parseCommandLine(commandLineArgs: readonly string[]): Command {
         i = parseOptionValue(commandLineArgs, i, option, options);
       }
       else {
-        console.error(`error GL${String(ExitStatus.CommandLineOptionUnknown)}:`, `Unknown compiler option '${arg}'.`);
+        console.error(picocolors.red(`error GL${String(ExitStatus.CommandLineOptionUnknown)}: Unknown compiler option '${arg}'.`));
         return process.exit(ExitStatus.CommandLineOptionUnknown);
       }
     }

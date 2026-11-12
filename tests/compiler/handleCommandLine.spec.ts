@@ -23,6 +23,7 @@
  */
 
 import path from 'node:path';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -116,13 +117,14 @@ describe('handleCommandLine.ts', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     const options: CommandOptions = { module: 'other' };
     const paths: string[] = [];
     const command: Command = { options, paths };
     handleCommandLine(command);
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Compiler for module 'other' not implemented.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL1003: Compiler for module 'other' not implemented.");
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(1003);
   });

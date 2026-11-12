@@ -54,6 +54,7 @@ describe('moduleWorkers.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtilsSrc, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     // All required files and directories exist
     exists.mockReturnValueOnce(true);
@@ -67,7 +68,7 @@ describe('moduleWorkers.ts', () => {
     expect(exists).toHaveBeenCalledTimes(2);
     expect(exists).toHaveBeenNthCalledWith(2, path.normalize('input2/backend/workers'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing directory 'input2/backend/workers'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3001: ${path.normalize("No valid project found at: 'input2', missing directory 'input2/backend/workers'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });
@@ -96,6 +97,7 @@ describe('moduleWorkers.ts', () => {
       return 0;
     });
     vi.spyOn(picocolors, 'yellow').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     const watchEvent: string[] = [];
     const watchCallback: (() => void)[] = [];
@@ -136,7 +138,7 @@ describe('moduleWorkers.ts', () => {
     expect(readFile).toHaveBeenCalledTimes(1);
     expect(readFile).toHaveBeenLastCalledWith(path.normalize('path1/test1.ts'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3002:', path.normalize("Invalid compiler instruction found in: 'path1/test1.ts'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3002: ${path.normalize("Invalid compiler instruction found in: 'path1/test1.ts'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3002);
 
@@ -205,6 +207,7 @@ describe('moduleWorkers.ts', () => {
     const makeFile = vi.spyOn(sysUtilsSrc, 'makeFile').mockImplementation(() => {/*Emtpy*/});
     const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
     const readFile = vi.spyOn(sysUtilsSrc, 'readFile');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     // No files available in workers directory
     readDir.mockReturnValueOnce([]);
@@ -241,7 +244,7 @@ describe('moduleWorkers.ts', () => {
     expect(readFile).toHaveBeenCalledTimes(3);
     expect(readFile).toHaveBeenLastCalledWith(path.normalize('path1/test1.ts'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3002:', path.normalize("Invalid compiler instruction found in: 'path1/test1.ts'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3002: ${path.normalize("Invalid compiler instruction found in: 'path1/test1.ts'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3002);
 

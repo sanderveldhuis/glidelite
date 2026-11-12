@@ -32,6 +32,7 @@ import {
   join,
   relative
 } from 'node:path';
+import picocolors from 'picocolors';
 import {
   copyFile,
   execute,
@@ -85,11 +86,11 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
   const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'apiserver', 'run.js');
 
   if (!exists(apiRouters)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${apiRouters}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid project found at: '${workingDirectory}', missing directory '${apiRouters}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
   if (!exists(glideliteApiJs)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid GlideLite dependency found at: '${workingDirectory}', missing file '${glideliteApiJs}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid GlideLite dependency found at: '${workingDirectory}', missing file '${glideliteApiJs}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }

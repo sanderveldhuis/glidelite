@@ -92,7 +92,7 @@ function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> | u
     // Check whether compiler instruction is valid
     const instruction = new RegExp(regex).exec(content);
     if (instruction === null) {
-      console.error(`error GL${String(ExitStatus.ProjectCompileFailed)}:`, `Invalid compiler instruction found in: '${filePath}'.`);
+      console.error(picocolors.red(`error GL${String(ExitStatus.ProjectCompileFailed)}: Invalid compiler instruction found in: '${filePath}'.`));
       return process.exit(ExitStatus.ProjectCompileFailed);
     }
 
@@ -124,7 +124,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
   const workersDir = join(workingDirectory, 'backend', 'workers');
 
   if (!exists(workersDir)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${workersDir}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid project found at: '${workingDirectory}', missing directory '${workersDir}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }

@@ -24,6 +24,7 @@
 
 import child_process from 'node:child_process';
 import path from 'node:path';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -51,6 +52,7 @@ describe('moduleFrontend.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtilsSrc, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     // All required files and directories exist
     exists.mockReturnValueOnce(true);
@@ -69,7 +71,7 @@ describe('moduleFrontend.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(6, path.normalize('input2/frontend/vite.config.mts'));
     expect(exists).toHaveBeenNthCalledWith(7, path.normalize('input2/frontend/vite.config.cts'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing file 'input2/frontend/vite.config.ts'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3001: ${path.normalize("No valid project found at: 'input2', missing file 'input2/frontend/vite.config.ts'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });
