@@ -68,7 +68,7 @@ const restartDelay = 1000;
  * Searches for all TypeScript and JavaScript files with a valid compiler instruction.
  * @details this function will search directories recursively
  * @param workersDir the directory containing the TypeScript and JavaScript files
- * @returns the list of worker files, or `undefined` on error
+ * @returns the list of worker files, or `undefined` on invalid compiler instructions
  */
 function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> | undefined {
   const workerFiles: Record<string, RegExpExecArray> = {};
@@ -93,7 +93,7 @@ function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> | u
     const instruction = new RegExp(regex).exec(content);
     if (instruction === null) {
       console.error(picocolors.red(`error GL${String(ExitStatus.ProjectCompileFailed)}: Invalid compiler instruction found in: '${filePath}'.`));
-      return process.exit(ExitStatus.ProjectCompileFailed);
+      return;
     }
 
     // Append the executable worker
@@ -214,7 +214,11 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
   // Get a list of all worker files
   const workerFiles = getWorkerFiles(workersDir);
-  if (workerFiles === undefined || Object.keys(workerFiles).length <= 0) {
+  if (workerFiles === undefined) {
+    // Invalid compiler instructions found
+    return process.exit(ExitStatus.ProjectCompileFailed);
+  }
+  if (Object.keys(workerFiles).length <= 0) {
     // No worker files found
     return;
   }

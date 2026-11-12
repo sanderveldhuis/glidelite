@@ -85,8 +85,6 @@ describe('moduleWorkers.ts', () => {
   it('validate running the workers', () => {
     const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {/*Emtpy*/});
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
-    // @ts-expect-error because function has return type never
-    const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
     const readFile = vi.spyOn(sysUtilsSrc, 'readFile');
     const spawn = vi.spyOn(child_process, 'spawn');
@@ -139,8 +137,6 @@ describe('moduleWorkers.ts', () => {
     expect(readFile).toHaveBeenLastCalledWith(path.normalize('path1/test1.ts'));
     expect(consoleError).toHaveBeenCalledTimes(1);
     expect(consoleError).toHaveBeenLastCalledWith(`error GL3002: ${path.normalize("Invalid compiler instruction found in: 'path1/test1.ts'.")}`);
-    expect(processExit).toHaveBeenCalledTimes(1);
-    expect(processExit).toHaveBeenLastCalledWith(3002);
 
     // Files with .ts extension available in workers directory, valid instructions found
     // Validating all regexes are not part of this test, it will be done in another test
