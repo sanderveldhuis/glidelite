@@ -41,7 +41,7 @@ import {
 } from '../../src/compiler/moduleWorkers';
 import * as sysUtilsSrc from '../../src/compiler/sysUtils';
 
-vi.mock('node:fs');
+vi.mock('chokidar');
 vi.mock('node:child_process');
 
 describe('moduleWorkers.ts', () => {

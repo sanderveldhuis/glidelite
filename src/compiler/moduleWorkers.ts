@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import chokidar from 'chokidar';
+import { watch } from 'chokidar';
 import {
   ChildProcess,
   spawn
@@ -218,8 +218,8 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   runWorkers();
 
   // Watch for changes in files and restart workers when files changed
-  const workersWatcher = chokidar.watch(workersDir);
-  const sharedWatcher = chokidar.watch(sharedDir);
+  const workersWatcher = watch(workersDir);
+  const sharedWatcher = watch(sharedDir);
   workersWatcher.on('ready', () => {
     workersWatcher.on('all', (event, path) => {
       handleWatchEvent(event, relative(workersDir, path), 'worker');
