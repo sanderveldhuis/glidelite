@@ -85,12 +85,61 @@ describe('moduleFrontend.ts', () => {
   });
 
   it('validate running the frontend', () => {
-    // @ts-expect-error because function has return type ChildProcess
-    const spawn = vi.spyOn(child_process, 'spawn').mockImplementation(() => {/*Emtpy*/});
+    const stdOut = vi.spyOn(process.stdout, 'write');
+    const stdErr = vi.spyOn(process.stderr, 'write');
+    const spawn = vi.spyOn(child_process, 'spawn');
 
+    const spawnOutEvent: string[] = [];
+    const spawnOutCallback: ((data: Buffer) => void)[] = [];
+    const spawnErrEvent: string[] = [];
+    const spawnErrCallback: ((data: Buffer) => void)[] = [];
+    spawn.mockReturnValue({
+      stdout: {
+        // @ts-expect-error because function has return type FSWatcher
+        on: (event: string, callback: (data: Buffer) => void) => {
+          spawnOutEvent.push(event);
+          spawnOutCallback.push(callback);
+          return 0;
+        }
+      },
+      stderr: {
+        // @ts-expect-error because function has return type FSWatcher
+        on: (event: string, callback: (data: Buffer) => void) => {
+          spawnErrEvent.push(event);
+          spawnErrCallback.push(callback);
+          return 0;
+        }
+      }
+    });
+
+    // Check the spawned process events and callbacks
     run({ name: 'pkg' }, { name: 'cfg' }, 'output');
     expect(spawn).toHaveBeenCalledTimes(1);
-    expect(spawn).toHaveBeenLastCalledWith('npm exec --silent -- vite', { shell: true, cwd: path.normalize('output/frontend'), stdio: 'inherit' });
+    expect(spawn).toHaveBeenLastCalledWith('npm exec --silent -- vite', { shell: true, cwd: path.normalize('output/frontend') });
+    expect(spawnOutEvent.length).to.equal(1);
+    expect(spawnOutEvent[0]).to.equal('data');
+    expect(spawnErrEvent.length).to.equal(1);
+    expect(spawnErrEvent[0]).to.equal('data');
+    expect(spawnOutCallback.length).to.equal(1);
+    expect(spawnOutCallback[0]).to.not.equal(undefined);
+    expect(spawnErrCallback.length).to.equal(1);
+    expect(spawnErrCallback[0]).to.not.equal(undefined);
+
+    // Check the callbacks without screen clear
+    spawnOutCallback[0](Buffer.from('Test1'));
+    expect(stdOut).toHaveBeenCalledTimes(1);
+    expect(stdOut).toHaveBeenLastCalledWith(Buffer.from('Test1'));
+    spawnErrCallback[0](Buffer.from('Test2'));
+    expect(stdErr).toHaveBeenCalledTimes(1);
+    expect(stdErr).toHaveBeenLastCalledWith(Buffer.from('Test2'));
+
+    // Check the callbacks with screen clear
+    spawnOutCallback[0](Buffer.from('\nTest1'));
+    expect(stdOut).toHaveBeenCalledTimes(2);
+    expect(stdOut).toHaveBeenLastCalledWith(Buffer.from('Test1'));
+    spawnErrCallback[0](Buffer.from('\nTest2'));
+    expect(stdErr).toHaveBeenCalledTimes(2);
+    expect(stdErr).toHaveBeenLastCalledWith(Buffer.from('Test2'));
   });
 
   it('validate compiling the frontend', () => {

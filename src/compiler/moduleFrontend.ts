@@ -76,7 +76,14 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const frontendDir = join(workingDirectory, 'frontend');
 
   // Run the frontend
-  spawn('npm exec --silent -- vite', { shell: true, cwd: frontendDir, stdio: 'inherit' });
+  const child = spawn('npm exec --silent -- vite', { shell: true, cwd: frontendDir });
+  // Suppress screen clearing by Vite
+  child.stdout.on('data', (data: Buffer) => {
+    process.stdout.write(data[0] == 0x0a ? data.subarray(1) : data);
+  });
+  child.stderr.on('data', (data: Buffer) => {
+    process.stderr.write(data[0] == 0x0a ? data.subarray(1) : data);
+  });
 }
 
 /**
