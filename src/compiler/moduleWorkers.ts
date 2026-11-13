@@ -22,13 +22,16 @@
  * SOFTWARE.
  */
 
+import { watch } from 'chokidar';
 import {
   ChildProcess,
   spawn
 } from 'node:child_process';
-import { watch } from 'node:fs';
-import { join } from 'node:path';
-import { yellow } from './color';
+import {
+  join,
+  relative
+} from 'node:path';
+import picocolors from 'picocolors';
 import {
   exists,
   makeDir,
@@ -68,7 +71,7 @@ const restartDelay = 1000;
  * Searches for all TypeScript and JavaScript files with a valid compiler instruction.
  * @details this function will search directories recursively
  * @param workersDir the directory containing the TypeScript and JavaScript files
- * @returns the list of worker files, or `undefined` on error
+ * @returns the list of worker files, or `undefined` on invalid compiler instructions
  */
 function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> | undefined {
   const workerFiles: Record<string, RegExpExecArray> = {};
@@ -92,8 +95,8 @@ function getWorkerFiles(workersDir: string): Record<string, RegExpExecArray> | u
     // Check whether compiler instruction is valid
     const instruction = new RegExp(regex).exec(content);
     if (instruction === null) {
-      console.error(`error GL${String(ExitStatus.ProjectCompileFailed)}:`, `Invalid compiler instruction found in: '${filePath}'.`);
-      return process.exit(ExitStatus.ProjectCompileFailed);
+      console.error(picocolors.red(`error GL${String(ExitStatus.ProjectCompileFailed)}: Invalid compiler instruction found in: '${filePath}'.`));
+      return;
     }
 
     // Append the executable worker
@@ -124,7 +127,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
   const workersDir = join(workingDirectory, 'backend', 'workers');
 
   if (!exists(workersDir)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${workersDir}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid project found at: '${workingDirectory}', missing directory '${workersDir}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }
@@ -157,15 +160,15 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
       // Only run service workers
       if (instruction[1] !== 'service') {
         if (!skippedWorkers.includes(filePath)) {
-          console.log(yellow(`Skipped worker: '${filePath}', only service workers are executed.`));
-          console.log(yellow(`Use the following command to run the worker manually: '${isTypeScript ? `npx ts-node ${filePath}` : `node ${filePath}`}'.`));
+          console.log(picocolors.yellow(`Skipped worker: '${filePath}', only service workers are executed.`));
+          console.log(picocolors.yellow(`Use the following command to run the worker manually: '${isTypeScript ? `npx ts-node ${filePath}` : `node ${filePath}`}'.`));
         }
         skippedWorkers.push(filePath);
         continue;
       }
 
       // Run the worker and restart if the file has changed
-      const child = spawn(isTypeScript ? `npm exec -- ts-node ${filePath}` : `node ${filePath}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
+      const child = spawn(isTypeScript ? `npm exec --silent -- ts-node ${filePath}` : `node ${filePath}`, { shell: true, cwd: workingDirectory, stdio: 'inherit' });
       children.push(child);
     }
   };
@@ -188,17 +191,50 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     }, restartDelay);
   };
 
+  // Internal function to handle watch events
+  const handleWatchEvent = (event: string, path: string, type: string) => {
+    // Ignore all directory events
+    if (event.endsWith('Dir')) {
+      return;
+    }
+
+    // Restart workers
+    console.log(
+      picocolors.dim(new Date().toLocaleTimeString()),
+      picocolors.cyan(picocolors.bold('[glidelite]')),
+      picocolors.gray(picocolors.dim(`(${type})`)),
+      picocolors.green(`source ${event}`),
+      picocolors.dim(path)
+    );
+    restartWorkers();
+  };
+
+  // Internal function to handle watch errors
+  const handleWatchError = (error: unknown, path: string) => {
+    console.error(picocolors.red(`error GL${String(ExitStatus.DirectoryWatchFailed)}: Failed watching files at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`));
+  };
+
   // Start running all workers
   runWorkers();
 
   // Watch for changes in files and restart workers when files changed
-  const workersWatcher = watch(workersDir, { recursive: true });
-  const sharedWatcher = watch(sharedDir, { recursive: true });
-  workersWatcher.on('change', () => {
-    restartWorkers();
+  const workersWatcher = watch(workersDir);
+  const sharedWatcher = watch(sharedDir);
+  workersWatcher.on('ready', () => {
+    workersWatcher.on('all', (event, path) => {
+      handleWatchEvent(event, relative(workersDir, path), 'worker');
+    });
+    workersWatcher.on('error', error => {
+      handleWatchError(error, workersDir);
+    });
   });
-  sharedWatcher.on('change', () => {
-    restartWorkers();
+  sharedWatcher.on('ready', () => {
+    sharedWatcher.on('all', (event, path) => {
+      handleWatchEvent(event, relative(sharedDir, path), 'shared');
+    });
+    sharedWatcher.on('error', error => {
+      handleWatchError(error, sharedDir);
+    });
   });
 }
 
@@ -214,7 +250,11 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
   // Get a list of all worker files
   const workerFiles = getWorkerFiles(workersDir);
-  if (workerFiles === undefined || Object.keys(workerFiles).length <= 0) {
+  if (workerFiles === undefined) {
+    // Invalid compiler instructions found
+    return process.exit(ExitStatus.ProjectCompileFailed);
+  }
+  if (Object.keys(workerFiles).length <= 0) {
     // No worker files found
     return;
   }

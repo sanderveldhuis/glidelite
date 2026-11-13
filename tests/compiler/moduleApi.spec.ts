@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
+import chokidar from 'chokidar';
 import child_process from 'node:child_process';
-import fs from 'node:fs';
 import path from 'node:path';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -40,7 +41,7 @@ import {
 } from '../../src/compiler/moduleApi';
 import * as sysUtilsSrc from '../../src/compiler/sysUtils';
 
-vi.mock('node:fs');
+vi.mock('chokidar');
 vi.mock('node:child_process');
 
 describe('moduleApi.ts', () => {
@@ -53,6 +54,7 @@ describe('moduleApi.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtilsSrc, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     // All required files and directories exist
     exists.mockReturnValueOnce(true).mockReturnValueOnce(true);
@@ -67,7 +69,7 @@ describe('moduleApi.ts', () => {
     expect(exists).toHaveBeenCalledTimes(3);
     expect(exists).toHaveBeenLastCalledWith(path.normalize('input2/backend/api/routers'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing directory 'input2/backend/api/routers'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3001: ${path.normalize("No valid project found at: 'input2', missing directory 'input2/backend/api/routers'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
 
@@ -78,7 +80,7 @@ describe('moduleApi.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(4, path.normalize('input3/backend/api/routers'));
     expect(exists).toHaveBeenNthCalledWith(5, path.normalize('input3/node_modules/glidelite/lib/apiserver/run.js'));
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3001: ${path.normalize("No valid GlideLite dependency found at: 'input3', missing file 'input3/node_modules/glidelite/lib/apiserver/run.js'.")}`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });
@@ -93,21 +95,29 @@ describe('moduleApi.ts', () => {
   });
 
   it('validate running the API', () => {
+    const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {/*Emtpy*/});
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
     const execute = vi.spyOn(sysUtilsSrc, 'execute');
     const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
     const makeDir = vi.spyOn(sysUtilsSrc, 'makeDir').mockImplementation(() => {/*Emtpy*/});
     const copyFile = vi.spyOn(sysUtilsSrc, 'copyFile').mockImplementation(() => {/*Emtpy*/});
     const remove = vi.spyOn(sysUtilsSrc, 'remove').mockImplementation(() => {/*Emtpy*/});
     const spawn = vi.spyOn(child_process, 'spawn');
-    const watch = vi.spyOn(fs, 'watch');
+    const watch = vi.spyOn(chokidar, 'watch');
     // @ts-expect-error because function has return type Timeout
     vi.spyOn(global, 'setTimeout').mockImplementation((cb: () => void) => {
       cb();
       return 0;
     });
+    vi.spyOn(picocolors, 'green').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'gray').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'cyan').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'bold').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'dim').mockImplementation(input => input as string);
 
     const watchEvent: string[] = [];
-    const watchCallback: (() => void)[] = [];
+    const watchCallback: ((a?: string | number | Error, b?: string) => void)[] = [];
     // @ts-expect-error because object has missing types which are not used in the test
     spawn.mockReturnValue({ pid: 1234 });
     watch.mockReturnValue({
@@ -121,28 +131,56 @@ describe('moduleApi.ts', () => {
 
     // Without API port in GlideLite configuration and no JavaScript/TypeScript files available
     readDir.mockReturnValueOnce([]);
-    run({ name: 'pkg' }, { name: 'cfg' }, 'input');
+    run({ name: 'pkg' }, { name: 'cfg', ports: { api: 1234 } }, 'input');
     expect(remove).toHaveBeenCalledTimes(1);
     expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
     expect(readDir).toHaveBeenCalledTimes(1);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
     expect(spawn).toHaveBeenCalledTimes(1);
-    expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js'), { shell: true, cwd: 'input', stdio: 'inherit' });
+    expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js 1234'), { shell: true, cwd: 'input', stdio: 'inherit' });
     expect(watch).toHaveBeenCalledTimes(2);
-    expect(watch).toHaveBeenNthCalledWith(1, path.normalize('input/backend/api'), { recursive: true });
-    expect(watch).toHaveBeenNthCalledWith(2, path.normalize('input/shared'), { recursive: true });
+    expect(watch).toHaveBeenNthCalledWith(1, path.normalize('input/backend/api'));
+    expect(watch).toHaveBeenNthCalledWith(2, path.normalize('input/shared'));
     expect(watchEvent.length).to.equal(2);
-    expect(watchEvent[0]).to.equal('change');
-    expect(watchEvent[1]).to.equal('change');
+    expect(watchEvent[0]).to.equal('ready');
+    expect(watchEvent[1]).to.equal('ready');
     expect(watchCallback.length).to.equal(2);
     expect(watchCallback[0]).to.not.equal(undefined);
     expect(watchCallback[1]).to.not.equal(undefined);
+
+    // Handle 'ready' event for both watchers
+    watchCallback[0]();
+    expect(watchEvent.length).to.equal(4);
+    expect(watchEvent[2]).to.equal('all');
+    expect(watchEvent[3]).to.equal('error');
+    expect(watchCallback.length).to.equal(4);
+    expect(watchCallback[2]).to.not.equal(undefined);
+    expect(watchCallback[3]).to.not.equal(undefined);
+    watchCallback[1]();
+    expect(watchEvent.length).to.equal(6);
+    expect(watchEvent[4]).to.equal('all');
+    expect(watchEvent[5]).to.equal('error');
+    expect(watchCallback.length).to.equal(6);
+    expect(watchCallback[4]).to.not.equal(undefined);
+    expect(watchCallback[5]).to.not.equal(undefined);
+
+    // Handle 'all' event with directories for both watchers
+    watchCallback[2]('changeDir', '');
+    watchCallback[4]('changeDir', '');
+
+    // Handle 'error' event for both watchers
+    watchCallback[3](new Error('Test error'));
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2003: ${path.normalize("Failed watching files at: 'input/backend/api', Test error.")}`);
+    watchCallback[5](12);
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL2003: ${path.normalize("Failed watching files at: 'input/shared'.")}`);
 
     // With API port in GlideLite configuration, JavaScript/TypeScript files available, and a sucessful execute
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test.ts' }, { name: 'test.js', parentPath: path.normalize('input/backend/api') }]);
     execute.mockReturnValueOnce(true);
-    run({ name: 'pkg' }, { name: 'cfg', ports: { api: 1234 } }, 'input');
+    run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     expect(remove).toHaveBeenCalledTimes(2);
     expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
     expect(readDir).toHaveBeenCalledTimes(2);
@@ -152,30 +190,32 @@ describe('moduleApi.ts', () => {
     expect(copyFile).toHaveBeenCalledTimes(1);
     expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/api/test.js'), path.normalize('input/node_modules/.tmp/glc/backend/api/test.js'));
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
     expect(spawn).toHaveBeenCalledTimes(2);
-    expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js 1234'), { shell: true, cwd: 'input', stdio: 'inherit' });
+    expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js'), { shell: true, cwd: 'input', stdio: 'inherit' });
     expect(watch).toHaveBeenCalledTimes(4);
-    expect(watch).toHaveBeenNthCalledWith(3, path.normalize('input/backend/api'), { recursive: true });
-    expect(watch).toHaveBeenNthCalledWith(4, path.normalize('input/shared'), { recursive: true });
-    expect(watchEvent.length).to.equal(4);
-    expect(watchEvent[2]).to.equal('change');
-    expect(watchEvent[3]).to.equal('change');
-    expect(watchCallback.length).to.equal(4);
-    expect(watchCallback[2]).to.not.equal(undefined);
-    expect(watchCallback[3]).to.not.equal(undefined);
+    expect(watch).toHaveBeenNthCalledWith(3, path.normalize('input/backend/api'));
+    expect(watch).toHaveBeenNthCalledWith(4, path.normalize('input/shared'));
+    expect(watchEvent.length).to.equal(8);
+    expect(watchEvent[6]).to.equal('ready');
+    expect(watchEvent[7]).to.equal('ready');
+    expect(watchCallback.length).to.equal(8);
+    expect(watchCallback[6]).to.not.equal(undefined);
+    expect(watchCallback[7]).to.not.equal(undefined);
 
     // Test the callback function with TypeScript files available but a failing execute
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.ts' }]);
     execute.mockReturnValueOnce(false);
-    watchCallback[2]();
+    watchCallback[2]('change', 'input/backend/api/path');
     expect(remove).toHaveBeenCalledTimes(3);
     expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
     expect(readDir).toHaveBeenCalledTimes(3);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
+    expect(consoleLog).toHaveBeenCalledTimes(1);
+    expect(consoleLog).toHaveBeenLastCalledWith(expect.any(String), '[glidelite]', '(api)', 'source change', 'path');
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
     expect(spawn).toHaveBeenCalledTimes(3);
     if ('win32' === process.platform) {
       expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
@@ -187,11 +227,12 @@ describe('moduleApi.ts', () => {
     // Test the callback function with JavaScript files available
     // @ts-expect-error because object has missing types which are not used in the test
     readDir.mockReturnValueOnce([{ name: 'test.js', parentPath: path.normalize('input/backend/api') }]);
-    watchCallback[3]();
+    watchCallback[4]('change', 'input/shared/path');
     expect(remove).toHaveBeenCalledTimes(4);
     expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
     expect(readDir).toHaveBeenCalledTimes(4);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
+    expect(consoleLog).toHaveBeenCalledTimes(1);
     expect(makeDir).toHaveBeenCalledTimes(2);
     expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/backend/api'));
     expect(copyFile).toHaveBeenCalledTimes(2);

@@ -24,6 +24,7 @@
 
 import child_process from 'node:child_process';
 import path from 'node:path';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -51,6 +52,7 @@ describe('moduleFrontend.ts', () => {
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const exists = vi.spyOn(sysUtilsSrc, 'exists');
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     // All required files and directories exist
     exists.mockReturnValueOnce(true);
@@ -69,7 +71,7 @@ describe('moduleFrontend.ts', () => {
     expect(exists).toHaveBeenNthCalledWith(6, path.normalize('input2/frontend/vite.config.mts'));
     expect(exists).toHaveBeenNthCalledWith(7, path.normalize('input2/frontend/vite.config.cts'));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', path.normalize("No valid project found at: 'input2', missing file 'input2/frontend/vite.config.ts'."));
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL3001: ${path.normalize("No valid project found at: 'input2', missing file 'input2/frontend/vite.config.ts'.")}`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });
@@ -83,12 +85,61 @@ describe('moduleFrontend.ts', () => {
   });
 
   it('validate running the frontend', () => {
-    // @ts-expect-error because function has return type ChildProcess
-    const spawn = vi.spyOn(child_process, 'spawn').mockImplementation(() => {/*Emtpy*/});
+    const stdOut = vi.spyOn(process.stdout, 'write');
+    const stdErr = vi.spyOn(process.stderr, 'write');
+    const spawn = vi.spyOn(child_process, 'spawn');
 
+    const spawnOutEvent: string[] = [];
+    const spawnOutCallback: ((data: Buffer) => void)[] = [];
+    const spawnErrEvent: string[] = [];
+    const spawnErrCallback: ((data: Buffer) => void)[] = [];
+    spawn.mockReturnValue({
+      stdout: {
+        // @ts-expect-error because function has return type FSWatcher
+        on: (event: string, callback: (data: Buffer) => void) => {
+          spawnOutEvent.push(event);
+          spawnOutCallback.push(callback);
+          return 0;
+        }
+      },
+      stderr: {
+        // @ts-expect-error because function has return type FSWatcher
+        on: (event: string, callback: (data: Buffer) => void) => {
+          spawnErrEvent.push(event);
+          spawnErrCallback.push(callback);
+          return 0;
+        }
+      }
+    });
+
+    // Check the spawned process events and callbacks
     run({ name: 'pkg' }, { name: 'cfg' }, 'output');
     expect(spawn).toHaveBeenCalledTimes(1);
-    expect(spawn).toHaveBeenLastCalledWith('npm exec -- vite', { shell: true, cwd: path.normalize('output/frontend'), stdio: 'inherit' });
+    expect(spawn).toHaveBeenLastCalledWith('npm exec --silent -- vite', { shell: true, cwd: path.normalize('output/frontend') });
+    expect(spawnOutEvent.length).to.equal(1);
+    expect(spawnOutEvent[0]).to.equal('data');
+    expect(spawnErrEvent.length).to.equal(1);
+    expect(spawnErrEvent[0]).to.equal('data');
+    expect(spawnOutCallback.length).to.equal(1);
+    expect(spawnOutCallback[0]).to.not.equal(undefined);
+    expect(spawnErrCallback.length).to.equal(1);
+    expect(spawnErrCallback[0]).to.not.equal(undefined);
+
+    // Check the callbacks without screen clear
+    spawnOutCallback[0](Buffer.from('Test1'));
+    expect(stdOut).toHaveBeenCalledTimes(1);
+    expect(stdOut).toHaveBeenLastCalledWith(Buffer.from('Test1'));
+    spawnErrCallback[0](Buffer.from('Test2'));
+    expect(stdErr).toHaveBeenCalledTimes(1);
+    expect(stdErr).toHaveBeenLastCalledWith(Buffer.from('Test2'));
+
+    // Check the callbacks with screen clear
+    spawnOutCallback[0](Buffer.from('\nTest1'));
+    expect(stdOut).toHaveBeenCalledTimes(2);
+    expect(stdOut).toHaveBeenLastCalledWith(Buffer.from('Test1'));
+    spawnErrCallback[0](Buffer.from('\nTest2'));
+    expect(stdErr).toHaveBeenCalledTimes(2);
+    expect(stdErr).toHaveBeenLastCalledWith(Buffer.from('Test2'));
   });
 
   it('validate compiling the frontend', () => {
@@ -106,7 +157,7 @@ describe('moduleFrontend.ts', () => {
     expect(exists).toHaveBeenCalledTimes(1);
     expect(exists).toHaveBeenLastCalledWith(path.normalize('input1/frontend/tsconfig.json'));
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input1/frontend'));
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input1/frontend'));
 
     // No TypeScript validation needed and execution failed
     exists.mockReturnValueOnce(false);
@@ -115,7 +166,7 @@ describe('moduleFrontend.ts', () => {
     expect(exists).toHaveBeenCalledTimes(2);
     expect(exists).toHaveBeenLastCalledWith(path.normalize('input2/frontend/tsconfig.json'));
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input2/frontend'));
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input2/frontend'));
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3002);
 
@@ -129,8 +180,8 @@ describe('moduleFrontend.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(1);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input3/frontend'));
     expect(execute).toHaveBeenCalledTimes(4);
-    expect(execute).toHaveBeenNthCalledWith(3, 'npm exec -- tsc -b --noEmit', path.normalize('input3/frontend'));
-    expect(execute).toHaveBeenNthCalledWith(4, path.normalize('npm exec -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input3/frontend'));
+    expect(execute).toHaveBeenNthCalledWith(3, 'npm exec --silent -- tsc -b --noEmit', path.normalize('input3/frontend'));
+    expect(execute).toHaveBeenNthCalledWith(4, path.normalize('npm exec --silent -- vite build --outDir output/var/www/cfg --emptyOutDir'), path.normalize('input3/frontend'));
 
     // TypeScript validation needed, no generated files available, execution failed
     exists.mockReturnValueOnce(true);
@@ -142,7 +193,7 @@ describe('moduleFrontend.ts', () => {
     expect(readDir).toHaveBeenCalledTimes(2);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input4/frontend'));
     expect(execute).toHaveBeenCalledTimes(5);
-    expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -b --noEmit', path.normalize('input4/frontend'));
+    expect(execute).toHaveBeenLastCalledWith('npm exec --silent -- tsc -b --noEmit', path.normalize('input4/frontend'));
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(3002);
 
@@ -159,7 +210,7 @@ describe('moduleFrontend.ts', () => {
     expect(remove).toHaveBeenCalledTimes(1);
     expect(remove).toHaveBeenLastCalledWith(path.normalize('path2/test.app.tsbuildinfo'));
     expect(execute).toHaveBeenCalledTimes(6);
-    expect(execute).toHaveBeenLastCalledWith('npm exec -- tsc -b --noEmit', path.normalize('input5/frontend'));
+    expect(execute).toHaveBeenLastCalledWith('npm exec --silent -- tsc -b --noEmit', path.normalize('input5/frontend'));
     expect(processExit).toHaveBeenCalledTimes(3);
     expect(processExit).toHaveBeenLastCalledWith(3002);
   });

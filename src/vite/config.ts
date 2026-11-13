@@ -31,7 +31,9 @@ import {
   join
 } from 'node:path';
 import {
+  createLogger,
   defineConfig,
+  LogErrorOptions,
   UserConfig
 } from 'vite';
 
@@ -64,10 +66,24 @@ function loadApiPort(): number {
   }
 }
 
+/*
+ * Custom logger that suppresses the "http proxy error" caused by ECONNREFUSED
+ * This error is expected while the API server is (re)starting and is flooding the console
+ */
+const logger = createLogger();
+const loggerError = logger.error; /* eslint-disable-line @typescript-eslint/unbound-method */
+logger.error = (msg: string, options?: LogErrorOptions) => {
+  if (msg.includes('http proxy error') && msg.includes('ECONNREFUSED')) {
+    return;
+  }
+  loggerError(msg, options);
+};
+
 /**
  * GlideLite configuration for Vite.
  */
 export const glConfig: UserConfig = defineConfig({
+  customLogger: logger,
   server: {
     proxy: {
       '/api': {

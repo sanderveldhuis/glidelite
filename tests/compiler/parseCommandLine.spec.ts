@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -54,46 +55,47 @@ describe('parseCommandLine.ts', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     const command1 = parseCommandLine(['-']);
     expect(command1).to.equal(undefined);
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '-'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL1001: Unknown compiler option '-'.");
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command2 = parseCommandLine(['--']);
     expect(command2).to.equal(undefined);
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '--'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL1001: Unknown compiler option '--'.");
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command3 = parseCommandLine(['-helps']);
     expect(command3).to.equal(undefined);
     expect(consoleError).toHaveBeenCalledTimes(3);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '-helps'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL1001: Unknown compiler option '-helps'.");
     expect(processExit).toHaveBeenCalledTimes(3);
     expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command4 = parseCommandLine(['--helps']);
     expect(command4).to.equal(undefined);
     expect(consoleError).toHaveBeenCalledTimes(4);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '--helps'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL1001: Unknown compiler option '--helps'.");
     expect(processExit).toHaveBeenCalledTimes(4);
     expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command5 = parseCommandLine(['-hel']);
     expect(command5).to.equal(undefined);
     expect(consoleError).toHaveBeenCalledTimes(5);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '-hel'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL1001: Unknown compiler option '-hel'.");
     expect(processExit).toHaveBeenCalledTimes(5);
     expect(processExit).toHaveBeenLastCalledWith(1001);
 
     const command6 = parseCommandLine(['--hel']);
     expect(command6).to.equal(undefined);
     expect(consoleError).toHaveBeenCalledTimes(6);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1001:', "Unknown compiler option '--hel'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL1001: Unknown compiler option '--hel'.");
     expect(processExit).toHaveBeenCalledTimes(6);
     expect(processExit).toHaveBeenLastCalledWith(1001);
   });
@@ -164,12 +166,13 @@ describe('parseCommandLine.ts', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     const command1 = parseCommandLine(['--module']);
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1002:', "Compiler option 'module' expects an argument.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL1002: Compiler option 'module' expects an argument.`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(1002);
 
@@ -177,7 +180,7 @@ describe('parseCommandLine.ts', () => {
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1002:', "Compiler option 'module' expects an argument.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL1002: Compiler option 'module' expects an argument.`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(1002);
 
@@ -185,7 +188,7 @@ describe('parseCommandLine.ts', () => {
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
     expect(consoleError).toHaveBeenCalledTimes(3);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1002:', "Compiler option 'module' expects an argument.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL1002: Compiler option 'module' expects an argument.`);
     expect(processExit).toHaveBeenCalledTimes(3);
     expect(processExit).toHaveBeenLastCalledWith(1002);
 
@@ -193,7 +196,7 @@ describe('parseCommandLine.ts', () => {
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
     expect(consoleError).toHaveBeenCalledTimes(4);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1002:', "Compiler option 'module' expects an argument.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL1002: Compiler option 'module' expects an argument.`);
     expect(processExit).toHaveBeenCalledTimes(4);
     expect(processExit).toHaveBeenLastCalledWith(1002);
   });
@@ -202,12 +205,13 @@ describe('parseCommandLine.ts', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {/*Emtpy*/});
     // @ts-expect-error because function has return type never
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     const command1 = parseCommandLine(['--module', 'backen']);
     expect(Object.keys(command1.options).length).to.equal(0);
     expect(command1.paths.length).to.equal(0);
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL1003: Argument for 'module' option must be: 'backend', 'frontend'.`);
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(1003);
 
@@ -215,7 +219,7 @@ describe('parseCommandLine.ts', () => {
     expect(Object.keys(command2.options).length).to.equal(0);
     expect(command2.paths.length).to.equal(0);
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL1003: Argument for 'module' option must be: 'backend', 'frontend'.`);
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(1003);
 
@@ -223,7 +227,7 @@ describe('parseCommandLine.ts', () => {
     expect(Object.keys(command3.options).length).to.equal(0);
     expect(command3.paths.length).to.equal(0);
     expect(consoleError).toHaveBeenCalledTimes(3);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL1003: Argument for 'module' option must be: 'backend', 'frontend'.`);
     expect(processExit).toHaveBeenCalledTimes(3);
     expect(processExit).toHaveBeenLastCalledWith(1003);
 
@@ -231,7 +235,7 @@ describe('parseCommandLine.ts', () => {
     expect(Object.keys(command4.options).length).to.equal(0);
     expect(command4.paths.length).to.equal(0);
     expect(consoleError).toHaveBeenCalledTimes(4);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL1003:', "Argument for 'module' option must be: 'backend', 'frontend'.");
+    expect(consoleError).toHaveBeenLastCalledWith(`error GL1003: Argument for 'module' option must be: 'backend', 'frontend'.`);
     expect(processExit).toHaveBeenCalledTimes(4);
     expect(processExit).toHaveBeenLastCalledWith(1003);
   });

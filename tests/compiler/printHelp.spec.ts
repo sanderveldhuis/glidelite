@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -39,11 +40,14 @@ describe('printHelp.ts', () => {
 
   it('validate printing the help', () => {
     const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'blue').mockImplementation(input => input as string);
+    vi.spyOn(picocolors, 'bold').mockImplementation(input => input as string);
+
     printHelp();
     expect(consoleLog).toHaveBeenCalledTimes(23);
     // We are only validating the important output
     expect(consoleLog).toHaveBeenCalledWith('glc: The GlideLite Compiler - Version', version, '\n');
-    expect(consoleLog).toHaveBeenCalledWith('     \x1b[94m--help, -h\x1b[39m  Print this message.\n');
-    expect(consoleLog).toHaveBeenCalledWith("  \x1b[94m--version, -v\x1b[39m  Print the compiler's version.\n");
+    expect(consoleLog).toHaveBeenCalledWith('     --help, -h  Print this message.\n');
+    expect(consoleLog).toHaveBeenCalledWith("  --version, -v  Print the compiler's version.\n");
   });
 });

@@ -24,6 +24,7 @@
 
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
+import picocolors from 'picocolors';
 import {
   execute,
   exists,
@@ -60,7 +61,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
   const viteConfigCts = join(workingDirectory, 'frontend', 'vite.config.cts');
 
   if (!exists(viteConfigJs) && !exists(viteConfigMjs) && !exists(viteConfigCjs) && !exists(viteConfigTs) && !exists(viteConfigMts) && !exists(viteConfigCts)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing file '${viteConfigTs}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid project found at: '${workingDirectory}', missing file '${viteConfigTs}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }
@@ -75,7 +76,14 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
   const frontendDir = join(workingDirectory, 'frontend');
 
   // Run the frontend
-  spawn('npm exec -- vite', { shell: true, cwd: frontendDir, stdio: 'inherit' });
+  const child = spawn('npm exec --silent -- vite', { shell: true, cwd: frontendDir });
+  // Suppress screen clearing by Vite
+  child.stdout.on('data', (data: Buffer) => {
+    process.stdout.write(data[0] == 0x0a ? data.subarray(1) : data);
+  });
+  child.stderr.on('data', (data: Buffer) => {
+    process.stderr.write(data[0] == 0x0a ? data.subarray(1) : data);
+  });
 }
 
 /**
@@ -93,7 +101,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
   // Validate TypeScript only if the frontend uses TypeScript
   if (exists(tsConfig)) {
-    successful = execute(`npm exec -- tsc -b --noEmit`, frontendDir);
+    successful = execute(`npm exec --silent -- tsc -b --noEmit`, frontendDir);
 
     // Always cleanup generated build info files
     const allFiles = readDir(frontendDir);
@@ -104,7 +112,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   }
 
   // Compile the frontend
-  if (!successful || !execute(`npm exec -- vite build --outDir ${outputDir} --emptyOutDir`, frontendDir)) {
+  if (!successful || !execute(`npm exec --silent -- vite build --outDir ${outputDir} --emptyOutDir`, frontendDir)) {
     // No need to log the error to the console because the output of the command will already be logged to the console
     process.exit(ExitStatus.ProjectCompileFailed);
   }

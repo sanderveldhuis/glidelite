@@ -36,6 +36,7 @@ export enum ExitStatus {
   CommandLineArgumentInvalid = 1003,
   DirectoryCreationFailed = 2001,
   DirectoryReadFailed = 2002,
+  DirectoryWatchFailed = 2003,
   FileAlreadyExists = 2010,
   FileCreationFailed = 2011,
   FileReadFailed = 2012,

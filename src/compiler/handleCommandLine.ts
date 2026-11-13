@@ -26,6 +26,7 @@ import {
   join,
   resolve
 } from 'node:path';
+import picocolors from 'picocolors';
 import { initProject } from './initProject';
 import * as moduleBackend from './moduleBackend';
 import * as moduleFrontend from './moduleFrontend';
@@ -74,7 +75,7 @@ export function handleCommandLine(command: Command): void {
   const moduleName = String(command.options.module || '');
   const module = moduleNameMap.get(moduleName);
   if (module === undefined) {
-    console.error(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}:`, `Compiler for module '${String(command.options.module)}' not implemented.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.CommandLineArgumentInvalid)}: Compiler for module '${String(command.options.module)}' not implemented.`));
     return process.exit(ExitStatus.CommandLineArgumentInvalid);
   }
 

@@ -22,16 +22,17 @@
  * SOFTWARE.
  */
 
+import { watch } from 'chokidar';
 import {
   ChildProcess,
   spawn
 } from 'node:child_process';
-import { watch } from 'node:fs';
 import {
   dirname,
   join,
   relative
 } from 'node:path';
+import picocolors from 'picocolors';
 import {
   copyFile,
   execute,
@@ -85,11 +86,11 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
   const glideliteApiJs = join(workingDirectory, 'node_modules', 'glidelite', 'lib', 'apiserver', 'run.js');
 
   if (!exists(apiRouters)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid project found at: '${workingDirectory}', missing directory '${apiRouters}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid project found at: '${workingDirectory}', missing directory '${apiRouters}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
   if (!exists(glideliteApiJs)) {
-    console.error(`error GL${String(ExitStatus.ProjectInvalid)}:`, `No valid GlideLite dependency found at: '${workingDirectory}', missing file '${glideliteApiJs}'.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.ProjectInvalid)}: No valid GlideLite dependency found at: '${workingDirectory}', missing file '${glideliteApiJs}'.`));
     return process.exit(ExitStatus.ProjectInvalid);
   }
 }
@@ -133,7 +134,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
     if (tsFiles.length > 0) {
       // Compile the TypeScript files
-      if (!execute(`npm exec -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${tmpDir}`, workingDirectory)) {
+      if (!execute(`npm exec --silent -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${tmpDir}`, workingDirectory)) {
         return;
       }
     }
@@ -159,17 +160,53 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     }, restartDelay);
   };
 
+  // Internal function to handle watch events
+  const handleWatchEvent = (event: string, path: string, type: string) => {
+    // Ignore all directory events
+    if (event.endsWith('Dir')) {
+      return;
+    }
+
+    // Restart API server
+    if (type !== 'shared') {
+      // Special case: skip log because this log line is already logged for shared files in the moduleWorkers.ts file
+      console.log(
+        picocolors.dim(new Date().toLocaleTimeString()),
+        picocolors.cyan(picocolors.bold('[glidelite]')),
+        picocolors.gray(picocolors.dim(`(${type})`)),
+        picocolors.green(`source ${event}`),
+        picocolors.dim(path)
+      );
+    }
+    restartApiServer();
+  };
+
+  // Internal function to handle watch errors
+  const handleWatchError = (error: unknown, path: string) => {
+    console.error(picocolors.red(`error GL${String(ExitStatus.DirectoryWatchFailed)}: Failed watching files at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`));
+  };
+
   // Start running the API server
   runApiServer();
 
   // Watch for changes in files and restart API server when files changed
-  const apiWatcher = watch(apiDir, { recursive: true });
-  const sharedWatcher = watch(sharedDir, { recursive: true });
-  apiWatcher.on('change', () => {
-    restartApiServer();
+  const apiWatcher = watch(apiDir);
+  const sharedWatcher = watch(sharedDir);
+  apiWatcher.on('ready', () => {
+    apiWatcher.on('all', (event, path) => {
+      handleWatchEvent(event, relative(apiDir, path), 'api');
+    });
+    apiWatcher.on('error', error => {
+      handleWatchError(error, apiDir);
+    });
   });
-  sharedWatcher.on('change', () => {
-    restartApiServer();
+  sharedWatcher.on('ready', () => {
+    sharedWatcher.on('all', (event, path) => {
+      handleWatchEvent(event, relative(sharedDir, path), 'shared');
+    });
+    sharedWatcher.on('error', error => {
+      handleWatchError(error, sharedDir);
+    });
   });
 }
 

@@ -33,6 +33,7 @@ import {
   rmSync,
   writeFileSync
 } from 'node:fs';
+import picocolors from 'picocolors';
 import {
   ExitStatus,
   Json
@@ -66,7 +67,7 @@ export function makeDir(path: string): void {
     mkdirSync(path, { recursive: true });
   }
   catch (error) {
-    console.error(`error GL${String(ExitStatus.DirectoryCreationFailed)}:`, `Failed creating directory at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.DirectoryCreationFailed)}: Failed creating directory at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`));
     process.exit(ExitStatus.DirectoryCreationFailed);
   }
 }
@@ -82,7 +83,7 @@ export function makeFile(path: string, content: string): void {
     writeFileSync(path, content);
   }
   catch (error) {
-    console.error(`error GL${String(ExitStatus.FileCreationFailed)}:`, `Failed creating file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileCreationFailed)}: Failed creating file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`));
     process.exit(ExitStatus.FileCreationFailed);
   }
 }
@@ -98,7 +99,7 @@ export function copyFile(src: string, dst: string): void {
     copyFileSync(src, dst);
   }
   catch (error) {
-    console.error(`error GL${String(ExitStatus.FileCopyFailed)}:`, `Failed copying file from: '${src}', to: '${dst}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileCopyFailed)}: Failed copying file from: '${src}', to: '${dst}'${error instanceof Error ? `, ${error.message}` : ''}.`));
     process.exit(ExitStatus.FileCopyFailed);
   }
 }
@@ -114,7 +115,7 @@ export function readDir(path: string): Dirent[] {
     return readdirSync(path, { withFileTypes: true, recursive: true });
   }
   catch (error) {
-    console.error(`error GL${String(ExitStatus.DirectoryReadFailed)}:`, `Failed reading directory at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.DirectoryReadFailed)}: Failed reading directory at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`));
     process.exit(ExitStatus.DirectoryReadFailed);
   }
 }
@@ -130,7 +131,7 @@ export function readFile(path: string): string {
     return readFileSync(path).toString();
   }
   catch (error) {
-    console.error(`error GL${String(ExitStatus.FileReadFailed)}:`, `Failed reading file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileReadFailed)}: Failed reading file at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`));
     process.exit(ExitStatus.FileReadFailed);
   }
 }
@@ -147,7 +148,7 @@ export function readJsonFile(path: string): Json {
     return JSON.parse(content) as Json;
   }
   catch (error) {
-    console.error(`error GL${String(ExitStatus.FileReadFailed)}:`, `Failed reading JSON at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`);
+    console.error(picocolors.red(`error GL${String(ExitStatus.FileReadFailed)}: Failed reading JSON at: '${path}'${error instanceof Error ? `, ${error.message}` : ''}.`));
     process.exit(ExitStatus.FileReadFailed);
   }
 }

@@ -23,6 +23,7 @@
  */
 
 import path from 'node:path';
+import picocolors from 'picocolors';
 import {
   afterEach,
   describe,
@@ -51,6 +52,7 @@ describe('moduleProject.ts', () => {
     const processExit = vi.spyOn(process, 'exit').mockImplementation(() => {/*Emtpy*/});
     const validateBackend = vi.spyOn(moduleBackendSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
     const validateFrontend = vi.spyOn(moduleFrontendSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
+    vi.spyOn(picocolors, 'red').mockImplementation(input => input as string);
 
     // No homepage available
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input1');
@@ -78,7 +80,7 @@ describe('moduleProject.ts', () => {
     expect(validateFrontend).toHaveBeenCalledTimes(4);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 1 }, 'input');
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input', invalid homepage '1'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL3001: No valid project found at: 'input', invalid homepage '1'.");
     expect(processExit).toHaveBeenCalledTimes(1);
     expect(processExit).toHaveBeenLastCalledWith(3001);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: true }, 'input');
@@ -87,7 +89,7 @@ describe('moduleProject.ts', () => {
     expect(validateFrontend).toHaveBeenCalledTimes(5);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: true }, 'input');
     expect(consoleError).toHaveBeenCalledTimes(2);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input', invalid homepage 'true'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL3001: No valid project found at: 'input', invalid homepage 'true'.");
     expect(processExit).toHaveBeenCalledTimes(2);
     expect(processExit).toHaveBeenLastCalledWith(3001);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: null }, 'input');
@@ -96,7 +98,7 @@ describe('moduleProject.ts', () => {
     expect(validateFrontend).toHaveBeenCalledTimes(6);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: null }, 'input');
     expect(consoleError).toHaveBeenCalledTimes(3);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input', invalid homepage 'null'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL3001: No valid project found at: 'input', invalid homepage 'null'.");
     expect(processExit).toHaveBeenCalledTimes(3);
     expect(processExit).toHaveBeenLastCalledWith(3001);
     validate({ name: 'pkg' }, { name: 'cfg', homepage: { url: 'https://example.com/' } }, 'input');
@@ -105,7 +107,7 @@ describe('moduleProject.ts', () => {
     expect(validateFrontend).toHaveBeenCalledTimes(7);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: { url: 'https://example.com/' } }, 'input');
     expect(consoleError).toHaveBeenCalledTimes(4);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', 'No valid project found at: \'input\', invalid homepage \'{"url":"https://example.com/"}\'.');
+    expect(consoleError).toHaveBeenLastCalledWith('error GL3001: No valid project found at: \'input\', invalid homepage \'{"url":"https://example.com/"}\'.');
     expect(processExit).toHaveBeenCalledTimes(4);
     expect(processExit).toHaveBeenLastCalledWith(3001);
 
@@ -116,7 +118,7 @@ describe('moduleProject.ts', () => {
     expect(validateFrontend).toHaveBeenCalledTimes(8);
     expect(validateFrontend).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg', homepage: 'example.com' }, 'input');
     expect(consoleError).toHaveBeenCalledTimes(5);
-    expect(consoleError).toHaveBeenLastCalledWith('error GL3001:', "No valid project found at: 'input', invalid homepage 'example.com'.");
+    expect(consoleError).toHaveBeenLastCalledWith("error GL3001: No valid project found at: 'input', invalid homepage 'example.com'.");
     expect(processExit).toHaveBeenCalledTimes(5);
     expect(processExit).toHaveBeenLastCalledWith(3001);
   });

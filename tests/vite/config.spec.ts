@@ -64,6 +64,7 @@ describe('config.ts', () => {
     // Append a unique query string to trick the loader into thinking it's a new file ensuring it is newly imported
     const { glConfig } = await import(`${__dirname}/../../src/vite/config?test=2`); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
     expect(glConfig).to.deep.equal({
+      customLogger: glConfig.customLogger, /* eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
       server: {
         proxy: {
           '/api': {
@@ -77,6 +78,9 @@ describe('config.ts', () => {
     // Test rewrite function
     expect(glConfig.server.proxy['/api'].rewrite('/api/test1')).to.equal('/test1'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     expect(glConfig.server.proxy['/api'].rewrite('/apitest1')).to.equal('test1'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+
+    // Test logger function
+    glConfig.customLogger.error('http proxy error ECONNREFUSED'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   });
 
   it('validate finding the GlideLite config without port', async () => {
@@ -86,6 +90,7 @@ describe('config.ts', () => {
     // Append a unique query string to trick the loader into thinking it's a new file ensuring it is newly imported
     const { glConfig } = await import(`${__dirname}/../../src/vite/config?test=3`); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
     expect(glConfig).to.deep.equal({
+      customLogger: glConfig.customLogger, /* eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
       server: {
         proxy: {
           '/api': {
@@ -99,5 +104,8 @@ describe('config.ts', () => {
     // Test rewrite function
     expect(glConfig.server.proxy['/api'].rewrite('/api/test1')).to.equal('/test1'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     expect(glConfig.server.proxy['/api'].rewrite('/apitest1')).to.equal('test1'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+
+    // Test logger function
+    glConfig.customLogger.error('http proxy error ECONNREFUSED'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   });
 });

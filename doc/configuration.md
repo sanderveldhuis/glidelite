@@ -15,7 +15,7 @@ The name of your project. It's used as part of several directory names, so it ca
 
 **Default:** inherited from `package.json`
 
-The version of your code. Together, the name and version form an identifier that's assumed to be unique. Increment the version with every release so clients don't keep running an old version of your code cached by, for example, a browser.
+The version of your code. Increment the version with each release to simplify analysis and ensure a structured maintenance process.
 
 ## `homepage`
 
