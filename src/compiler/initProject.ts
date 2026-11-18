@@ -44,6 +44,8 @@ export function initProject(workingDirectory: string): void {
   const apiMiddlewareKeep = join(apiMiddlewareDir, '.gitkeep');
   const apiRoutersDir = join(apiDir, 'routers');
   const apiRoutersKeep = join(apiRoutersDir, '.gitkeep');
+  const websocketsDir = join(backendDir, 'sockets');
+  const websocketsKeep = join(websocketsDir, '.gitkeep');
   const workersDir = join(backendDir, 'workers');
   const workersKeep = join(workersDir, '.gitkeep');
   const frontendDir = join(workingDirectory, 'frontend');
@@ -95,6 +97,8 @@ export function initProject(workingDirectory: string): void {
   makeFile(apiMiddlewareKeep, '');
   makeDir(apiRoutersDir);
   makeFile(apiRoutersKeep, '');
+  makeDir(websocketsDir);
+  makeFile(websocketsKeep, '');
   makeDir(workersDir);
   makeFile(workersKeep, '');
   makeDir(frontendDir);
