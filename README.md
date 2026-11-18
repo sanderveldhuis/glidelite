@@ -40,6 +40,7 @@ New to GlideLite? Start here:
 **Backend**
 
 * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
+* [WebSockets](https://github.com/sanderveldhuis/glidelite/blob/main/doc/websockets.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
 * [Using configuration values](https://github.com/sanderveldhuis/glidelite/blob/main/doc/using-configuration-values.md)
 * [Using dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/using-dependencies.md)
@@ -50,6 +51,7 @@ New to GlideLite? Start here:
 
 * [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/user-interface.md)
 * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
+* [WebSocket communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/websocket-communication.md)
 
 **Shipping your app**
 
