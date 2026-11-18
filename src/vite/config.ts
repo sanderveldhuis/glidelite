@@ -88,6 +88,7 @@ export const glConfig: UserConfig = defineConfig({
     proxy: {
       '/api': {
         target: `http://localhost:${String(loadApiPort())}`,
+        ws: true,
         rewrite: path => path.replace(/^\/api/, '')
       }
     }

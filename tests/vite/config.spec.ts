@@ -69,6 +69,7 @@ describe('config.ts', () => {
         proxy: {
           '/api': {
             target: 'http://localhost:12345',
+            ws: true,
             rewrite: glConfig.server.proxy['/api'].rewrite /* eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
           }
         }
@@ -95,6 +96,7 @@ describe('config.ts', () => {
         proxy: {
           '/api': {
             target: 'http://localhost:9002',
+            ws: true,
             rewrite: glConfig.server.proxy['/api'].rewrite /* eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
           }
         }
