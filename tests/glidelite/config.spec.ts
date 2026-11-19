@@ -49,7 +49,7 @@ describe('config.ts', () => {
 
     try {
       // Append a unique query string to trick the loader into thinking it's a new file ensuring it is newly imported
-      await import(`${__dirname}/../../src/vite/config?test=1`);
+      await import(`${__dirname}/../../src/glidelite/vite/config?test=1`);
       assert.fail('import succeeded unexpectedly');
     }
     catch (error) {
@@ -62,7 +62,7 @@ describe('config.ts', () => {
     vi.spyOn(path, 'dirname').mockReturnValue(`${__dirname}/..`);
 
     // Append a unique query string to trick the loader into thinking it's a new file ensuring it is newly imported
-    const { glConfig } = await import(`${__dirname}/../../src/vite/config?test=2`); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
+    const { glConfig } = await import(`${__dirname}/../../src/glidelite/vite/config?test=2`); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
     expect(glConfig).to.deep.equal({
       customLogger: glConfig.customLogger, /* eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
       server: {
@@ -88,7 +88,7 @@ describe('config.ts', () => {
     vi.spyOn(path, 'dirname').mockReturnValue(__dirname);
 
     // Append a unique query string to trick the loader into thinking it's a new file ensuring it is newly imported
-    const { glConfig } = await import(`${__dirname}/../../src/vite/config?test=3`); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
+    const { glConfig } = await import(`${__dirname}/../../src/glidelite/vite/config?test=3`); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
     expect(glConfig).to.deep.equal({
       customLogger: glConfig.customLogger, /* eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
       server: {
