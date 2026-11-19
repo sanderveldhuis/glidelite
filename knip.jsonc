@@ -7,7 +7,7 @@
     "src/glidelite/glidelite.ts",
     "src/glidelite/backend/glidelite.ts",
     "src/glidelite/frontend/glidelite.ts",
-    "src/vite/glidelite.ts"
+    "src/glidelite/vite/glidelite.ts"
   ],
   "project": ["src/**"],
   "ignoreExportsUsedInFile": {
