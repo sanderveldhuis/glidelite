@@ -67,4 +67,16 @@ describe('glconfig.ts', () => {
       }
     });
   });
+
+  it('validate finding the GlideLite config without port', async () => {
+    vi.spyOn(path, 'join').mockImplementation((...args: string[]) => args.join('/'));
+    vi.spyOn(path, 'dirname').mockReturnValue(__dirname);
+
+    // Append a unique query string to trick the loader into thinking it's a new file ensuring it is newly imported
+    const { glconfig } = await import(`${__dirname}/../../src/glidelite/backend/glconfig?test=3`); /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */
+    expect(glconfig).to.deep.equal({
+      comment1: 'this file is used by the unittests',
+      comment2: 'do not remove this file'
+    });
+  });
 });
