@@ -71,7 +71,7 @@ function getApiPort(config: Json): string {
  * @param outputDirectory the output directory to be cleaned
  */
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
-  remove(join(outputDirectory, 'opt', config.name as string, 'api'));
+  remove(join(outputDirectory, 'opt', config.name as string, 'backend', 'api'));
   remove(join(outputDirectory, 'etc', 'cron.d', `${config.name as string}_api`));
 }
 

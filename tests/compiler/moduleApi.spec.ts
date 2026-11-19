@@ -90,7 +90,7 @@ describe('moduleApi.ts', () => {
 
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
     expect(remove).toHaveBeenCalledTimes(2);
-    expect(remove).toHaveBeenNthCalledWith(1, path.normalize('output/opt/cfg/api'));
+    expect(remove).toHaveBeenNthCalledWith(1, path.normalize('output/opt/cfg/backend/api'));
     expect(remove).toHaveBeenNthCalledWith(2, path.normalize('output/etc/cron.d/cfg_api'));
   });
 

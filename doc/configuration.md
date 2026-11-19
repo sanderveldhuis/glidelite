@@ -90,7 +90,7 @@ The port for the gateway server, the entry point of your project.
 
 **Default:** `9001`
 
-The port for the proxy server, which forwards requests to the right API or asset.
+The port for the proxy server, which forwards requests to the right API, WebSocket, or asset.
 
 ```json
 {
@@ -110,6 +110,18 @@ The port for the API server, which handles all your custom logic.
 {
   "ports": {
     "api": 9002
+  }
+}
+```
+
+**Default:** `9003`
+
+The port for the WebSocket server, which handles all your real-time, two-way communication.
+
+```json
+{
+  "ports": {
+    "websocket": 9003
   }
 }
 ```
