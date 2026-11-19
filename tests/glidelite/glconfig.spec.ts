@@ -63,7 +63,8 @@ describe('glconfig.ts', () => {
       comment1: 'this file is used by the unittests',
       comment2: 'do not remove this file',
       ports: {
-        api: 12345
+        api: 12345,
+        websocket: 23456
       }
     });
   });
