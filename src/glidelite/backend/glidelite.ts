@@ -26,3 +26,4 @@ export * from './glconfig';
 export * from './ipc';
 export * from './ipcMessage';
 export * from './logger';
+export * from './websocket';
