@@ -35,9 +35,7 @@ const SOCKET_TAG = Symbol.for('glidelite.websocket');
  * Definition of a WebSocket endpoint served by the WebSocket server.
  */
 export interface WebSocketEndpoint {
-  /**
-   * The absolute path of the WebSocket endpoint.
-   */
+  /** The absolute path of the WebSocket endpoint */
   path: string;
 
   /**
@@ -57,19 +55,13 @@ export interface WebSocketEndpoint {
    */
   onConnection: (ws: WebSocket, req: IncomingMessage) => void;
 
-  /**
-   * The maximum size in bytes of a single incoming message, larger messages close the connection (default: `65536`).
-   */
+  /** The maximum size in bytes of a single incoming message, larger messages close the connection (default: `65536`) */
   maxPayloadBytes?: number;
 
-  /**
-   * The maximum number of simultaneous connections on this endpoint (default: `5000`).
-   */
+  /** The maximum number of simultaneous connections on this endpoint (default: `5000`) */
   maxConnections?: number;
 
-  /**
-   * The maximum number of simultaneous connections per client IP address on this endpoint (default: `50`).
-   */
+  /** The maximum number of simultaneous connections per client IP address on this endpoint (default: `50`) */
   maxConnectionsPerIp?: number;
 }
 
