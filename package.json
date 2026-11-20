@@ -93,7 +93,7 @@
     "eslint": "^10.15.0",
     "globals": "^17.14.0",
     "knip": "^6.44.2",
-    "typescript-eslint": "^8.72.2",
+    "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.0"
   }
 }
