@@ -24,14 +24,6 @@
 /* eslint-disable */
 
 /**
- * Options for opening a WebSocket towards the WebSocket server.
- */
-export interface WebSocketOptions {
-  /** The WebSocket subprotocol(s) the client would like to use, in order of preference */
-  protocols?: string | string[];
-}
-
-/**
  * Opens a WebSocket towards an endpoint on the WebSocket server.
  * @param path the absolute path of the WebSocket endpoint
  * @param protocols the subprotocol(s) preferred to use, in order of preference
