@@ -60,9 +60,6 @@ export interface WebSocketEndpoint {
 
   /** The maximum number of simultaneous connections on this endpoint (default: `5000`) */
   maxConnections?: number;
-
-  /** The maximum number of simultaneous connections per client IP address on this endpoint (default: `50`) */
-  maxConnectionsPerIp?: number;
 }
 
 /**
