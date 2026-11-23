@@ -6,7 +6,7 @@
 
 A command-line tool for building modern web applications from end to end.
 
-GlideLite gives you a fast, productive development experience for both backend and frontend code. Out of the box, it supports APIs, background workers, scheduled tasks, configuration management, logging, and inter-process communication — all paired seamlessly with a [Vite](https://vite.dev/)-powered frontend.
+GlideLite gives you a fast, productive development experience for both backend and frontend code. Out of the box, it supports APIs, WebSockets, background workers, scheduled tasks, configuration management, logging, and inter-process communication — all paired seamlessly with a [Vite](https://vite.dev/)-powered frontend.
 
 ## Installation
 
