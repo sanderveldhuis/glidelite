@@ -85,8 +85,10 @@ describe('moduleFrontend.ts', () => {
   });
 
   it('validate running the frontend', () => {
-    const stdOut = vi.spyOn(process.stdout, 'write');
-    const stdErr = vi.spyOn(process.stderr, 'write');
+    // @ts-expect-error because function has return type boolean
+    const stdOut = vi.spyOn(process.stdout, 'write').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type boolean
+    const stdErr = vi.spyOn(process.stderr, 'write').mockImplementation(() => {/*Emtpy*/});
     const spawn = vi.spyOn(child_process, 'spawn');
 
     const spawnOutEvent: string[] = [];
