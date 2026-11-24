@@ -44,13 +44,12 @@ export class IpcBuffer {
    */
   filter(data: string): IpcMessage[] {
     const messages: IpcMessage[] = [];
-    let startIndex = -1;
 
     // Merge data in buffer
     this._buffer += data;
 
     // Search for the first start frame
-    startIndex = this._buffer.indexOf(IpcFrameStart);
+    let startIndex = this._buffer.indexOf(IpcFrameStart);
     // Stop and clear buffer if no start frame is found
     if (startIndex === -1) {
       // Always keep the last characters as it could contains the start frame partly

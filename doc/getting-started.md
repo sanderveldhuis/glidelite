@@ -16,13 +16,13 @@ npm init --init-type module
 Install the latest stable release:
 
 ```bash
-npm install -D sanderveldhuis/glidelite#stable
+npm install -D sanderveldhuis/glidelite#stable --allow-git all
 ```
 
 Or try our nightly build for the newest features:
 
 ```bash
-npm install -D sanderveldhuis/glidelite#next
+npm install -D sanderveldhuis/glidelite#next --allow-git all
 ```
 
 ## Initialize your first project

@@ -47,7 +47,7 @@ function isWebSocketDefinition(obj: unknown): obj is WebSocketEndpoint {
 }
 
 // Search for the WebSocket directory in an upwards lookup
-let websocketsDir = '';
+let websocketsDir;
 for (let dir = __dirname;; dir = dirname(dir)) {
   // Search for the temporary development directory
   websocketsDir = join(dir, 'node_modules', '.tmp', 'glc', 'backend', 'sockets');

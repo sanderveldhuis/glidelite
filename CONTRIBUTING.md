@@ -19,7 +19,7 @@ When logging a bug, please be sure to include the following:
  * If at all possible, an *isolated* way to reproduce the behavior
  * The behavior you expect to see, and the actual behavior
 
-You can try out the nightly build of GlideLite (`npm install -D sanderveldhuis/glidelite#next`) to see if the bug has already been fixed.
+You can try out the nightly build of GlideLite (`npm install -D sanderveldhuis/glidelite#next --allow-git all`) to see if the bug has already been fixed.
 
 ## 3. Do you have a suggestion?
 

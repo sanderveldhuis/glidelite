@@ -34,7 +34,7 @@ import {
 /**
  * Search for the glconfig.json file in an upwards lookup.
  */
-let glconfigJson = '';
+let glconfigJson;
 for (let dir = __dirname;; dir = dirname(dir)) {
   // Search for the glconfig.json in the directory
   if (readdirSync(dir).includes('glconfig.json')) {

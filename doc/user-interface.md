@@ -22,7 +22,7 @@ This interface uses React. In your editor, add the following dependencies to you
 }
 ```
 
-Stop the local development run (`Ctrl+C`), install the new dependencies with `npm install`, and restart your project:
+Stop the local development run (`Ctrl+C`), install the new dependencies with `npm install --allow-git all`, and restart your project:
 
 ```bash
 npx glc -r
