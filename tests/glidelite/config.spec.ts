@@ -89,6 +89,7 @@ describe('config.ts', () => {
     // Test logger function
     glConfig.customLogger.error('http proxy error ECONNREFUSED'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     glConfig.customLogger.error('ws proxy error ECONNREFUSED'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+    glConfig.customLogger.error('ws proxy error ECONNRESET'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   });
 
   it('validate finding the GlideLite config without port', async () => {
@@ -123,5 +124,6 @@ describe('config.ts', () => {
     // Test logger function
     glConfig.customLogger.error('http proxy error ECONNREFUSED'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     glConfig.customLogger.error('ws proxy error ECONNREFUSED'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+    glConfig.customLogger.error('ws proxy error ECONNRESET'); /* eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   });
 });

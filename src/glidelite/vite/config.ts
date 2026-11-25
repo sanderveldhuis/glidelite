@@ -97,7 +97,10 @@ function loadWsPort(): number {
 const logger = createLogger();
 const loggerError = logger.error; /* eslint-disable-line @typescript-eslint/unbound-method */
 logger.error = (msg: string, options?: LogErrorOptions) => {
-  if ((msg.includes('http proxy error') || msg.includes('ws proxy error')) && msg.includes('ECONNREFUSED')) {
+  if (
+    (msg.includes('http proxy error') && msg.includes('ECONNREFUSED')) ||
+    (msg.includes('ws proxy error') && (msg.includes('ECONNREFUSED') || msg.includes('ECONNRESET')))
+  ) {
     return;
   }
   loggerError(msg, options);
