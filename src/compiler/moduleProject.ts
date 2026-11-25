@@ -137,7 +137,8 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '}\n\n' +
       // All other log files are handled here
       `/var/log/${config.name as string}/workers.log\n` +
-      `/var/log/${config.name as string}/api.log {\n` +
+      `/var/log/${config.name as string}/api.log\n` +
+      `/var/log/${config.name as string}/websockets.log {\n` +
       '    weekly\n' +
       '    missingok\n' +
       '    rotate 12\n' +
@@ -256,6 +257,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       '# Cleanup old project\n' +
       `rm -rf /var/www/${config.name as string}\n` +
       `rm -rf /etc/cron.d/${config.name as string}_api\n` +
+      `rm -rf /etc/cron.d/${config.name as string}_websockets\n` +
       `rm -rf /etc/cron.d/${config.name as string}_workers\n` +
       `rm -rf /etc/nginx/sites-available/${config.name as string}.*.conf\n` +
       `rm -rf /etc/nginx/sites-enabled/${config.name as string}.*.conf\n` +
@@ -268,7 +270,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       'cp -r etc /\n\n' +
       '# Install dependencies\n' +
       `pushd /opt/${config.name as string}\n` +
-      'npm install\n' +
+      'npm install --allow-git all\n' +
       'popd\n\n' +
       '# Prepare Nginx\n' +
       `for file in /etc/nginx/sites-available/${config.name as string}.*.conf\n` +
