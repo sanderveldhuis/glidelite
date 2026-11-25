@@ -63,13 +63,13 @@ function App() {
     webSocketRef.current = ws;
 
     ws.onmessage = event => {
-      setResponse(`${event.data}\n${response}`);
+      setResponse(previous => `${event.data}\n${previous}`);
     };
 
     return () => {
       ws.close();
     };
-  }, [response]);
+  }, []);
 
   return (
     <>
