@@ -119,7 +119,9 @@ describe('moduleWebSockets.ts', () => {
     const watchEvent: string[] = [];
     const watchCallback: ((a?: string | number | Error, b?: string) => void)[] = [];
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     spawn.mockReturnValue({ pid: 1234 });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     watch.mockReturnValue({
       // @ts-expect-error because function has return type FSWatcher
       on: (event: string, callback: () => void) => {
@@ -178,6 +180,7 @@ describe('moduleWebSockets.ts', () => {
 
     // With WebSocket port in GlideLite configuration, JavaScript/TypeScript files available, and a sucessful execute
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.ts' }, { name: 'test.js', parentPath: path.normalize('input/backend/sockets') }]);
     execute.mockReturnValueOnce(true);
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
@@ -205,6 +208,7 @@ describe('moduleWebSockets.ts', () => {
 
     // Test the callback function with TypeScript files available but a failing execute
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.ts' }]);
     execute.mockReturnValueOnce(false);
     watchCallback[2]('change', 'input/backend/sockets/path');
@@ -226,6 +230,7 @@ describe('moduleWebSockets.ts', () => {
 
     // Test the callback function with JavaScript files available
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.js', parentPath: path.normalize('input/backend/sockets') }]);
     watchCallback[4]('change', 'input/shared/path');
     expect(remove).toHaveBeenCalledTimes(4);

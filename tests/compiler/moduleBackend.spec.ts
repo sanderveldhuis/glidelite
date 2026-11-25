@@ -107,6 +107,7 @@ describe('moduleBackend.ts', () => {
 
     // No files with .ts or .js extension available in backend directory
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input2', 'output2');
     expect(readDir).toHaveBeenCalledTimes(2);
@@ -114,6 +115,7 @@ describe('moduleBackend.ts', () => {
 
     // Only files with .js extension available in backend directory, no TypeScript compilation required
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.js', parentPath: path.normalize('input3/backend/api') }, { name: 'test2.js', parentPath: path.normalize('input3/backend/workers') }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
     expect(readDir).toHaveBeenCalledTimes(3);
@@ -133,6 +135,7 @@ describe('moduleBackend.ts', () => {
 
     // Files with .ts extension available in backend directory but execution failed
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }]);
     execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
@@ -145,6 +148,7 @@ describe('moduleBackend.ts', () => {
 
     // Files with .ts extension available in backend directory and execution succeeded
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     execute.mockReturnValueOnce(true);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
