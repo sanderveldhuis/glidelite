@@ -21,7 +21,7 @@ function App() {
   const [version, setVersion] = useState('Unknown');
   const [message, setMessage] = useState('');
   const [response, setResponse] = useState('');
-  const webSocketRef = useRef < WebSocket | null > (null);
+  const webSocketRef = useRef(null);
 
   const getInfo = useCallback(() => {
     api.get({ path: '/', responseType: 'json', timeout: 800 }).then(payload => {
