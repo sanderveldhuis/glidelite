@@ -50,7 +50,7 @@ function isWebSocketDefinition(obj: unknown): obj is WebSocketEndpoint {
 let websocketsDir;
 for (let dir = __dirname;; dir = dirname(dir)) {
   // Search for the temporary development directory
-  websocketsDir = join(dir, 'node_modules', '.tmp', 'glc', 'backend', 'sockets');
+  websocketsDir = join(dir, 'node_modules', '.tmp', 'glc', 'ws', 'backend', 'sockets');
   let result = statSync(websocketsDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
     break;

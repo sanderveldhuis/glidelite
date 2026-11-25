@@ -102,7 +102,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  * @param workingDirectory the working directory to be run
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
-  const tmpDir = join(workingDirectory, 'node_modules', '.tmp', 'glc');
+  const tmpDir = join(workingDirectory, 'node_modules', '.tmp', 'glc', 'ws');
   const backendDir = join(workingDirectory, 'backend');
   const websocketsDir = join(backendDir, 'sockets');
   const sharedDir = join(workingDirectory, 'shared');

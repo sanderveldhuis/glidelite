@@ -135,7 +135,7 @@ describe('moduleWebSockets.ts', () => {
     readDir.mockReturnValueOnce([]);
     run({ name: 'pkg' }, { name: 'cfg', ports: { websocket: 1234 } }, 'input');
     expect(remove).toHaveBeenCalledTimes(1);
-    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/ws'));
     expect(readDir).toHaveBeenCalledTimes(1);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/sockets'));
     expect(spawn).toHaveBeenCalledTimes(1);
@@ -185,15 +185,15 @@ describe('moduleWebSockets.ts', () => {
     execute.mockReturnValueOnce(true);
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     expect(remove).toHaveBeenCalledTimes(2);
-    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/ws'));
     expect(readDir).toHaveBeenCalledTimes(2);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/sockets'));
     expect(makeDir).toHaveBeenCalledTimes(1);
-    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/backend/sockets'));
+    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/ws/backend/sockets'));
     expect(copyFile).toHaveBeenCalledTimes(1);
-    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/sockets/test.js'), path.normalize('input/node_modules/.tmp/glc/backend/sockets/test.js'));
+    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/sockets/test.js'), path.normalize('input/node_modules/.tmp/glc/ws/backend/sockets/test.js'));
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc/ws'), 'input');
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/wsserver/run.js'), { shell: true, cwd: 'input', stdio: 'inherit' });
     expect(watch).toHaveBeenCalledTimes(4);
@@ -213,13 +213,13 @@ describe('moduleWebSockets.ts', () => {
     execute.mockReturnValueOnce(false);
     watchCallback[2]('change', 'input/backend/sockets/path');
     expect(remove).toHaveBeenCalledTimes(3);
-    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/ws'));
     expect(readDir).toHaveBeenCalledTimes(3);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/sockets'));
     expect(consoleLog).toHaveBeenCalledTimes(1);
     expect(consoleLog).toHaveBeenLastCalledWith(expect.any(String), '[glidelite]', '(websocket)', 'source change', 'path');
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc/ws'), 'input');
     expect(spawn).toHaveBeenCalledTimes(3);
     if ('win32' === process.platform) {
       expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
@@ -234,14 +234,14 @@ describe('moduleWebSockets.ts', () => {
     readDir.mockReturnValueOnce([{ name: 'test.js', parentPath: path.normalize('input/backend/sockets') }]);
     watchCallback[4]('change', 'input/shared/path');
     expect(remove).toHaveBeenCalledTimes(4);
-    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/ws'));
     expect(readDir).toHaveBeenCalledTimes(4);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/sockets'));
     expect(consoleLog).toHaveBeenCalledTimes(1);
     expect(makeDir).toHaveBeenCalledTimes(2);
-    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/backend/sockets'));
+    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/ws/backend/sockets'));
     expect(copyFile).toHaveBeenCalledTimes(2);
-    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/sockets/test.js'), path.normalize('input/node_modules/.tmp/glc/backend/sockets/test.js'));
+    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/sockets/test.js'), path.normalize('input/node_modules/.tmp/glc/ws/backend/sockets/test.js'));
     expect(spawn).toHaveBeenCalledTimes(5);
     if ('win32' === process.platform) {
       expect(spawn).toHaveBeenNthCalledWith(4, 'taskkill', ['/pid', '1234', '/f', '/t']);
