@@ -83,14 +83,14 @@ function App() {
 
     // Set a received message in the response textarea
     ws.onmessage = event => {
-      setResponse(`${event.data}\n${response}`);
+      setResponse(previous => `${event.data}\n${previous}`);
     };
 
     // Cleanup the WebSocket connection
     return () => {
       ws.close();
     };
-  }, [response]);
+  }, []);
 
   return (
     <>
@@ -137,6 +137,53 @@ export default App;
 ```
 
 After saving the files, open `http://localhost:5173/`. Previously, entering a message only updated the response textarea locally in the browser. Now it sends the message through the WebSocket, the endpoint echos the message, and after receiving it in the browser again it is displayed in the response textarea.
+
+## Connection retry
+
+The helper returns a standard browser [`WebSocket`](https://developer.mozilla.org/docs/Web/API/WebSocket). It does not reconnect automatically, because what to do after a lost connection (retry, show a message, fetch missed data) depends on your application. A reconnect with a delay can be built in the `close` event:
+
+```typescript
+...
+
+useEffect(() => {
+  let ws: WebSocket | undefined;
+  let timer: number | undefined;
+  let running = true;
+
+  // Internal function to start the WebSocket connection
+  const connect = () => {
+    // Connect and store the WebSocket
+    ws = websocket('/echo');
+    webSocketRef.current = ws;
+
+    // Set a received message in the response textarea
+    ws.onmessage = event => {
+      setResponse(previous => `${event.data}\n${previous}`);
+    };
+
+    // Retry connecting after 3 seconds
+    ws.onclose = () => {
+      if (running) {
+        timer = setTimeout(connect, 3000);
+      }
+    };
+  };
+
+  // Start the WebSocket connection
+  connect();
+
+  // Cleanup the WebSocket connection
+  return () => {
+    running = false;
+    clearTimeout(timer);
+    ws?.close();
+  };
+}, []);
+
+...
+```
+
+Previously, when editing the `backend/sockets/echo.ts` file no reconnect was performed once the WebSocket server was restarted. Edit `backend/sockets/echo.ts` to see the reconnect in action.
 
 ## Further Reading
 

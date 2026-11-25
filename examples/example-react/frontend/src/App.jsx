@@ -59,15 +59,29 @@ function App() {
   useEffect(() => getCounter(), [getCounter]);
   useInterval(() => getInfo(), 1000);
   useEffect(() => {
-    const ws = websocket('/echo');
-    webSocketRef.current = ws;
+    let ws;
+    let timer;
+    let running = true;
 
-    ws.onmessage = event => {
-      setResponse(previous => `${event.data}\n${previous}`);
+    const connect = () => {
+      ws = websocket('/echo');
+      webSocketRef.current = ws;
+      ws.onmessage = event => {
+        setResponse(previous => `${event.data}\n${previous}`);
+      };
+      ws.onclose = () => {
+        if (running) {
+          timer = setTimeout(connect, 3000);
+        }
+      };
     };
 
+    connect();
+
     return () => {
-      ws.close();
+      running = false;
+      clearTimeout(timer);
+      ws?.close();
     };
   }, []);
 
