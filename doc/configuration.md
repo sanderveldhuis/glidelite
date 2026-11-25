@@ -114,6 +114,8 @@ The port for the API server, which handles all your custom logic.
 }
 ```
 
+### `ports.websocket`
+
 **Default:** `9003`
 
 The port for the WebSocket server, which handles all your real-time, two-way communication.
