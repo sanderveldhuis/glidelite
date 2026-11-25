@@ -90,8 +90,8 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
   // Get a list of all TypeScript and JavaScript files
   const allFiles = readDir(backendDir);
-  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
-  const jsFiles = allFiles.filter(file => new RegExp('.js$').test(file.name));
+  const tsFiles = allFiles.filter(file => file.name.endsWith('.ts'));
+  const jsFiles = allFiles.filter(file => file.name.endsWith('.js'));
   if (tsFiles.length <= 0 && jsFiles.length <= 0) {
     // Nothing to compile
     return;

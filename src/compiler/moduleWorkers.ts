@@ -155,7 +155,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     // Run workers based on compiler instructions in the TypeScript and JavaScript files
     for (const [filePath, instruction] of Object.entries(workerFiles)) {
       // Determine if the file is a TypeScript or JavaScript file
-      const isTypeScript = new RegExp('.ts$').test(filePath);
+      const isTypeScript = filePath.endsWith('.ts');
 
       // Only run service workers
       if (instruction[1] !== 'service') {
@@ -263,7 +263,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   let crontab = '';
   for (const [filePath, instruction] of Object.entries(workerFiles)) {
     // Construct Crontab content for either a task or a service, the compiled TypeScript files end up as JavaScript files
-    const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/.ts$/, '.js');
+    const jsFilePath = filePath.replace(workersDir, '').replace(/\\/g, '/').replace(/^\//, '').replace(/\.ts$/, '.js');
     if (instruction[1] === 'service') {
       crontab += `@reboot root node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;
       crontab += `* * * * * root ps aux | grep -v grep | grep -c "node /opt/${config.name as string}/backend/workers/${jsFilePath}" || node /opt/${config.name as string}/backend/workers/${jsFilePath} >> /var/log/${config.name as string}/workers.log &\n`;

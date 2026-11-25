@@ -105,7 +105,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
     // Always cleanup generated build info files
     const allFiles = readDir(frontendDir);
-    const buildInfoFiles = allFiles.filter(file => new RegExp('.tsbuildinfo$').test(file.name));
+    const buildInfoFiles = allFiles.filter(file => file.name.endsWith('.tsbuildinfo'));
     for (const file of buildInfoFiles) {
       remove(join(file.parentPath, file.name));
     }
