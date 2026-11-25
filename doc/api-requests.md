@@ -45,6 +45,8 @@ function App() {
   const [id, setId] = useState(0);
   const [author, setAuthor] = useState('Unknown');
   const [version, setVersion] = useState('Unknown');
+  const [message, setMessage] = useState('');
+  const [response, setResponse] = useState('');
 
   // Function executing API request to get the information
   const getInfo = useCallback(() => {
@@ -77,7 +79,7 @@ function App() {
     });
   }, [getCounter]);
 
-  // On load request the counter value
+  // On page load, request the counter value
   useEffect(() => getCounter(), [getCounter]);
 
   // Request the information each second
@@ -100,6 +102,25 @@ function App() {
         <div>Random ID: {id}</div>
         <div>Author: {author}</div>
         <div>Version: {version}</div>
+      </div>
+
+      <div style={{ textAlign: 'center' }}>
+        <h2>Chat</h2>
+        <input
+          type='text'
+          placeholder='Enter message'
+          onChange={e => setMessage(e.target.value)}
+          value={message}
+        />
+        <button
+          type='button'
+          onClick={() => setResponse(message)}
+        >
+          Send
+        </button>
+        <div>
+          <textarea value={response} readOnly />
+        </div>
       </div>
     </>
   );
