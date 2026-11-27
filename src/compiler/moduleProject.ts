@@ -152,13 +152,18 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
   // Create Nginx configuration files
   const ports = (config.ports ?? {}) as Record<string, number>;
+  const nginxName = (config.name as string).toLowerCase().replace(/[^a-z0-9_]/g, '_').replace(/^(\d)/, '_$1');
   const nginxDir = join(outputDirectory, 'etc', 'nginx', 'sites-available');
   const nginxGatewayCnf = join(nginxDir, `${config.name as string}.gateway.conf`);
   const nginxProxyCnf = join(nginxDir, `${config.name as string}.proxy.conf`);
   makeDir(nginxDir);
   makeFile(
     nginxGatewayCnf,
-    'server {\n' +
+    `map $http_upgrade $${nginxName}_gateway_connection_upgrade {\n` +
+      '    default upgrade;\n' +
+      "    '' close;\n" +
+      '}\n\n' +
+      'server {\n' +
       `    listen ${ports.gateway && !config.homepage ? String(ports.gateway) : '80'};\n` +
       `    listen [::]:${ports.gateway && !config.homepage ? String(ports.gateway) : '80'};\n` +
       `    server_name ${config.homepage ? (config.homepage as string).replace(/https:\/\/|http:\/\//, '').replace(/\/$/, '') + ((config.homepage as string).split('.').length > 2 ? '' : ` www.${(config.homepage as string).replace(/https:\/\/|http:\/\//, '').replace(/\/$/, '')}`) : '_'};\n` +
@@ -166,6 +171,15 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       `    error_log /var/log/${config.name as string}/gateway.error.log;\n` +
       '    server_tokens off;\n' +
       (config.homepage && (config.homepage as string).startsWith('https://') ? "    add_header Strict-Transport-Security 'max-age=31536000; includeSubDomains' always;\n" : '') +
+      '    location /ws {\n' +
+      `        proxy_pass http://127.0.0.1:${ports.proxy ? String(ports.proxy) : '9001'};\n` +
+      '        proxy_http_version 1.1;\n' +
+      '        proxy_set_header Upgrade $http_upgrade;\n' +
+      `        proxy_set_header Connection $${nginxName}_gateway_connection_upgrade;\n` +
+      '        proxy_read_timeout 60s;\n' + // Same as ping interval * 2 from WebSocket server
+      '        proxy_send_timeout 60s;\n' + // Same as ping interval * 2 from WebSocket server
+      '        proxy_buffering off;\n' + // Do not buffer real-time frames
+      '    }\n' +
       '    location / {\n' +
       `        proxy_pass http://127.0.0.1:${ports.proxy ? String(ports.proxy) : '9001'};\n` +
       '    }\n' +
@@ -173,7 +187,11 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   );
   makeFile(
     nginxProxyCnf,
-    'server {\n' +
+    `map $http_upgrade $${nginxName}_proxy_connection_upgrade {\n` +
+      '    default upgrade;\n' +
+      "    '' close;\n" +
+      '}\n\n' +
+      'server {\n' +
       `    listen ${ports.proxy ? String(ports.proxy) : '9001'};\n` +
       `    access_log /var/log/${config.name as string}/proxy.access.log;\n` +
       `    error_log /var/log/${config.name as string}/proxy.error.log;\n` +
@@ -192,9 +210,21 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
       "        add_header X-Content-Type-Options 'nosniff' always;\n" +
       "        add_header X-Frame-Options 'DENY' always;\n" +
       "        add_header X-Xss-Protection '0' always;\n" +
-      (config.homepage && (config.homepage as string).startsWith('https://') ? "        add_header Content-Security-Policy 'default-src data: blob: \\'self\\' \\'unsafe-inline\\' \\'unsafe-eval\\'; script-src \\'unsafe-inline\\' blob: data: \\'self\\' \\'unsafe-eval\\' https://*.google-analytics.com; style-src \\'self\\' \\'unsafe-inline\\'; connect-src blob: \\'self\\' https://*.google-analytics.com; font-src \\'self\\' data:; img-src \\'self\\' data: blob:; media-src \\'self\\'; frame-src \\'self\\' data:; worker-src blob: \\'self\\' data:; block-all-mixed-content; upgrade-insecure-requests;' always;\n" : '') +
       '        rewrite ^/api/?(.*) /$1 break;\n' +
       `        proxy_pass http://127.0.0.1:${ports.api ? String(ports.api) : '9002'};\n` +
+      '    }\n' +
+      '    location /ws {\n' +
+      (config.homepage ? `        if ($http_origin != '${(config.homepage as string).replace(/\/$/, '')}') {\n` : '') +
+      (config.homepage ? '            return 403;\n' : '') +
+      (config.homepage ? '        }\n' : '') +
+      '        rewrite ^/ws/?(.*) /$1 break;\n' +
+      `        proxy_pass http://127.0.0.1:${ports.websocket ? String(ports.websocket) : '9003'};\n` +
+      '        proxy_http_version 1.1;\n' +
+      '        proxy_set_header Upgrade $http_upgrade;\n' +
+      `        proxy_set_header Connection $${nginxName}_proxy_connection_upgrade;\n` +
+      '        proxy_read_timeout 60s;\n' + // Same as ping interval * 2 from WebSocket server
+      '        proxy_send_timeout 60s;\n' + // Same as ping interval * 2 from WebSocket server
+      '        proxy_buffering off;\n' + // Do not buffer real-time frames
       '    }\n' +
       '    location /assets {\n' +
       "        add_header Access-Control-Allow-Origin '*' always;\n" +
