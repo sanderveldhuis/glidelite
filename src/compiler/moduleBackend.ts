@@ -28,6 +28,7 @@ import {
   relative
 } from 'node:path';
 import * as moduleApi from './moduleApi';
+import * as moduleWebSockets from './moduleWebSockets';
 import * as moduleWorkers from './moduleWorkers';
 import {
   copyFile,
@@ -49,6 +50,7 @@ import {
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
   moduleWorkers.clean(pkg, config, outputDirectory);
   moduleApi.clean(pkg, config, outputDirectory);
+  moduleWebSockets.clean(pkg, config, outputDirectory);
 }
 
 /**
@@ -60,6 +62,7 @@ export function clean(pkg: Json, config: Json, outputDirectory: string): void {
 export function validate(pkg: Json, config: Json, workingDirectory: string): void {
   moduleWorkers.validate(pkg, config, workingDirectory);
   moduleApi.validate(pkg, config, workingDirectory);
+  moduleWebSockets.validate(pkg, config, workingDirectory);
 }
 
 /**
@@ -71,6 +74,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
   moduleWorkers.run(pkg, config, workingDirectory);
   moduleApi.run(pkg, config, workingDirectory);
+  moduleWebSockets.run(pkg, config, workingDirectory);
 }
 
 /**
@@ -86,8 +90,8 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
 
   // Get a list of all TypeScript and JavaScript files
   const allFiles = readDir(backendDir);
-  const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
-  const jsFiles = allFiles.filter(file => new RegExp('.js$').test(file.name));
+  const tsFiles = allFiles.filter(file => file.name.endsWith('.ts'));
+  const jsFiles = allFiles.filter(file => file.name.endsWith('.js'));
   if (tsFiles.length <= 0 && jsFiles.length <= 0) {
     // Nothing to compile
     return;
@@ -105,6 +109,7 @@ export function compile(pkg: Json, config: Json, workingDirectory: string, outpu
   if (tsFiles.length <= 0 || execute(`npm exec --silent -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${outputDir}`, workingDirectory)) {
     moduleWorkers.compile(pkg, config, workingDirectory, outputDirectory);
     moduleApi.compile(pkg, config, workingDirectory, outputDirectory);
+    moduleWebSockets.compile(pkg, config, workingDirectory, outputDirectory);
   }
   else {
     process.exit(ExitStatus.ProjectCompileFailed);

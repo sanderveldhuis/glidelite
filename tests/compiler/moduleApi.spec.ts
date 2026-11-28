@@ -90,7 +90,7 @@ describe('moduleApi.ts', () => {
 
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
     expect(remove).toHaveBeenCalledTimes(2);
-    expect(remove).toHaveBeenNthCalledWith(1, path.normalize('output/opt/cfg/api'));
+    expect(remove).toHaveBeenNthCalledWith(1, path.normalize('output/opt/cfg/backend/api'));
     expect(remove).toHaveBeenNthCalledWith(2, path.normalize('output/etc/cron.d/cfg_api'));
   });
 
@@ -119,7 +119,9 @@ describe('moduleApi.ts', () => {
     const watchEvent: string[] = [];
     const watchCallback: ((a?: string | number | Error, b?: string) => void)[] = [];
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     spawn.mockReturnValue({ pid: 1234 });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     watch.mockReturnValue({
       // @ts-expect-error because function has return type FSWatcher
       on: (event: string, callback: () => void) => {
@@ -133,7 +135,7 @@ describe('moduleApi.ts', () => {
     readDir.mockReturnValueOnce([]);
     run({ name: 'pkg' }, { name: 'cfg', ports: { api: 1234 } }, 'input');
     expect(remove).toHaveBeenCalledTimes(1);
-    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/api'));
     expect(readDir).toHaveBeenCalledTimes(1);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
     expect(spawn).toHaveBeenCalledTimes(1);
@@ -178,19 +180,20 @@ describe('moduleApi.ts', () => {
 
     // With API port in GlideLite configuration, JavaScript/TypeScript files available, and a sucessful execute
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.ts' }, { name: 'test.js', parentPath: path.normalize('input/backend/api') }]);
     execute.mockReturnValueOnce(true);
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     expect(remove).toHaveBeenCalledTimes(2);
-    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/api'));
     expect(readDir).toHaveBeenCalledTimes(2);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
     expect(makeDir).toHaveBeenCalledTimes(1);
-    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/backend/api'));
+    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/api/backend/api'));
     expect(copyFile).toHaveBeenCalledTimes(1);
-    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/api/test.js'), path.normalize('input/node_modules/.tmp/glc/backend/api/test.js'));
+    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/api/test.js'), path.normalize('input/node_modules/.tmp/glc/api/backend/api/test.js'));
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc/api'), 'input');
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenLastCalledWith(path.normalize('node input/node_modules/glidelite/lib/apiserver/run.js'), { shell: true, cwd: 'input', stdio: 'inherit' });
     expect(watch).toHaveBeenCalledTimes(4);
@@ -205,17 +208,18 @@ describe('moduleApi.ts', () => {
 
     // Test the callback function with TypeScript files available but a failing execute
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }, { name: 'test.ts' }]);
     execute.mockReturnValueOnce(false);
     watchCallback[2]('change', 'input/backend/api/path');
     expect(remove).toHaveBeenCalledTimes(3);
-    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/api'));
     expect(readDir).toHaveBeenCalledTimes(3);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
     expect(consoleLog).toHaveBeenCalledTimes(1);
     expect(consoleLog).toHaveBeenLastCalledWith(expect.any(String), '[glidelite]', '(api)', 'source change', 'path');
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc'), 'input');
+    expect(execute).toHaveBeenLastCalledWith(path.normalize('npm exec --silent -- tsc -p input --rootDir input --outDir input/node_modules/.tmp/glc/api'), 'input');
     expect(spawn).toHaveBeenCalledTimes(3);
     if ('win32' === process.platform) {
       expect(spawn).toHaveBeenLastCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
@@ -226,17 +230,18 @@ describe('moduleApi.ts', () => {
 
     // Test the callback function with JavaScript files available
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.js', parentPath: path.normalize('input/backend/api') }]);
     watchCallback[4]('change', 'input/shared/path');
     expect(remove).toHaveBeenCalledTimes(4);
-    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc'));
+    expect(remove).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/api'));
     expect(readDir).toHaveBeenCalledTimes(4);
     expect(readDir).toHaveBeenLastCalledWith(path.normalize('input/backend/api'));
     expect(consoleLog).toHaveBeenCalledTimes(1);
     expect(makeDir).toHaveBeenCalledTimes(2);
-    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/backend/api'));
+    expect(makeDir).toHaveBeenLastCalledWith(path.normalize('input/node_modules/.tmp/glc/api/backend/api'));
     expect(copyFile).toHaveBeenCalledTimes(2);
-    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/api/test.js'), path.normalize('input/node_modules/.tmp/glc/backend/api/test.js'));
+    expect(copyFile).toHaveBeenLastCalledWith(path.normalize('input/backend/api/test.js'), path.normalize('input/node_modules/.tmp/glc/api/backend/api/test.js'));
     expect(spawn).toHaveBeenCalledTimes(5);
     if ('win32' === process.platform) {
       expect(spawn).toHaveBeenNthCalledWith(4, 'taskkill', ['/pid', '1234', '/f', '/t']);

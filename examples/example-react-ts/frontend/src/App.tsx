@@ -1,7 +1,11 @@
-import { api } from 'glidelite/frontend';
+import {
+  api,
+  websocket
+} from 'glidelite/frontend';
 import {
   useCallback,
   useEffect,
+  useRef,
   useState
 } from 'react';
 import {
@@ -15,6 +19,9 @@ function App() {
   const [id, setId] = useState(0);
   const [author, setAuthor] = useState('Unknown');
   const [version, setVersion] = useState('Unknown');
+  const [message, setMessage] = useState('');
+  const [response, setResponse] = useState('');
+  const webSocketRef = useRef<WebSocket | null>(null);
 
   const getInfo = useCallback(() => {
     api.get({ path: '/', responseType: 'json', timeout: 800 }).then(payload => {
@@ -42,8 +49,41 @@ function App() {
     });
   }, [getCounter]);
 
+  const sendMessage = useCallback(() => {
+    if (webSocketRef.current?.readyState === WebSocket.OPEN && message.trim()) {
+      webSocketRef.current.send(message);
+      setMessage('');
+    }
+  }, [message]);
+
   useEffect(() => getCounter(), [getCounter]);
   useInterval(() => getInfo(), 1000);
+  useEffect(() => {
+    let ws: WebSocket | undefined;
+    let timer: number | undefined;
+    let running = true;
+
+    const connect = () => {
+      ws = websocket('/echo');
+      webSocketRef.current = ws;
+      ws.onmessage = event => {
+        setResponse(previous => `${event.data}\n${previous}`);
+      };
+      ws.onclose = () => {
+        if (running) {
+          timer = setTimeout(connect, 3000);
+        }
+      };
+    };
+
+    connect();
+
+    return () => {
+      running = false;
+      clearTimeout(timer);
+      ws?.close();
+    };
+  }, []);
 
   return (
     <>
@@ -62,6 +102,25 @@ function App() {
         <div>Random ID: {id}</div>
         <div>Author: {author}</div>
         <div>Version: {version}</div>
+      </div>
+
+      <div style={{ textAlign: 'center' }}>
+        <h2>Chat</h2>
+        <input
+          type='text'
+          placeholder='Enter message'
+          onChange={e => setMessage(e.target.value)}
+          value={message}
+        />
+        <button
+          type='button'
+          onClick={() => sendMessage()}
+        >
+          Send
+        </button>
+        <div>
+          <textarea value={response} readOnly />
+        </div>
       </div>
     </>
   );

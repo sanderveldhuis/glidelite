@@ -6,20 +6,20 @@
 
 A command-line tool for building modern web applications from end to end.
 
-GlideLite gives you a fast, productive development experience for both backend and frontend code. Out of the box, it supports APIs, background workers, scheduled tasks, configuration management, logging, and inter-process communication — all paired seamlessly with a [Vite](https://vite.dev/)-powered frontend.
+GlideLite gives you a fast, productive development experience for both backend and frontend code. Out of the box, it supports APIs, WebSockets, background workers, scheduled tasks, configuration management, logging, and inter-process communication — all paired seamlessly with a [Vite](https://vite.dev/)-powered frontend.
 
 ## Installation
 
 Install the latest stable release:
 
 ```bash
-npm install -D sanderveldhuis/glidelite#stable
+npm install -D sanderveldhuis/glidelite#stable --allow-git all
 ```
 
 Or try our nightly build for the newest features:
 
 ```bash
-npm install -D sanderveldhuis/glidelite#next
+npm install -D sanderveldhuis/glidelite#next --allow-git all
 ```
 
 ## Contributing
@@ -40,6 +40,7 @@ New to GlideLite? Start here:
 **Backend**
 
 * [API](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api.md)
+* [WebSockets](https://github.com/sanderveldhuis/glidelite/blob/main/doc/websockets.md)
 * [Workers](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md)
 * [Using configuration values](https://github.com/sanderveldhuis/glidelite/blob/main/doc/using-configuration-values.md)
 * [Using dependencies](https://github.com/sanderveldhuis/glidelite/blob/main/doc/using-dependencies.md)
@@ -50,6 +51,7 @@ New to GlideLite? Start here:
 
 * [User interface](https://github.com/sanderveldhuis/glidelite/blob/main/doc/user-interface.md)
 * [API requests](https://github.com/sanderveldhuis/glidelite/blob/main/doc/api-requests.md)
+* [WebSocket communication](https://github.com/sanderveldhuis/glidelite/blob/main/doc/websocket-communication.md)
 
 **Shipping your app**
 

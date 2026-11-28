@@ -19,7 +19,7 @@ In your editor, add the following dependencies to your `package.json`:
 }
 ```
 
-Stop the local development run (`Ctrl+C`), install the new dependencies with `npm install`, and use the package in `backend/api/routers/info.ts`:
+Stop the local development run (`Ctrl+C`), install the new dependencies with `npm install --allow-git all`, and use the package in `backend/api/routers/info.ts`:
 
 ```typescript
 // Import the dependency function

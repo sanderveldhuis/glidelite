@@ -105,7 +105,9 @@ describe('moduleWorkers.ts', () => {
     const watchEvent: string[] = [];
     const watchCallback: ((a?: string | number | Error, b?: string) => void)[] = [];
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     spawn.mockReturnValue({ pid: 1234 });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     watch.mockReturnValue({
       // @ts-expect-error because function has return type FSWatcher
       on: (event: string, callback: () => void) => {
@@ -161,6 +163,7 @@ describe('moduleWorkers.ts', () => {
     // Files with .ts extension available in workers directory, invalid instructions found
     // Validating all regexes are not part of this test, it will be done in another test
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @test"\nconsole.log("done")');
     watchCallback[2]('change', 'input/backend/workers/path');
@@ -176,6 +179,7 @@ describe('moduleWorkers.ts', () => {
     // Files with .ts extension available in workers directory, valid instructions found
     // Validating all regexes are not part of this test, it will be done in another test
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.ts', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc service"\nconsole.log("done")');
     watchCallback[4]('change', 'input/shared/path');
@@ -194,6 +198,7 @@ describe('moduleWorkers.ts', () => {
     // Files with .ts extension available in workers directory, valid instructions found, and spawned processes should be killed
     // Validating all regexes are not part of this test, it will be done in another test
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.ts', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc task @monthly"\nconsole.log("done")');
     watchCallback[4]('change', 'input/shared/path');
@@ -217,6 +222,7 @@ describe('moduleWorkers.ts', () => {
     // Files with .js extension available in workers directory, valid instructions found, JavaScript workers are run with node directly
     // Validating all regexes are not part of this test, it will be done in another test
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.js', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.js', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc service"\nconsole.log("done")');
     watchCallback[4]('change', 'input/shared/path');
@@ -251,6 +257,7 @@ describe('moduleWorkers.ts', () => {
 
     // No files with .ts or .js extension available in workers directory
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input', 'output');
     expect(readDir).toHaveBeenCalledTimes(2);
@@ -258,6 +265,7 @@ describe('moduleWorkers.ts', () => {
 
     // Files with .ts extension available in workers directory, but no instructions found
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     readFile.mockReturnValueOnce('').mockReturnValueOnce('');
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
@@ -270,6 +278,7 @@ describe('moduleWorkers.ts', () => {
     // Files with .ts extension available in workers directory, invalid instructions found
     // Validating all regexes are not part of this test, it will be done in another test
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @test"\nconsole.log("done")');
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
@@ -285,6 +294,7 @@ describe('moduleWorkers.ts', () => {
     // Files with .ts extension available in workers directory, valid instructions found, and execution succeeded
     // Validating all regexes are not part of this test, it will be done in another test
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.ts', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc service"\nconsole.log("done")');
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');
@@ -301,6 +311,7 @@ describe('moduleWorkers.ts', () => {
     // Files with .js extension available in workers directory, valid instructions found, and no compilation required
     // Validating all regexes are not part of this test, it will be done in another test
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.js', parentPath: path.normalize('input/backend/workers/sub1/sub2') }, { name: 'test2.js', parentPath: path.normalize('input/backend/workers/sub2/sub3') }]);
     readFile.mockReturnValueOnce('"use strict";\n"glc task @yearly"\nconsole.log("done")').mockReturnValueOnce('"use strict";\n"glc service"\nconsole.log("done")');
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input', 'output');

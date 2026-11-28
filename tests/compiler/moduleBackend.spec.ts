@@ -37,6 +37,7 @@ import {
   run,
   validate
 } from '../../src/compiler/moduleBackend';
+import * as moduleWebSocketsSrc from '../../src/compiler/moduleWebSockets';
 import * as moduleWorkersSrc from '../../src/compiler/moduleWorkers';
 import * as sysUtilsSrc from '../../src/compiler/sysUtils';
 
@@ -48,39 +49,49 @@ describe('moduleBackend.ts', () => {
   it('validate checking the backend', () => {
     const validateWorkers = vi.spyOn(moduleWorkersSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
     const validateApi = vi.spyOn(moduleApiSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
+    const validateWebSockets = vi.spyOn(moduleWebSocketsSrc, 'validate').mockImplementation(() => {/*Emtpy*/});
 
     validate({ name: 'pkg' }, { name: 'cfg' }, 'input');
     expect(validateWorkers).toHaveBeenCalledTimes(1);
     expect(validateWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
     expect(validateApi).toHaveBeenCalledTimes(1);
     expect(validateApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
+    expect(validateWebSockets).toHaveBeenCalledTimes(1);
+    expect(validateWebSockets).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
   });
 
   it('validate cleaning the backend', () => {
     const cleanWorkers = vi.spyOn(moduleWorkersSrc, 'clean').mockImplementation(() => {/*Emtpy*/});
     const cleanApi = vi.spyOn(moduleApiSrc, 'clean').mockImplementation(() => {/*Emtpy*/});
+    const cleanWebSockets = vi.spyOn(moduleWebSocketsSrc, 'clean').mockImplementation(() => {/*Emtpy*/});
 
     clean({ name: 'pkg' }, { name: 'cfg' }, 'output');
     expect(cleanWorkers).toHaveBeenCalledTimes(1);
     expect(cleanWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'output');
     expect(cleanApi).toHaveBeenCalledTimes(1);
     expect(cleanApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'output');
+    expect(cleanWebSockets).toHaveBeenCalledTimes(1);
+    expect(cleanWebSockets).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'output');
   });
 
   it('validate running the backend', () => {
     const runWorkers = vi.spyOn(moduleWorkersSrc, 'run').mockImplementation(() => {/*Emtpy*/});
     const runApi = vi.spyOn(moduleApiSrc, 'run').mockImplementation(() => {/*Emtpy*/});
+    const runWebSockets = vi.spyOn(moduleWebSocketsSrc, 'run').mockImplementation(() => {/*Emtpy*/});
 
     run({ name: 'pkg' }, { name: 'cfg' }, 'input');
     expect(runWorkers).toHaveBeenCalledTimes(1);
     expect(runWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
     expect(runApi).toHaveBeenCalledTimes(1);
     expect(runApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
+    expect(runWebSockets).toHaveBeenCalledTimes(1);
+    expect(runWebSockets).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input');
   });
 
   it('validate compiling the backend', () => {
     const compileWorkers = vi.spyOn(moduleWorkersSrc, 'compile').mockImplementation(() => {/*Emtpy*/});
     const compileApi = vi.spyOn(moduleApiSrc, 'compile').mockImplementation(() => {/*Emtpy*/});
+    const compileWebSockets = vi.spyOn(moduleWebSocketsSrc, 'compile').mockImplementation(() => {/*Emtpy*/});
     const execute = vi.spyOn(sysUtilsSrc, 'execute');
     const readDir = vi.spyOn(sysUtilsSrc, 'readDir');
     const makeDir = vi.spyOn(sysUtilsSrc, 'makeDir').mockImplementation(() => {/*Emtpy*/});
@@ -96,6 +107,7 @@ describe('moduleBackend.ts', () => {
 
     // No files with .ts or .js extension available in backend directory
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.tsx' }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input2', 'output2');
     expect(readDir).toHaveBeenCalledTimes(2);
@@ -103,6 +115,7 @@ describe('moduleBackend.ts', () => {
 
     // Only files with .js extension available in backend directory, no TypeScript compilation required
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.js', parentPath: path.normalize('input3/backend/api') }, { name: 'test2.js', parentPath: path.normalize('input3/backend/workers') }]);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
     expect(readDir).toHaveBeenCalledTimes(3);
@@ -117,9 +130,12 @@ describe('moduleBackend.ts', () => {
     expect(compileWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
     expect(compileApi).toHaveBeenCalledTimes(1);
     expect(compileApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
+    expect(compileWebSockets).toHaveBeenCalledTimes(1);
+    expect(compileWebSockets).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input3', 'output3');
 
     // Files with .ts extension available in backend directory but execution failed
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }]);
     execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input4', 'output4');
@@ -132,6 +148,7 @@ describe('moduleBackend.ts', () => {
 
     // Files with .ts extension available in backend directory and execution succeeded
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test1.ts', parentPath: 'path1' }, { name: 'test2.ts', parentPath: 'path2' }]);
     execute.mockReturnValueOnce(true);
     compile({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
@@ -143,5 +160,7 @@ describe('moduleBackend.ts', () => {
     expect(compileWorkers).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
     expect(compileApi).toHaveBeenCalledTimes(2);
     expect(compileApi).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
+    expect(compileWebSockets).toHaveBeenCalledTimes(2);
+    expect(compileWebSockets).toHaveBeenLastCalledWith({ name: 'pkg' }, { name: 'cfg' }, 'input5', 'output5');
   });
 });

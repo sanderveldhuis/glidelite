@@ -134,4 +134,4 @@ To learn more about Express and middleware, see the [Express documentation](http
 
 ## Further Reading
 
-Continue your journey and start coding your first [worker](https://github.com/sanderveldhuis/glidelite/blob/main/doc/workers.md).
+Learn how to serve real-time, two-way communication using [WebSockets](https://github.com/sanderveldhuis/glidelite/blob/main/doc/websockets.md).

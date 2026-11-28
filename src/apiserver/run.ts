@@ -42,10 +42,10 @@ function isRequestHandler(obj: unknown): obj is RequestHandler {
 
 // Search for the API router directory in an upwards lookup
 let isDevelopment = false;
-let routersDir = '';
+let routersDir;
 for (let dir = __dirname;; dir = dirname(dir)) {
   // Search for the temporary development directory
-  routersDir = join(dir, 'node_modules', '.tmp', 'glc', 'backend', 'api', 'routers');
+  routersDir = join(dir, 'node_modules', '.tmp', 'glc', 'api', 'backend', 'api', 'routers');
   let result = statSync(routersDir, { throwIfNoEntry: false });
   if (result?.isDirectory()) {
     isDevelopment = true;

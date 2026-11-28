@@ -38,12 +38,12 @@ import {
 } from 'vite';
 
 /**
- * Loads the API port from the GlideLite configuration or returns the default.
- * @returns the API port
+ * Loads the GlideLite configuration.
+ * @returns the GlideLite configuration
  */
-function loadApiPort(): number {
+function loadConfig(): object {
   // Search for the glconfig.json file in an upwards lookup
-  let glconfigJson = '';
+  let glconfigJson;
   for (let dir = __dirname;; dir = dirname(dir)) {
     // Search for the glconfig.json in the directory
     if (readdirSync(dir).includes('glconfig.json')) {
@@ -56,8 +56,16 @@ function loadApiPort(): number {
     }
   }
 
-  // Get the API port from the GlideLite configuration
-  const glconfig = JSON.parse(readFileSync(glconfigJson).toString()) as object;
+  // Read and parse the glconfig.json file
+  return JSON.parse(readFileSync(glconfigJson).toString()) as object;
+}
+
+/**
+ * Loads the API port from the GlideLite configuration or returns the default.
+ * @returns the API port
+ */
+function loadApiPort(): number {
+  const glconfig = loadConfig();
   if ('ports' in glconfig && typeof glconfig.ports === 'object' && glconfig.ports !== null && 'api' in glconfig.ports && typeof glconfig.ports.api === 'number') {
     return glconfig.ports.api;
   }
@@ -66,14 +74,33 @@ function loadApiPort(): number {
   }
 }
 
+/**
+ * Loads the WebSocket port from the GlideLite configuration or returns the default.
+ * @returns the WebSocket port
+ */
+function loadWsPort(): number {
+  const glconfig = loadConfig();
+  if ('ports' in glconfig && typeof glconfig.ports === 'object' && glconfig.ports !== null && 'websocket' in glconfig.ports && typeof glconfig.ports.websocket === 'number') {
+    return glconfig.ports.websocket;
+  }
+  else {
+    return 9003;
+  }
+}
+
 /*
- * Custom logger that suppresses the "http proxy error" caused by ECONNREFUSED
- * This error is expected while the API server is (re)starting and is flooding the console
+ * Custom logger that suppresses proxy errors to prevent flooding the console.
+ * This error is expected when:
+ *   - the API server is (re)starting
+ *   - the WebSocket server is (re)starting
  */
 const logger = createLogger();
 const loggerError = logger.error; /* eslint-disable-line @typescript-eslint/unbound-method */
 logger.error = (msg: string, options?: LogErrorOptions) => {
-  if (msg.includes('http proxy error') && msg.includes('ECONNREFUSED')) {
+  if (
+    (msg.includes('http proxy error') && msg.includes('ECONNREFUSED')) ||
+    (msg.includes('ws proxy error') && (msg.includes('ECONNREFUSED') || msg.includes('ECONNRESET')))
+  ) {
     return;
   }
   loggerError(msg, options);
@@ -89,6 +116,11 @@ export const glConfig: UserConfig = defineConfig({
       '/api': {
         target: `http://localhost:${String(loadApiPort())}`,
         rewrite: path => path.replace(/^\/api/, '')
+      },
+      '/ws': {
+        target: `http://localhost:${String(loadWsPort())}`,
+        ws: true,
+        rewrite: path => path.replace(/^\/ws/, '')
       }
     }
   }

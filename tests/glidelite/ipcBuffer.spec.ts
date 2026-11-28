@@ -82,9 +82,9 @@ describe('ipcBuffer.ts', () => {
   it('validate when a the buffer overflows', () => {
     const buffer = new IpcBuffer();
     // First add the start header to ensure the buffer is not flushed
-    let messages = buffer.filter('0[GLS]');
+    buffer.filter('0[GLS]');
     // Add data to fill buffer completely
-    messages = buffer.filter(Buffer.alloc(999994, '1').toString());
+    let messages = buffer.filter(Buffer.alloc(999994, '1').toString());
     expect(messages.length).to.be.equal(0);
     expect(buffer._buffer.length).to.be.equal(1000000);
     expect(buffer._buffer.substring(0, 6)).to.be.equal('0[GLS]');

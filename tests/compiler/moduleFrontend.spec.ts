@@ -85,14 +85,17 @@ describe('moduleFrontend.ts', () => {
   });
 
   it('validate running the frontend', () => {
-    const stdOut = vi.spyOn(process.stdout, 'write');
-    const stdErr = vi.spyOn(process.stderr, 'write');
+    // @ts-expect-error because function has return type boolean
+    const stdOut = vi.spyOn(process.stdout, 'write').mockImplementation(() => {/*Emtpy*/});
+    // @ts-expect-error because function has return type boolean
+    const stdErr = vi.spyOn(process.stderr, 'write').mockImplementation(() => {/*Emtpy*/});
     const spawn = vi.spyOn(child_process, 'spawn');
 
     const spawnOutEvent: string[] = [];
     const spawnOutCallback: ((data: Buffer) => void)[] = [];
     const spawnErrEvent: string[] = [];
     const spawnErrCallback: ((data: Buffer) => void)[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     spawn.mockReturnValue({
       stdout: {
         // @ts-expect-error because function has return type FSWatcher
@@ -200,6 +203,7 @@ describe('moduleFrontend.ts', () => {
     // TypeScript validation needed, no generated files available, execution failed
     exists.mockReturnValueOnce(true);
     // @ts-expect-error because object has missing types which are not used in the test
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-class-instance-assignment
     readDir.mockReturnValueOnce([{ name: 'test.tsbuildinfo.bak', parentPath: 'path1' }, { name: 'test.app.tsbuildinfo', parentPath: 'path2' }]);
     execute.mockReturnValueOnce(false);
     compile({ name: 'pkg' }, { name: 'cfg', version: '1.0.0' }, 'input5', 'output');

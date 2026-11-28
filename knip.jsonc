@@ -3,6 +3,7 @@
   "includeEntryExports": true,
   "entry": [
     "src/apiserver/run.ts",
+    "src/wsserver/run.ts",
     "src/compiler/glc.ts",
     "src/glidelite/glidelite.ts",
     "src/glidelite/backend/glidelite.ts",

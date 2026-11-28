@@ -71,7 +71,7 @@ function getApiPort(config: Json): string {
  * @param outputDirectory the output directory to be cleaned
  */
 export function clean(pkg: Json, config: Json, outputDirectory: string): void {
-  remove(join(outputDirectory, 'opt', config.name as string, 'api'));
+  remove(join(outputDirectory, 'opt', config.name as string, 'backend', 'api'));
   remove(join(outputDirectory, 'etc', 'cron.d', `${config.name as string}_api`));
 }
 
@@ -102,7 +102,7 @@ export function validate(pkg: Json, config: Json, workingDirectory: string): voi
  * @param workingDirectory the working directory to be run
  */
 export function run(pkg: Json, config: Json, workingDirectory: string): void {
-  const tmpDir = join(workingDirectory, 'node_modules', '.tmp', 'glc');
+  const tmpDir = join(workingDirectory, 'node_modules', '.tmp', 'glc', 'api');
   const backendDir = join(workingDirectory, 'backend');
   const apiDir = join(backendDir, 'api');
   const sharedDir = join(workingDirectory, 'shared');
@@ -122,7 +122,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     const allFiles = readDir(apiDir);
 
     // Copy JavaScript files to the temporary directory
-    const jsFiles = allFiles.filter(file => new RegExp('.js$').test(file.name));
+    const jsFiles = allFiles.filter(file => file.name.endsWith('.js'));
     for (const file of jsFiles) {
       const filePath = join(file.parentPath, file.name);
       const destPath = join(tmpDir, relative(workingDirectory, filePath));
@@ -131,7 +131,7 @@ export function run(pkg: Json, config: Json, workingDirectory: string): void {
     }
 
     // Compile TypeScript files to the temporary directory
-    const tsFiles = allFiles.filter(file => new RegExp('.ts$').test(file.name));
+    const tsFiles = allFiles.filter(file => file.name.endsWith('.ts'));
     if (tsFiles.length > 0) {
       // Compile the TypeScript files
       if (!execute(`npm exec --silent -- tsc -p ${workingDirectory} --rootDir ${workingDirectory} --outDir ${tmpDir}`, workingDirectory)) {
